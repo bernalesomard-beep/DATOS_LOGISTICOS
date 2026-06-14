@@ -754,9 +754,14 @@
       <h2 class="text-headline-lg font-bold text-primary flex items-center gap-2">
         <span class="material-symbols-outlined">sell</span>Marcas por Cuenta
       </h2>
-      <button onclick="exportarMarca()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
-        <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
-      </button>
+      <div class="flex gap-2">
+        <button onclick="diagnosticarURL(CONFIG.URL_MARCA,'Marca')" class="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 transition-all">
+          <span class="material-symbols-outlined text-[16px]">bug_report</span>Diagnosticar
+        </button>
+        <button onclick="exportarMarca()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+          <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+        </button>
+      </div>
     </div>
     <!-- Filtros Marca -->
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm" style="overflow:visible;position:relative;z-index:50;">
@@ -814,9 +819,14 @@
       <h2 class="text-headline-lg font-bold text-primary flex items-center gap-2">
         <span class="material-symbols-outlined">business</span>Cuentas / XIVEN2
       </h2>
-      <button onclick="exportarCuenta()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
-        <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
-      </button>
+      <div class="flex gap-2">
+        <button onclick="diagnosticarURL(CONFIG.URL_CUENTA,'Cuenta')" class="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 transition-all">
+          <span class="material-symbols-outlined text-[16px]">bug_report</span>Diagnosticar
+        </button>
+        <button onclick="exportarCuenta()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+          <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+        </button>
+      </div>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <div class="lg:col-span-2">
@@ -1663,23 +1673,43 @@ async function confirmarEliminar() {
 //  FETCH + CSV
 // ══════════════════════════════════════════════════
 async function fetchCSV(url) {
-  const proxies = [
-    u => u,
-    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
-    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-  ];
-  let lastErr = '';
-  for (const proxy of proxies) {
-    try {
-      const r = await fetch(proxy(url), {cache:'no-store'});
-      if (r.ok) {
-        const text = await r.text();
-        // Verify it looks like CSV (not an HTML error page)
-        if (text && !text.trim().startsWith('<!')) return text;
-      }
-    } catch(e) { lastErr = e.message; }
-  }
-  throw new Error('No se pudo obtener datos. ' + lastErr);
+  // Método 1: allorigins /get — sigue redirecciones de Google Sheets
+  try {
+    const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), {cache:'no-store'});
+    if (r.ok) {
+      const j = await r.json();
+      if (j.contents && !j.contents.trim().startsWith('<')) return j.contents;
+    }
+  } catch(e) { console.warn('[fetchCSV] allorigins/get falló:', e.message); }
+
+  // Método 2: allorigins /raw
+  try {
+    const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url), {cache:'no-store'});
+    if (r.ok) {
+      const t = await r.text();
+      if (t && !t.trim().startsWith('<')) return t;
+    }
+  } catch(e) { console.warn('[fetchCSV] allorigins/raw falló:', e.message); }
+
+  // Método 3: corsproxy.io
+  try {
+    const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), {cache:'no-store'});
+    if (r.ok) {
+      const t = await r.text();
+      if (t && !t.trim().startsWith('<')) return t;
+    }
+  } catch(e) { console.warn('[fetchCSV] corsproxy falló:', e.message); }
+
+  // Método 4: directo (funciona si no hay CORS)
+  try {
+    const r = await fetch(url, {cache:'no-store'});
+    if (r.ok) {
+      const t = await r.text();
+      if (t && !t.trim().startsWith('<')) return t;
+    }
+  } catch(e) { console.warn('[fetchCSV] directo falló:', e.message); }
+
+  throw new Error('No se pudo obtener datos de Google Sheets. Verifica que la hoja esté publicada.');
 }
 
 function parseCSV(text) {
@@ -2566,12 +2596,12 @@ function cargarSeccionCuenta() { if(!datosCuenta.length) cargarCuenta(); }
 async function cargarMarca() {
   mostrarOverlay(true);
   const tbody = document.getElementById('tbodyMarca');
-  if(tbody) tbody.innerHTML='<tr><td colspan="3" class="px-6 py-6 text-center text-outline italic">Cargando datos...</td></tr>';
+  if(tbody) tbody.innerHTML='<tr><td colspan="3" class="px-6 py-6 text-center text-outline italic">Conectando con Google Sheets...</td></tr>';
   try {
     const csv = await fetchCSV(CONFIG.URL_MARCA);
-    console.log('[Marca] CSV bytes:', csv?.length, 'preview:', csv?.substring(0,100));
+    console.log('[Marca] OK - bytes:', csv.length, 'preview:', csv.substring(0,80));
     const rows = parseCSV(csv);
-    console.log('[Marca] Rows parsed:', rows.length);
+    console.log('[Marca] Rows:', rows.length);
     if (rows.length < 2) {
       marcaHeaders = rows.length===1 ? rows[0].map(h=>(h||'').trim()) : ['CUENTA','MARCA'];
       datosMarca=[]; marcaFiltradas=[];
@@ -2688,12 +2718,12 @@ function exportarMarca(){
 async function cargarCuenta() {
   mostrarOverlay(true);
   const tbody = document.getElementById('tbodyCuenta');
-  if(tbody) tbody.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-outline italic">Cargando datos...</td></tr>';
+  if(tbody) tbody.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-outline italic">Conectando con Google Sheets...</td></tr>';
   try {
-    const csv=await fetchCSV(CONFIG.URL_CUENTA);
-    console.log('[Cuenta] CSV bytes:', csv?.length, 'preview:', csv?.substring(0,100));
-    const rows=parseCSV(csv);
-    console.log('[Cuenta] Rows parsed:', rows.length);
+    const csv = await fetchCSV(CONFIG.URL_CUENTA);
+    console.log('[Cuenta] OK - bytes:', csv.length, 'preview:', csv.substring(0,80));
+    const rows = parseCSV(csv);
+    console.log('[Cuenta] Rows:', rows.length);
     if(rows.length<2){
       cuentaHeaders = rows.length===1 ? rows[0].map(h=>(h||'').trim()) : ['CUENTA','XIVEN2'];
       datosCuenta=[]; cuentaFiltradas=[];
@@ -2937,6 +2967,31 @@ window.filtrarTablaResultados = function() {
     }
   } catch(e){ console.warn('Precarga marca/cuenta:', e.message); }
 })();
+
+// ══════════════════════════════════════════════════
+//  DIAGNÓSTICO DE URL
+// ══════════════════════════════════════════════════
+async function diagnosticarURL(url, nombre) {
+  toast('Diagnosticando '+nombre+'...', 'info');
+  const resultados = [];
+  const metodos = [
+    ['Directo', url],
+    ['corsproxy.io', 'https://corsproxy.io/?'+encodeURIComponent(url)],
+    ['allorigins raw', 'https://api.allorigins.win/raw?url='+encodeURIComponent(url)],
+    ['allorigins get', 'https://api.allorigins.win/get?url='+encodeURIComponent(url)],
+  ];
+  for(const [nombre_m, fetchUrl] of metodos) {
+    try {
+      const r = await fetch(fetchUrl, {cache:'no-store'});
+      if(!r.ok){ resultados.push(nombre_m+': HTTP '+r.status); continue; }
+      let text = await r.text();
+      if(nombre_m.includes('get')){ try{ text=JSON.parse(text).contents||text; }catch(e){} }
+      if(text.trim().startsWith('<')){ resultados.push(nombre_m+': devuelve HTML (CORS bloqueado)'); }
+      else { resultados.push(nombre_m+': ✅ OK - '+text.length+' bytes - preview: '+text.substring(0,60)); }
+    } catch(e) { resultados.push(nombre_m+': ❌ Error: '+e.message); }
+  }
+  alert('=== Diagnóstico '+nombre+' ===\n\n'+resultados.join('\n\n'));
+}
 </script>
 </body>
 </html>
