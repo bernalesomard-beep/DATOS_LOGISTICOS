@@ -962,7 +962,7 @@
       <p class="text-sm text-on-surface-variant">La plantilla incluye las columnas requeridas con ejemplos. Descárgala, completa los datos y súbela usando el botón <strong>Subir XLS</strong>.</p>
       <div class="bg-surface-container-low rounded-xl p-4 border border-outline-variant text-xs space-y-1">
         <p class="font-bold text-on-surface uppercase text-[10px] tracking-wider mb-2">Columnas requeridas:</p>
-        <p class="text-outline">REFERENCIA · FECHA · CUENTA · CÓDIGO DE PRODUCTO · DESCRIPCION · EAN 13</p>
+        <p class="text-outline">REFERENCIA · FECHA · CUENTA · Código de producto · Descripcion · EAN 13</p>
       </div>
     </div>
     <div class="px-6 pb-5 flex justify-end gap-3">
@@ -2532,8 +2532,8 @@ function abrirModalPlantilla(){document.getElementById('modalPlantilla').style.d
 function cerrarModalPlantilla(){document.getElementById('modalPlantilla').style.display='none';}
 
 function descargarPlantilla(){
-  const cols=['REFERENCIA','FECHA','CUENTA','CÓDIGO DE PRODUCTO','DESCRIPCION','EAN 13'];
-  const ej=[{'REFERENCIA':'Ingreso material | CAJA TRIPACK','FECHA':'14/04/2026','CUENTA':'DERMODIS','CÓDIGO DE PRODUCTO':'80750078','DESCRIPCION':'CAJA TRIPACK SHOT DE KERATINA','EAN 13':'7702113692549'}];
+  const cols=['REFERENCIA','FECHA','CUENTA','Código de producto','Descripcion','EAN 13'];
+  const ej=[{'REFERENCIA':'Ingreso material | CAJA TRIPACK SHOT DE KERATINA - RETAIL / OC 147-26','FECHA':'14/04/2026','CUENTA':'DERMODIS','Código de producto':'80750078','Descripcion':'CAJA TRIPACK SHOT DE KERATINA','EAN 13':'7702113692549'}];
   const ws=XLSX.utils.json_to_sheet(ej,{header:cols});
   ws['!cols']=cols.map(()=>({wch:30}));
   const wb=XLSX.utils.book_new();
