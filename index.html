@@ -680,7 +680,7 @@ async function cargarSheet1() {
       referencia:  (r[iREF]||'').trim(),
       fecha:       (r[iFEC]||'').trim(),
       cuenta:      (r[iCUENTA]||'').trim(),
-      codigo:      (r[iCOD]||'').trim(),
+      codigo:      normalizarCodigo(r[iCOD]),
       descripcion: (r[iDESC]||'').trim(),
       ean13:       (r[iEAN]||'').trim()
     }));
@@ -757,7 +757,12 @@ async function cargarSheet2() {
       .filter(r => r.some(c => c && c.trim()))
       .map(r => {
         const o = {};
-        COL.forEach((name, i) => { o[name] = (r[i] || '').trim(); });
+        COL.forEach((name, i) => {
+        let val = (r[i] || '').trim();
+        // Normalizar CODIGO (col 3) para evitar notación científica
+        if (name === 'CODIGO') val = normalizarCodigo(val);
+        o[name] = val;
+      });
         return o;
       });
 
@@ -1364,16 +1369,30 @@ function actualizarStatus(msg,ok){
 
 // Mapa de cuenta por código (viene de Sheet2 ya guardados)
 // "Registrado" = el código aparece en Sheet2
+// Normaliza un código para comparación: quita espacios, convierte notación
+// científica (4.05972E+12) a entero string, y elimina ceros a la izquierda
+// solo si el otro lado tampoco los tiene (usa String exacto tras normalizar).
+function normalizarCodigo(val) {
+  if (!val) return '';
+  let s = String(val).trim();
+  // Notación científica → número entero string
+  if (/^[\d.]+e[+-]?\d+$/i.test(s)) {
+    s = String(Math.round(parseFloat(s)));
+  }
+  return s;
+}
+
 function calcularPendientes() {
-  // Códigos ya registrados en Sheet2
-  const registrados = new Set(datosSheet2.map(d => (d['CODIGO']||'').trim()).filter(Boolean));
+  // Códigos ya registrados en Sheet2, normalizados
+  const registrados = new Set(
+    datosSheet2.map(d => normalizarCodigo(d['CODIGO'])).filter(Boolean)
+  );
 
   // Armar pendientes: { cuenta → { referencia → [codigos] } }
-  // La CUENTA viene directamente de Sheet1 (campo "cuenta" mapeado al cargar)
   const pendientes = {};
 
   datosSheet1.forEach(item => {
-    const cod    = (item.codigo||'').trim();
+    const cod    = normalizarCodigo(item.codigo);
     const ref    = (item.referencia||'').trim();
     const cuenta = (item.cuenta||'Sin cuenta asignada').trim() || 'Sin cuenta asignada';
     if (!cod || !ref) return;
