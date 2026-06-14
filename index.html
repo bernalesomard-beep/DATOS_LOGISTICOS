@@ -82,12 +82,12 @@
 
   /* ── TABLAS CON ALTURA FIJA ── */
   .tabla-scroll-wrap{overflow:auto;}
-  .tabla-scroll-wrap thead th{position:sticky;top:0;z-index:10;}
+  .tabla-scroll-wrap thead th{position:sticky;top:0;z-index:2;}
   #wrapLineas{height:160px;}   /* ~4 filas */
   #wrapResultados{height:280px;} /* ~8 filas */
 
   /* Sticky cabecera Resultados */
-  #wrapResultados thead tr th { position:sticky; top:0; z-index:10; }
+  #wrapResultados thead tr th { position:sticky; top:0; z-index:2; }
 
   /* Toast */
   #toast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;
@@ -251,7 +251,7 @@
     </section>
 
     <!-- ── PANELES DE DATOS ── -->
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-40">
 
       <!-- INFORMACIÓN GENERAL -->
       <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-visible shadow-sm flex flex-col">
@@ -357,7 +357,7 @@
                 <span class="cdrop-label" id="labelFormMarca">Seleccionar marca...</span>
                 <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
               </button>
-              <div class="cdrop-panel" style="z-index:400;">
+              <div class="cdrop-panel" style="z-index:500;">
                 <div class="cdrop-search-box">
                   <span class="material-symbols-outlined cdrop-search-icon">search</span>
                   <input class="cdrop-search" placeholder="Buscar marca..." type="text"
@@ -411,7 +411,7 @@
     </section>
 
     <!-- ── DETALLE DE LÍNEAS ── -->
-    <section>
+    <section class="relative z-10">
       <!-- Header con filtros al lado del título -->
       <div class="flex flex-wrap items-center gap-3 mb-3">
         <h3 class="text-headline-md font-bold text-primary flex items-center gap-2 shrink-0">
