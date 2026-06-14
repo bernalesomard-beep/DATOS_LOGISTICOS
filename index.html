@@ -692,7 +692,7 @@ async function cargarSheet1() {
       cuenta:      (r[iCUENTA]||'').trim(),
       codigo:      normalizarCodigo(r[iCOD]),
       descripcion: (r[iDESC]||'').trim(),
-      ean13:       (r[iEAN]||'').trim()
+      ean13:       normalizarCodigo(r[iEAN])
     }));
 
   // Poblar dropdowns de referencias
@@ -798,7 +798,8 @@ async function cargarSheet2() {
         const o = {};
         colMap.forEach((name, i) => {
           let val = (r[i] || '').trim();
-          if (name === 'CODIGO') val = normalizarCodigo(val);
+          // Normalizar códigos numéricos largos (evita notación científica)
+          if (name === 'CODIGO' || name === 'EAN13') val = normalizarCodigo(val);
           o[name] = val;
         });
         return o;
@@ -1350,39 +1351,61 @@ function exportarXLS() {
   // Cabecera (fila 1 del XLS = col W a AS)
   const headers = [...XI_COLS];
 
+  // Columnas que deben ser TEXTO con apóstrofe (forzar tipo string en XLS)
+  const COLS_TEXTO = new Set(['XIITYP','XIGLNO','XIMPKD1']);
+  // Columnas numéricas
+  const COLS_NUM   = new Set(['XIWGHT','XIVULI','XIVEN2','XSAFLG']);
+
   // Filas de datos
   const filas = datosExportar.map(d => {
-    const xi = calcXI(d);
-    return [
-      ...XI_COLS.map(c => {
-        const val = xi[c];
-        // XIITYP lleva apóstrofe → en XLS se guarda como texto '01
-        if (c === 'XIITYP') return { v: "'01", t: 's' };
-        // Números: XIWGHT, XIVULI
-        if (c === 'XIWGHT' || c === 'XIVULI') {
-          const n = parseFloat(val);
-          return isNaN(n) ? { v: '', t: 's' } : { v: n, t: 'n' };
-        }
-        return { v: String(val ?? ''), t: 's' };
-      })
-    ];
+    // Leer XI de la hoja primero; calcular lo que falte
+    const xiCalc = calcXI(d);
+    const xi = {};
+    XI_COLS.forEach(col => {
+      xi[col] = (d[col] !== undefined && d[col] !== '') ? d[col] : xiCalc[col];
+    });
+    return XI_COLS.map(c => {
+      const val = xi[c] ?? '';
+      if (COLS_TEXTO.has(c)) {
+        // Forzar texto — agregar apóstrofe si el valor es numérico puro
+        const s = String(val);
+        return { v: s, t: 's', z: '@' };
+      }
+      if (COLS_NUM.has(c)) {
+        const n = parseFloat(val);
+        return isNaN(n) ? { v: '', t: 's' } : { v: n, t: 'n' };
+      }
+      return { v: String(val), t: 's' };
+    });
   });
 
-  // Construir hoja con tipos correctos
-  const wsData = [headers, ...filas.map(row =>
-    row.map(cell => typeof cell === 'object' ? cell : { v: cell, t: 's' })
-  )];
+  // Construir hoja forzando todas las celdas con sus tipos
+  const ws = XLSX.utils.aoa_to_sheet([
+    headers,
+    ...filas.map(row => row.map(c => c.v))
+  ]);
 
-  const ws = XLSX.utils.aoa_to_sheet(wsData.map(row => row.map(c => c.v)));
-
-  // Aplicar tipos de celda correctos
-  filas.forEach((row, ri) => {
-    row.forEach((cell, ci) => {
-      if (typeof cell === 'object' && cell.t) {
-        const addr = XLSX.utils.encode_cell({ r: ri + 1, c: ci });
-        if (ws[addr]) ws[addr].t = cell.t;
+  // Aplicar formato texto (@) a columnas que lo requieren
+  const nRows = filas.length;
+  XI_COLS.forEach((col, ci) => {
+    if (COLS_TEXTO.has(col)) {
+      // Aplicar a toda la columna incluida cabecera
+      for (let ri = 0; ri <= nRows; ri++) {
+        const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
+        if (ws[addr]) {
+          ws[addr].t = 's';
+          ws[addr].z = '@';
+        }
       }
-    });
+    }
+    if (COLS_NUM.has(col)) {
+      for (let ri = 1; ri <= nRows; ri++) {
+        const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
+        if (ws[addr] && filas[ri-1][ci].t === 'n') {
+          ws[addr].t = 'n';
+        }
+      }
+    }
   });
 
   // Ancho de columnas
