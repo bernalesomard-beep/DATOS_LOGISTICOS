@@ -1663,13 +1663,23 @@ async function confirmarEliminar() {
 //  FETCH + CSV
 // ══════════════════════════════════════════════════
 async function fetchCSV(url) {
-  try {
-    const r = await fetch(url,{cache:'no-store'});
-    if(r.ok) return await r.text();
-  } catch(_){}
-  const r2 = await fetch('https://corsproxy.io/?'+encodeURIComponent(url),{cache:'no-store'});
-  if(!r2.ok) throw new Error('No se pudo obtener datos');
-  return await r2.text();
+  const proxies = [
+    u => u,
+    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  ];
+  let lastErr = '';
+  for (const proxy of proxies) {
+    try {
+      const r = await fetch(proxy(url), {cache:'no-store'});
+      if (r.ok) {
+        const text = await r.text();
+        // Verify it looks like CSV (not an HTML error page)
+        if (text && !text.trim().startsWith('<!')) return text;
+      }
+    } catch(e) { lastErr = e.message; }
+  }
+  throw new Error('No se pudo obtener datos. ' + lastErr);
 }
 
 function parseCSV(text) {
@@ -2559,7 +2569,9 @@ async function cargarMarca() {
   if(tbody) tbody.innerHTML='<tr><td colspan="3" class="px-6 py-6 text-center text-outline italic">Cargando datos...</td></tr>';
   try {
     const csv = await fetchCSV(CONFIG.URL_MARCA);
+    console.log('[Marca] CSV bytes:', csv?.length, 'preview:', csv?.substring(0,100));
     const rows = parseCSV(csv);
+    console.log('[Marca] Rows parsed:', rows.length);
     if (rows.length < 2) {
       marcaHeaders = rows.length===1 ? rows[0].map(h=>(h||'').trim()) : ['CUENTA','MARCA'];
       datosMarca=[]; marcaFiltradas=[];
@@ -2581,7 +2593,13 @@ async function cargarMarca() {
     });
     document.getElementById('marcaFormCuenta').querySelector('option').textContent='— Seleccionar —';
     renderTablaMarca(datosMarca);
-  } catch(e){ toast('Error cargando Marcas: '+e.message,'error'); }
+  } catch(e){
+    marcaHeaders = ['CUENTA','MARCA'];
+    const tb=document.getElementById('tbodyMarca');
+    if(tb) tb.innerHTML='<tr><td colspan="3" class="px-6 py-6 text-center text-error italic">Error al cargar: '+escHtml(e.message)+'</td></tr>';
+    document.getElementById('countMarca').textContent='0 REGISTROS';
+    toast('Error cargando Marcas: '+e.message,'error');
+  }
   finally { mostrarOverlay(false); }
 }
 
@@ -2673,7 +2691,9 @@ async function cargarCuenta() {
   if(tbody) tbody.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-outline italic">Cargando datos...</td></tr>';
   try {
     const csv=await fetchCSV(CONFIG.URL_CUENTA);
+    console.log('[Cuenta] CSV bytes:', csv?.length, 'preview:', csv?.substring(0,100));
     const rows=parseCSV(csv);
+    console.log('[Cuenta] Rows parsed:', rows.length);
     if(rows.length<2){
       cuentaHeaders = rows.length===1 ? rows[0].map(h=>(h||'').trim()) : ['CUENTA','XIVEN2'];
       datosCuenta=[]; cuentaFiltradas=[];
@@ -2688,8 +2708,10 @@ async function cargarCuenta() {
     cuentaFiltradas=datosCuenta;
     renderTablaCuenta(datosCuenta);
   } catch(e){
+    cuentaHeaders = ['CUENTA','XIVEN2'];
     const tb=document.getElementById('tbodyCuenta');
-    if(tb) tb.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-error italic">Error al cargar: '+e.message+'</td></tr>';
+    if(tb) tb.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-error italic">Error al cargar: '+escHtml(e.message)+'</td></tr>';
+    document.getElementById('countCuenta').textContent='0 REGISTROS';
     toast('Error cargando Cuentas: '+e.message,'error');
   }
   finally{mostrarOverlay(false);}
