@@ -136,6 +136,12 @@
       <a id="nav-historial" class="nav-link flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all cursor-pointer" onclick="cambiarSeccion('historial')">
         <span class="material-symbols-outlined">history</span><span class="text-body-md">Historial</span>
       </a>
+      <a id="nav-marca" class="nav-link flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all cursor-pointer" onclick="cambiarSeccion('marca')">
+        <span class="material-symbols-outlined">sell</span><span class="text-body-md">Marca</span>
+      </a>
+      <a id="nav-cuenta" class="nav-link flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all cursor-pointer" onclick="cambiarSeccion('cuenta')">
+        <span class="material-symbols-outlined">business</span><span class="text-body-md">Cuenta</span>
+      </a>
     </nav>
     <div class="px-4 mt-8">
       <button onclick="limpiarFormulario()" class="w-full py-2.5 px-4 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-md active:scale-95">
@@ -2067,7 +2073,7 @@ function actualizarBadgeNotif() {
 //  NAVEGACIÓN ENTRE SECCIONES
 // ══════════════════════════════════════════════════
 let seccionActual = 'tablero';
-const SECCIONES = ['tablero','productos','dimensiones','historial'];
+const SECCIONES = ['tablero','productos','dimensiones','historial','marca','cuenta'];
 
 function cambiarSeccion(sec) {
   seccionActual = sec;
@@ -2089,6 +2095,8 @@ function cambiarSeccion(sec) {
   if (sec==='productos'   && !datosInfo.length)     cargarInfo();
   if (sec==='dimensiones' && !datosDatos.length)    cargarDatos_dim();
   if (sec==='historial'   && !datosRegistro.length) cargarRegistro();
+  if (sec==='marca')   cargarSeccionMarca();
+  if (sec==='cuenta')  cargarSeccionCuenta();
 }
 
 // ══════════════════════════════════════════════════
@@ -2536,36 +2544,9 @@ let mapaCtaMarca = {};   // { 'DERMODIS': ['Catrice','Essence',...], ... }
 // Mapa cuenta→xiven2 para uso en tablero
 let mapaCtaXiven2 = {};  // { 'DERMODIS': '23', ... }
 
-// ══════════════════════════════════════════════════
-//  NAVEGACIÓN: ampliar SECCIONES array
-// ══════════════════════════════════════════════════
-// Sobreescribir cambiarSeccion para incluir marca y cuenta
-(function(){
-  const _orig = cambiarSeccion;
-  const ALL = ['tablero','productos','dimensiones','historial','marca','cuenta'];
-  window.cambiarSeccion = function(sec) {
-    ALL.forEach(s => {
-      const div = document.getElementById('seccion-'+s);
-      if (div) div.classList.toggle('hidden', s !== sec);
-      const nav = document.getElementById('nav-'+s);
-      if (!nav) return;
-      if (s === sec) {
-        nav.classList.add('bg-primary','text-on-primary','shadow-sm');
-        nav.classList.remove('text-on-surface-variant','hover:bg-surface-container-high');
-      } else {
-        nav.classList.remove('bg-primary','text-on-primary','shadow-sm');
-        nav.classList.add('text-on-surface-variant','hover:bg-surface-container-high');
-      }
-    });
-    const cp = document.getElementById('contenido-principal');
-    if (cp) cp.className = sec==='tablero' ? 'flex-1 overflow-y-auto p-8 space-y-6' : 'flex-1 overflow-y-auto p-8';
-    if (sec==='productos'   && !datosInfo.length)     cargarInfo();
-    if (sec==='dimensiones' && !datosDatos.length)    cargarDatos_dim();
-    if (sec==='historial'   && !datosRegistro.length) cargarRegistro();
-    if (sec==='marca'       && !datosMarca.length)    cargarMarca();
-    if (sec==='cuenta'      && !datosCuenta.length)   cargarCuenta();
-  };
-})();
+// Alias para que cambiarSeccion llame a las funciones correctas de Marca y Cuenta
+function cargarSeccionMarca() { if(!datosMarca.length) cargarMarca(); }
+function cargarSeccionCuenta() { if(!datosCuenta.length) cargarCuenta(); }
 
 // ══════════════════════════════════════════════════
 //  CARGAR MARCA
