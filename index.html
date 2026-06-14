@@ -755,15 +755,28 @@ async function cargarSheet2() {
                         'ALT':['ALT_UNI','ALT_CAJA'], 'PESO':['PES_UNI','PES_CAJA']};
     // Alias para cabeceras que pueden venir con nombres distintos
     const ALIAS = {
+      // Código
       'CÓDIGO DE PRODUCTO':'CODIGO','CODIGO DE PRODUCTO':'CODIGO',
       'CÓDIGO':'CODIGO','CODIGO':'CODIGO',
+      // EAN
       'EAN 13':'EAN13','EAN13':'EAN13',
+      // Descripción
       'DESCRIPCION':'DESCRIPCION','DESCRIPCIÓN':'DESCRIPCION',
+      // Ingresado por
       'INGRESADO_POR':'INGRESADO_POR','INGRESADO POR':'INGRESADO_POR',
-      'CAJA_P':'CAJA_P','CAJA/P':'CAJA_P','CAJA P':'CAJA_P',
-      'UNID_P':'UNID_P','UNID/P':'UNID_P','UNID P':'UNID_P',
+      // Paletización — nombres exactos de la hoja
+      'CAJA X PALETA':'CAJA_P','CAJA_P':'CAJA_P','CAJA/P':'CAJA_P','CAJA P':'CAJA_P',
+      'UNID X PALETA':'UNID_P','UNID_P':'UNID_P','UNID/P':'UNID_P','UNID P':'UNID_P',
+      // Campos simples
       'FECHA':'FECHA','CUENTA':'CUENTA','REFERENCIA':'REFERENCIA',
-      'MARCA':'MARCA','FE':'FE','CAMA':'CAMA','NIVEL':'NIVEL','TIMESTAMP':'TIMESTAMP'
+      'MARCA':'MARCA','FE':'FE','CAMA':'CAMA','NIVEL':'NIVEL','TIMESTAMP':'TIMESTAMP',
+      // Columnas XI — mapear por nombre exacto de cabecera
+      'XIID':'XIID','XIPROD':'XIPROD','XIDESC':'XIDESC','XICLAS':'XICLAS',
+      'XIUMS':'XIUMS','XIITYP':'XIITYP','XIVEN2':'XIVEN2','XIDSCE':'XIDSCE',
+      'XIWGHT':'XIWGHT','XSAFLG':'XSAFLG','XIVULI':'XIVULI','XIWHS':'XIWHS',
+      'XIGLNO':'XIGLNO','XIREF01':'XIREF01','XIREF02':'XIREF02','XIREF03':'XIREF03',
+      'XIREF04':'XIREF04','XIREF05':'XIREF05','XIMPKD1':'XIMPKD1','XIMPKD2':'XIMPKD2',
+      'XIGTEC':'XIGTEC','XIMNOT1':'XIMNOT1','XIMNOT2':'XIMNOT2'
     };
 
     const colMap = rawHeaders.map(h => {
@@ -1074,7 +1087,15 @@ function renderTablaResultados(datos) {
   }
   // Guardar índice original para editar/eliminar
   tbody.innerHTML = datos.map((d,i)=>{
-    const xi = calcXI(d);
+    // Leer XI directo de la hoja si existen; calcular solo las que falten
+    const xiCalc = calcXI(d);
+    const xi = {};
+    ['XIID','XIPROD','XIDESC','XICLAS','XIUMS','XIITYP','XIVEN2','XIDSCE',
+     'XIWGHT','XSAFLG','XIVULI','XIWHS','XIGLNO','XIREF01','XIREF02',
+     'XIREF03','XIREF04','XIREF05','XIMPKD1','XIMPKD2','XIGTEC','XIMNOT1','XIMNOT2'
+    ].forEach(col => {
+      xi[col] = (d[col] !== undefined && d[col] !== '') ? d[col] : xiCalc[col];
+    });
     const idxOriginal = datosSheet2.indexOf(d);
     const chkCell = `<td class="px-3 py-2 border-r border-outline-variant/30 text-center">
       <input type="checkbox" class="chk-fila w-4 h-4 rounded accent-primary cursor-pointer"
