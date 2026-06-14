@@ -136,6 +136,12 @@
       <a id="nav-historial" class="nav-link flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all cursor-pointer" onclick="cambiarSeccion('historial')">
         <span class="material-symbols-outlined">history</span><span class="text-body-md">Historial</span>
       </a>
+      <a id="nav-marca" class="nav-link flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all cursor-pointer" onclick="cambiarSeccion('marca')">
+        <span class="material-symbols-outlined">label</span><span class="text-body-md">Marca</span>
+      </a>
+      <a id="nav-cuenta" class="nav-link flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all cursor-pointer" onclick="cambiarSeccion('cuenta')">
+        <span class="material-symbols-outlined">account_balance_wallet</span><span class="text-body-md">Cuenta</span>
+      </a>
     </nav>
     <div class="px-4 mt-8">
       <button onclick="limpiarFormulario()" class="w-full py-2.5 px-4 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-md active:scale-95">
@@ -289,11 +295,8 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Cuenta</label>
-              <select id="campoCuenta" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+              <select id="campoCuenta" onchange="onCambiarCuentaFormulario()" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
                 <option value="">— Seleccionar —</option>
-                <option>DERMODIS</option>
-                <option>GLIMMER</option>
-                <option>COPELLO</option>
               </select>
             </div>
             <div>
@@ -476,12 +479,9 @@
           </div>
           <div class="flex flex-col gap-1 min-w-[160px]">
             <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Cuenta</label>
-            <select id="filtroResCuenta" onchange="filtrarTablaResultados()"
+            <select id="filtroResCuenta" onchange="onCambiarCuentaResultados()"
               class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
               <option value="">— Todas —</option>
-              <option>DERMODIS</option>
-              <option>GLIMMER</option>
-              <option>COPELLO</option>
             </select>
           </div>
           <div class="flex flex-col gap-1 min-w-[200px]">
@@ -583,7 +583,7 @@
           <input id="prodFecFin" type="date" oninput="filtrarProductos()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/></div>
         <div class="flex flex-col gap-1 min-w-[160px]"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Cuenta</label>
           <select id="prodCuenta" onchange="filtrarProductos()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none">
-            <option value="">— Todas —</option><option>DERMODIS</option><option>GLIMMER</option><option>COPELLO</option>
+            <option value="">— Todas —</option>
           </select></div>
         <div class="flex flex-col gap-1 min-w-[200px]" style="position:relative;z-index:60;">
           <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Referencia</label>
@@ -646,7 +646,7 @@
           <input id="dimFecFin" type="date" oninput="filtrarDimensiones()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/></div>
         <div class="flex flex-col gap-1 min-w-[160px]"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Cuenta</label>
           <select id="dimCuenta" onchange="filtrarDimensiones()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none">
-            <option value="">— Todas —</option><option>DERMODIS</option><option>GLIMMER</option><option>COPELLO</option>
+            <option value="">— Todas —</option>
           </select></div>
         <div class="flex flex-col gap-1 min-w-[200px]" style="position:relative;z-index:60;">
           <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Referencia</label>
@@ -741,6 +741,78 @@
       </table>
     </div>
   </div><!-- /seccion-historial -->
+
+  <!-- ══════ SECCIÓN MARCA ══════ -->
+  <div id="seccion-marca" class="hidden space-y-5">
+    <div class="flex items-center justify-between">
+      <h2 class="text-headline-lg font-bold text-primary flex items-center gap-2">
+        <span class="material-symbols-outlined">label</span>Marca
+      </h2>
+      <div class="flex gap-2">
+        <button onclick="abrirModalAgregarMarca()" class="flex items-center gap-2 px-4 py-2 bg-secondary text-on-secondary rounded-lg text-xs font-bold hover:bg-secondary/90 transition-all">
+          <span class="material-symbols-outlined text-[16px]">add</span>Agregar Marca
+        </button>
+        <button onclick="exportarMarca()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+          <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+        </button>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex flex-col gap-1 min-w-[240px]">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Búsqueda general</label>
+          <input id="filtroMarca" type="text" oninput="filtrarMarca()" placeholder="Filtrar..."
+            class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/>
+        </div>
+        <button onclick="limpiarFiltrosMarca()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+      </div>
+    </div>
+    <div class="flex items-center mb-1">
+      <span id="countMarca" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
+    </div>
+    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+      <table class="w-full text-left border-collapse text-[12px]">
+        <thead id="theadMarca"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
+        <tbody id="tbodyMarca"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
+      </table>
+    </div>
+  </div><!-- /seccion-marca -->
+
+  <!-- ══════ SECCIÓN CUENTA ══════ -->
+  <div id="seccion-cuenta" class="hidden space-y-5">
+    <div class="flex items-center justify-between">
+      <h2 class="text-headline-lg font-bold text-primary flex items-center gap-2">
+        <span class="material-symbols-outlined">account_balance_wallet</span>Cuenta
+      </h2>
+      <div class="flex gap-2">
+        <button onclick="abrirModalAgregarCuenta()" class="flex items-center gap-2 px-4 py-2 bg-secondary text-on-secondary rounded-lg text-xs font-bold hover:bg-secondary/90 transition-all">
+          <span class="material-symbols-outlined text-[16px]">add</span>Agregar Cuenta
+        </button>
+        <button onclick="exportarCuenta()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+          <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+        </button>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex flex-col gap-1 min-w-[240px]">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Búsqueda general</label>
+          <input id="filtroCuentaSec" type="text" oninput="filtrarCuenta()" placeholder="Filtrar..."
+            class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/>
+        </div>
+        <button onclick="limpiarFiltrosCuenta()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+      </div>
+    </div>
+    <div class="flex items-center mb-1">
+      <span id="countCuenta" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
+    </div>
+    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+      <table class="w-full text-left border-collapse text-[12px]">
+        <thead id="theadCuenta"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
+        <tbody id="tbodyCuenta"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
+      </table>
+    </div>
+  </div><!-- /seccion-cuenta -->
 
   </div><!-- /contenido-principal -->
 
@@ -867,6 +939,80 @@
   </div>
 </div>
 
+<!-- MODAL AGREGAR MARCA -->
+<div id="modalAgregarMarca" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50" onclick="if(event.target===this)cerrarModalAgregarMarca()">
+  <div class="bg-white rounded-2xl shadow-2xl w-[480px] max-w-[95vw] flex flex-col overflow-hidden">
+    <div class="bg-primary text-on-primary px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-[22px]">label</span>
+        <div><h3 class="font-bold text-[16px]" id="titleModalMarca">Agregar Marca</h3>
+          <p class="text-[11px] text-white/70">Asocia una marca a una cuenta</p></div>
+      </div>
+      <button onclick="cerrarModalAgregarMarca()" class="hover:bg-white/20 rounded-lg p-1"><span class="material-symbols-outlined text-[20px]">close</span></button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Cuenta *</label>
+        <select id="marcaModalCuenta" class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+          <option value="">— Seleccionar cuenta —</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Marca *</label>
+        <input id="marcaModalNombre" type="text" placeholder="Nombre de la marca"
+          class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+      </div>
+      <div id="marcaModalStatus" class="hidden text-xs font-bold text-center py-2 rounded-lg"></div>
+    </div>
+    <div class="px-6 pb-5 flex justify-end gap-3">
+      <button onclick="cerrarModalAgregarMarca()" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all">Cancelar</button>
+      <button onclick="guardarMarca()" class="px-5 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined text-[16px]">save</span>Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGREGAR CUENTA -->
+<div id="modalAgregarCuenta" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50" onclick="if(event.target===this)cerrarModalAgregarCuenta()">
+  <div class="bg-white rounded-2xl shadow-2xl w-[520px] max-w-[95vw] flex flex-col overflow-hidden">
+    <div class="bg-primary text-on-primary px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-[22px]">account_balance_wallet</span>
+        <div><h3 class="font-bold text-[16px]" id="titleModalCuenta">Agregar Cuenta</h3>
+          <p class="text-[11px] text-white/70">Define una cuenta y su código XIVEN2</p></div>
+      </div>
+      <button onclick="cerrarModalAgregarCuenta()" class="hover:bg-white/20 rounded-lg p-1"><span class="material-symbols-outlined text-[20px]">close</span></button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Nombre de Cuenta *</label>
+          <input id="cuentaModalNombre" type="text" placeholder="Ej: DERMODIS"
+            class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Código XIVEN2 *</label>
+          <input id="cuentaModalXiven2" type="text" placeholder="Ej: 23"
+            class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Descripción (opcional)</label>
+        <input id="cuentaModalDesc" type="text" placeholder="Descripción de la cuenta"
+          class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+      </div>
+      <div id="cuentaModalStatus" class="hidden text-xs font-bold text-center py-2 rounded-lg"></div>
+    </div>
+    <div class="px-6 pb-5 flex justify-end gap-3">
+      <button onclick="cerrarModalAgregarCuenta()" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all">Cancelar</button>
+      <button onclick="guardarCuenta()" class="px-5 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined text-[16px]">save</span>Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════════
 //  CONFIG
@@ -877,7 +1023,9 @@ const CONFIG = {
   URL_SHEET2:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=307813751&single=true&output=csv',
   URL_INFO:     'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=1464291631&single=true&output=csv',
   URL_DATOS:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=307813751&single=true&output=csv',
-  URL_REGISTRO: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=PENDIENTE_GID_REGISTRO&single=true&output=csv',
+  URL_REGISTRO: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=391348869&single=true&output=csv',
+  URL_MARCA:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=738417331&single=true&output=csv',
+  URL_CUENTA:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=371189916&single=true&output=csv',
 };
 
 // ══════════════════════════════════════════════════
@@ -912,7 +1060,7 @@ async function cargarDatos() {
   mostrarOverlay(true);
   actualizarStatus('Conectando...', false);
   try {
-    await Promise.all([cargarSheet1(), cargarSheet2()]);
+    await Promise.all([cargarSheet1(), cargarSheet2(), cargarCuenta(), cargarMarca()]);
     actualizarStatus('Conectado · ' + new Date().toLocaleTimeString('es-PE'), true);
     actualizarBadgeNotif();
   } catch(e) {
@@ -969,13 +1117,9 @@ async function cargarSheet1() {
     seleccionarReferenciaFormulario(v);
   });
 
-  // Inicializar dropdown de marcas
-  const MARCAS = ['Bacterion','Brescia','Calendario','Catrice','Chapstick','Coloriss',
-    'Deo Pies',"Dr. Scholl'S",'Essence','Hairuwear','Inv.Y Suministro Para Regalo',
-    'Kiss','Kleer Lac','Luminance','Muss','Nails','Ofertas','Salonin','Saloonin',
-    'Sensalialabs','Soleclair','Suministros Armado De Ofertas','Suministros Cosnova',
-    'Tanga','Vitane','Zeena'];
-  poblarDropRadio('wrapFormMarca','listFormMarca', MARCAS, (v) => {
+  // Inicializar dropdown de marcas (se llenará dinámicamente desde hoja MARCA)
+  // Por ahora poblar vacío; se actualizará cuando carguenMarca/Cuenta
+  poblarDropRadio('wrapFormMarca','listFormMarca', [], (v) => {
     document.getElementById('campoMarca').value = v || '';
     document.getElementById('labelFormMarca').textContent = v || 'Seleccionar marca...';
   });
@@ -1239,6 +1383,76 @@ function resetCamposCodigo() {
 }
 
 // ══════════════════════════════════════════════════
+//  LÓGICA CUENTA → filtra Referencias, Códigos y Marcas en formulario
+// ══════════════════════════════════════════════════
+function obtenerXiven2(cuentaNombre) {
+  if (!cuentaNombre) return '';
+  const cu = cuentaNombre.toUpperCase();
+  // Buscar en hoja CUENTA cargada
+  if (datosCuenta.length) {
+    const hXiven2 = cuentaHeaders.find(h=>h.toUpperCase().includes('XIVEN2')||h.toUpperCase().includes('CODIGO')||h.toUpperCase().includes('CÓDIGO')) || cuentaHeaders[1];
+    const hNombre = cuentaHeaders.find(h=>h.toUpperCase().includes('NOMBRE')||h.toUpperCase().includes('CUENTA')) || cuentaHeaders[0];
+    const fila = datosCuenta.find(d=>(d[hNombre]||'').toUpperCase() === cu);
+    if (fila && fila[hXiven2]) return fila[hXiven2];
+  }
+  // Fallback hardcoded
+  if (cu.includes('DERMODIS')) return '23';
+  if (cu.includes('COPELLO'))  return '239';
+  if (cu.includes('GLIMMER'))  return '254';
+  return '';
+}
+
+function onCambiarCuentaFormulario() {
+  const cuenta = document.getElementById('campoCuenta').value;
+  // Filtrar referencias del catálogo según cuenta
+  let refs;
+  if (!cuenta) {
+    refs = [...new Set(datosSheet1.map(d=>d.referencia))].filter(Boolean);
+  } else {
+    refs = [...new Set(datosSheet1.filter(d=>d.cuenta===cuenta).map(d=>d.referencia))].filter(Boolean);
+  }
+  poblarDropCheckbox('wrapFormRef','listFormRef', refs, (v)=>seleccionarReferenciaFormulario(v));
+  // Resetear referencia/codigo seleccionados
+  referenciaSeleccionada = null;
+  document.getElementById('labelFormRef').textContent = 'Seleccionar Referencia...';
+  resetCamposCodigo();
+  // Actualizar marcas filtradas por cuenta
+  actualizarMarcasPorCuenta(cuenta);
+}
+
+function actualizarMarcasPorCuenta(cuenta) {
+  let marcas;
+  if (!cuenta || !datosMarca.length) {
+    // Sin filtro: todas las marcas únicas
+    const hMarca = marcaHeaders.find(h=>h.toUpperCase().includes('MARCA')) || marcaHeaders[0];
+    marcas = [...new Set(datosMarca.map(d=>(d[hMarca]||'').trim()).filter(Boolean))].sort();
+  } else {
+    // Filtrar marcas asociadas a la cuenta seleccionada
+    const hCuenta = marcaHeaders.find(h=>h.toUpperCase().includes('CUENTA')) || marcaHeaders[0];
+    const hMarca  = marcaHeaders.find(h=>h.toUpperCase().includes('MARCA')) || marcaHeaders[1] || marcaHeaders[0];
+    marcas = [...new Set(
+      datosMarca.filter(d=>(d[hCuenta]||'').toUpperCase() === cuenta.toUpperCase())
+                .map(d=>(d[hMarca]||'').trim()).filter(Boolean)
+    )].sort();
+    if (!marcas.length) {
+      // Si no hay marcas específicas para la cuenta, mostrar todas
+      marcas = [...new Set(datosMarca.map(d=>(d[hMarca]||'').trim()).filter(Boolean))].sort();
+    }
+  }
+  const valorActual = document.getElementById('campoMarca').value;
+  poblarDropRadio('wrapFormMarca','listFormMarca', marcas, (v)=>{
+    document.getElementById('campoMarca').value = v || '';
+    document.getElementById('labelFormMarca').textContent = v || 'Seleccionar marca...';
+  });
+  // Restaurar valor previo si sigue disponible
+  if (valorActual && marcas.includes(valorActual)) {
+    document.getElementById('campoMarca').value = valorActual;
+    document.getElementById('labelFormMarca').textContent = valorActual;
+    if (dropState['wrapFormMarca']) dropState['wrapFormMarca'].current = valorActual;
+  }
+}
+
+// ══════════════════════════════════════════════════
 //  TABLAS
 // ══════════════════════════════════════════════════
 function renderTablaLineas(datos) {
@@ -1288,11 +1502,8 @@ function calcXI(d) {
   const codigo    = d['CODIGO']||'';
   const marca     = d['MARCA']||'';
 
-  // XIVEN2 según cuenta
-  let xiven2 = '';
-  if (cuenta.includes('DERMODIS')) xiven2 = '23';
-  else if (cuenta.includes('COPELLO')) xiven2 = '239';
-  else if (cuenta.includes('GLIMMER')) xiven2 = '254';
+  // XIVEN2 — buscar en hoja CUENTA primero, fallback a valores hardcoded
+  let xiven2 = obtenerXiven2(cuenta);
 
   // XIWGHT — peso unidad, máx 3 decimales
   const xiwght = pesUni > 0 ? parseFloat(pesUni.toFixed(3)) : '';
@@ -1389,13 +1600,38 @@ function filtrarTablaResultados() {
     const passFechaIni = !ini || fecha >= ini;
     const passFechaFin = !fin || fecha <= fin;
     const passCuenta   = !cuenta || (d['CUENTA']||'').toUpperCase().includes(cuenta);
-    const passXimpkd1  = codsSeleccionados.size === 0 ||
-                         codsSeleccionados.has((d['CODIGO']||'').trim());
+    // XIMPKD1 contiene el código de producto en la hoja de datos
+    const codVal = (d['XIMPKD1'] || d['CODIGO'] || '').trim();
+    const passXimpkd1  = codsSeleccionados.size === 0 || codsSeleccionados.has(codVal);
     const passQ        = !q || Object.values(d).some(v=>String(v).toUpperCase().includes(q));
     return passFechaIni && passFechaFin && passCuenta && passXimpkd1 && passQ;
   });
   filasFiltradas = filtrado;
   renderTablaResultados(filtrado);
+}
+
+// Al cambiar cuenta en Resultados → filtrar códigos XIMPKD1 disponibles para esa cuenta
+function onCambiarCuentaResultados() {
+  const cuenta = (document.getElementById('filtroResCuenta').value||'').toUpperCase();
+  // Filtrar códigos que pertenecen a esa cuenta
+  let codigosDisp;
+  if (!cuenta) {
+    codigosDisp = [...new Set(datosSheet2.map(d=>(d['XIMPKD1']||d['CODIGO']||'').trim()).filter(Boolean))].sort();
+  } else {
+    codigosDisp = [...new Set(
+      datosSheet2.filter(d=>(d['CUENTA']||'').toUpperCase().includes(cuenta))
+                 .map(d=>(d['XIMPKD1']||d['CODIGO']||'').trim()).filter(Boolean)
+    )].sort();
+  }
+  // Repoblar el dropdown de XIMPKD1 con solo los códigos de esa cuenta
+  const st = dropState['wrapFiltroXimpkd1'];
+  if (st) {
+    st.items = codigosDisp;
+    st.selected = new Set();
+    renderListMulti('listFiltroXimpkd1', codigosDisp, st.selected);
+    document.getElementById('labelFiltroXimpkd1').textContent = 'Todos los códigos...';
+  }
+  filtrarTablaResultados();
 }
 
 function limpiarFiltrosResultados() {
@@ -1966,7 +2202,7 @@ function actualizarBadgeNotif() {
 //  NAVEGACIÓN ENTRE SECCIONES
 // ══════════════════════════════════════════════════
 let seccionActual = 'tablero';
-const SECCIONES = ['tablero','productos','dimensiones','historial'];
+const SECCIONES = ['tablero','productos','dimensiones','historial','marca','cuenta'];
 
 function cambiarSeccion(sec) {
   seccionActual = sec;
@@ -1988,14 +2224,16 @@ function cambiarSeccion(sec) {
   if (sec==='productos'   && !datosInfo.length)     cargarInfo();
   if (sec==='dimensiones' && !datosDatos.length)    cargarDatos_dim();
   if (sec==='historial'   && !datosRegistro.length) cargarRegistro();
+  if (sec==='marca') { if(!datosMarca.length) cargarMarca(); else renderTablaMarca(marcaFiltradas.length?marcaFiltradas:datosMarca); }
+  if (sec==='cuenta') { if(!datosCuenta.length) cargarCuenta(); else renderTablaCuenta(cuentaFiltradas.length?cuentaFiltradas:datosCuenta); }
 }
 
 // ══════════════════════════════════════════════════
 //  ESTADO SECCIONES NUEVAS
 // ══════════════════════════════════════════════════
-let datosInfo=[], datosDatos=[], datosRegistro=[];
-let infoFiltradas=[], datosFiltrados=[], hisFiltradas=[];
-let infoHeaders=[], datosHeaders=[], hisHeaders=[];
+let datosInfo=[], datosDatos=[], datosRegistro=[], datosMarca=[], datosCuenta=[];
+let infoFiltradas=[], datosFiltrados=[], hisFiltradas=[], marcaFiltradas=[], cuentaFiltradas=[];
+let infoHeaders=[], datosHeaders=[], hisHeaders=[], marcaHeaders=[], cuentaHeaders=[];
 
 // ══════════════════════════════════════════════════
 //  MULTI-DROP GENÉRICO
@@ -2405,21 +2643,228 @@ async function confirmarSubir(){
 }
 
 // ══════════════════════════════════════════════════
-//  MODAL PLANTILLA
+//  MARCA — Hoja MARCA
 // ══════════════════════════════════════════════════
-function abrirModalPlantilla(){document.getElementById('modalPlantilla').style.display='flex';}
-function cerrarModalPlantilla(){document.getElementById('modalPlantilla').style.display='none';}
+async function cargarMarca() {
+  try {
+    const csv = await fetchCSV(CONFIG.URL_MARCA);
+    const rows = parseCSV(csv);
+    if (rows.length < 2) { datosMarca=[]; return; }
+    marcaHeaders = rows[0].map(h=>(h||'').trim());
+    datosMarca = rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+      const o={}; marcaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
+    });
+    marcaFiltradas = datosMarca;
+    // Poblar el modal de marca con cuentas disponibles (se actualizará cuando cargue cuenta también)
+    sincronizarSelectsCuenta();
+    // Actualizar marcas del formulario tablero (sin filtro de cuenta al inicio)
+    actualizarMarcasPorCuenta('');
+    if (document.getElementById('seccion-marca') && !document.getElementById('seccion-marca').classList.contains('hidden')) {
+      renderTablaMarca(datosMarca);
+    }
+  } catch(e) { console.warn('Error cargando Marca:', e.message); }
+}
 
-function descargarPlantilla(){
-  const cols=['REFERENCIA','FECHA','CUENTA','CÓDIGO DE PRODUCTO','DESCRIPCION','EAN 13'];
-  const ej=[{'REFERENCIA':'Ingreso material | CAJA TRIPACK','FECHA':'14/04/2026','CUENTA':'DERMODIS','CÓDIGO DE PRODUCTO':'80750078','DESCRIPCION':'CAJA TRIPACK SHOT DE KERATINA','EAN 13':'7702113692549'}];
-  const ws=XLSX.utils.json_to_sheet(ej,{header:cols});
-  ws['!cols']=cols.map(()=>({wch:30}));
+function renderTablaMarca(datos) {
+  if (!marcaHeaders.length) return;
+  document.getElementById('countMarca').textContent = datos.length+' REGISTROS';
+  document.getElementById('theadMarca').innerHTML = `<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
+    ${marcaHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
+  </tr>`;
+  if (!datos.length) {
+    document.getElementById('tbodyMarca').innerHTML=`<tr><td colspan="${marcaHeaders.length}" class="px-6 py-6 text-center text-outline italic">Sin registros</td></tr>`; return;
+  }
+  document.getElementById('tbodyMarca').innerHTML = datos.map((d,i)=>`
+    <tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
+      ${marcaHeaders.map(h=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d[h]||'')}</td>`).join('')}
+    </tr>`).join('');
+}
+
+function filtrarMarca() {
+  const q = (document.getElementById('filtroMarca').value||'').toUpperCase();
+  marcaFiltradas = q ? datosMarca.filter(d=>marcaHeaders.some(h=>(d[h]||'').toUpperCase().includes(q))) : datosMarca;
+  renderTablaMarca(marcaFiltradas);
+}
+
+function limpiarFiltrosMarca() {
+  document.getElementById('filtroMarca').value='';
+  marcaFiltradas=datosMarca; renderTablaMarca(datosMarca);
+}
+
+function exportarMarca() {
+  const datos = marcaFiltradas.length ? marcaFiltradas : datosMarca;
+  if (!datos.length) { toast('Sin datos','error'); return; }
+  const ws=XLSX.utils.json_to_sheet(datos,{header:marcaHeaders});
+  ws['!cols']=marcaHeaders.map(()=>({wch:22}));
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Plantilla_Productos');
-  XLSX.writeFile(wb,'Plantilla_Productos.xls',{bookType:'xls'});
-  toast('Plantilla descargada','success');
-  cerrarModalPlantilla();
+  XLSX.utils.book_append_sheet(wb,ws,'Marca');
+  XLSX.writeFile(wb,`Marca_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.xls`,{bookType:'xls'});
+  toast('Exportado OK','success');
+}
+
+// ══════════════════════════════════════════════════
+//  CUENTA — Hoja CUENTA
+// ══════════════════════════════════════════════════
+async function cargarCuenta() {
+  try {
+    const csv = await fetchCSV(CONFIG.URL_CUENTA);
+    const rows = parseCSV(csv);
+    if (rows.length < 2) { datosCuenta=[]; return; }
+    cuentaHeaders = rows[0].map(h=>(h||'').trim());
+    datosCuenta = rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+      const o={}; cuentaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
+    });
+    cuentaFiltradas = datosCuenta;
+    sincronizarSelectsCuenta();
+    if (document.getElementById('seccion-cuenta') && !document.getElementById('seccion-cuenta').classList.contains('hidden')) {
+      renderTablaCuenta(datosCuenta);
+    }
+  } catch(e) { console.warn('Error cargando Cuenta:', e.message); }
+}
+
+// Sincroniza todos los <select> de cuenta en la app con los datos de la hoja CUENTA
+function sincronizarSelectsCuenta() {
+  const hNombre = cuentaHeaders.find(h=>h.toUpperCase().includes('NOMBRE')||h.toUpperCase().includes('CUENTA')) || cuentaHeaders[0];
+  const nombres = [...new Set(datosCuenta.map(d=>(d[hNombre]||'').trim()).filter(Boolean))].sort();
+  const IDS = ['campoCuenta','filtroResCuenta','prodCuenta','dimCuenta','marcaModalCuenta'];
+  IDS.forEach(id=>{
+    const sel = document.getElementById(id); if(!sel) return;
+    const val = sel.value;
+    // Mantener primera opción
+    sel.innerHTML = `<option value="">— ${id==='campoCuenta'||id==='marcaModalCuenta'?'Seleccionar':'Todas'} —</option>`;
+    nombres.forEach(n=>{
+      const opt = document.createElement('option');
+      opt.value = n; opt.textContent = n;
+      if(n===val) opt.selected=true;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function renderTablaCuenta(datos) {
+  if (!cuentaHeaders.length) return;
+  document.getElementById('countCuenta').textContent = datos.length+' REGISTROS';
+  document.getElementById('theadCuenta').innerHTML = `<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
+    ${cuentaHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
+  </tr>`;
+  if (!datos.length) {
+    document.getElementById('tbodyCuenta').innerHTML=`<tr><td colspan="${cuentaHeaders.length}" class="px-6 py-6 text-center text-outline italic">Sin registros</td></tr>`; return;
+  }
+  document.getElementById('tbodyCuenta').innerHTML = datos.map((d,i)=>`
+    <tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
+      ${cuentaHeaders.map(h=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d[h]||'')}</td>`).join('')}
+    </tr>`).join('');
+}
+
+function filtrarCuenta() {
+  const q = (document.getElementById('filtroCuentaSec').value||'').toUpperCase();
+  cuentaFiltradas = q ? datosCuenta.filter(d=>cuentaHeaders.some(h=>(d[h]||'').toUpperCase().includes(q))) : datosCuenta;
+  renderTablaCuenta(cuentaFiltradas);
+}
+
+function limpiarFiltrosCuenta() {
+  document.getElementById('filtroCuentaSec').value='';
+  cuentaFiltradas=datosCuenta; renderTablaCuenta(datosCuenta);
+}
+
+function exportarCuenta() {
+  const datos = cuentaFiltradas.length ? cuentaFiltradas : datosCuenta;
+  if (!datos.length) { toast('Sin datos','error'); return; }
+  const ws=XLSX.utils.json_to_sheet(datos,{header:cuentaHeaders});
+  ws['!cols']=cuentaHeaders.map(()=>({wch:22}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Cuenta');
+  XLSX.writeFile(wb,`Cuenta_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.xls`,{bookType:'xls'});
+  toast('Exportado OK','success');
+}
+
+// ══════════════════════════════════════════════════
+//  MODAL AGREGAR MARCA
+// ══════════════════════════════════════════════════
+function abrirModalAgregarMarca() {
+  document.getElementById('marcaModalNombre').value='';
+  document.getElementById('marcaModalCuenta').value='';
+  document.getElementById('marcaModalStatus').classList.add('hidden');
+  sincronizarSelectsCuenta();
+  document.getElementById('modalAgregarMarca').style.display='flex';
+}
+function cerrarModalAgregarMarca(){document.getElementById('modalAgregarMarca').style.display='none';}
+
+async function guardarMarca() {
+  const cuenta = document.getElementById('marcaModalCuenta').value.trim();
+  const nombre = document.getElementById('marcaModalNombre').value.trim();
+  const status = document.getElementById('marcaModalStatus');
+  if (!cuenta||!nombre) {
+    status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';
+    status.textContent='Completa todos los campos requeridos.'; status.classList.remove('hidden'); return;
+  }
+  status.className='text-xs font-bold text-center py-2 rounded-lg bg-primary/10 text-primary';
+  status.textContent='Guardando...'; status.classList.remove('hidden');
+  try {
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'saveMarca',cuenta,marca:nombre})});
+    const json = await res.json();
+    if(json.ok){
+      status.className='text-xs font-bold text-center py-2 rounded-lg bg-green-50 text-green-700';
+      status.textContent='Marca guardada correctamente';
+      toast('Marca guardada','success');
+      setTimeout(async ()=>{
+        cerrarModalAgregarMarca();
+        await cargarMarca();
+        if(!document.getElementById('seccion-marca').classList.contains('hidden')) renderTablaMarca(datosMarca);
+      },1200);
+    } else {
+      status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';
+      status.textContent='Error: '+(json.msg||'No se pudo guardar');
+    }
+  } catch(e){
+    status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';
+    status.textContent='Error de conexión: '+e.message;
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  MODAL AGREGAR CUENTA
+// ══════════════════════════════════════════════════
+function abrirModalAgregarCuenta() {
+  document.getElementById('cuentaModalNombre').value='';
+  document.getElementById('cuentaModalXiven2').value='';
+  document.getElementById('cuentaModalDesc').value='';
+  document.getElementById('cuentaModalStatus').classList.add('hidden');
+  document.getElementById('modalAgregarCuenta').style.display='flex';
+}
+function cerrarModalAgregarCuenta(){document.getElementById('modalAgregarCuenta').style.display='none';}
+
+async function guardarCuenta() {
+  const nombre = document.getElementById('cuentaModalNombre').value.trim().toUpperCase();
+  const xiven2 = document.getElementById('cuentaModalXiven2').value.trim();
+  const desc   = document.getElementById('cuentaModalDesc').value.trim();
+  const status = document.getElementById('cuentaModalStatus');
+  if (!nombre||!xiven2) {
+    status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';
+    status.textContent='Nombre y XIVEN2 son requeridos.'; status.classList.remove('hidden'); return;
+  }
+  status.className='text-xs font-bold text-center py-2 rounded-lg bg-primary/10 text-primary';
+  status.textContent='Guardando...'; status.classList.remove('hidden');
+  try {
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'saveCuenta',nombre,xiven2,descripcion:desc})});
+    const json = await res.json();
+    if(json.ok){
+      status.className='text-xs font-bold text-center py-2 rounded-lg bg-green-50 text-green-700';
+      status.textContent='Cuenta guardada correctamente';
+      toast('Cuenta guardada','success');
+      setTimeout(async ()=>{
+        cerrarModalAgregarCuenta();
+        await cargarCuenta();
+        if(!document.getElementById('seccion-cuenta').classList.contains('hidden')) renderTablaCuenta(datosCuenta);
+      },1200);
+    } else {
+      status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';
+      status.textContent='Error: '+(json.msg||'No se pudo guardar');
+    }
+  } catch(e){
+    status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';
+    status.textContent='Error de conexión: '+e.message;
+  }
 }
 </script>
 </body>
