@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <title>Datos Logísticos</title>
@@ -56,12 +57,14 @@
     background:#fff;border:1px solid #c5c6cf;border-radius:0.5rem;
     box-shadow:0 8px 24px rgba(0,0,0,.13);z-index:300;overflow:hidden;}
   .cdrop-wrap.open .cdrop-panel{display:block;}
-  .cdrop-search-box{position:relative;padding:8px;}
+  .cdrop-search-box{position:relative;padding:8px 8px 4px 8px;}
   .cdrop-search{width:100%;border:1px solid #c5c6cf;border-radius:6px;
-    padding:7px 10px 7px 30px;font-size:12px;outline:none;box-sizing:border-box;}
-  .cdrop-search:focus{border-color:#001035;}
-  .cdrop-search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);
-    font-size:16px;color:#75777f;pointer-events:none;z-index:1;}
+    padding:7px 10px 7px 32px;font-size:12px;outline:none;box-sizing:border-box;
+    background:#fff;color:#1a1c1e;}
+  .cdrop-search:focus{border-color:#001035;box-shadow:0 0 0 2px rgba(0,16,53,.1);}
+  .cdrop-search-box .cdrop-search-icon{position:absolute;left:16px;top:50%;
+    transform:translateY(-50%);font-size:16px;color:#75777f;pointer-events:none;
+    margin-top:2px;}
   .cdrop-list{max-height:200px;overflow-y:auto;}
   .cdrop-item{display:flex;align-items:center;gap:10px;padding:9px 14px;
     font-size:13px;cursor:pointer;border-bottom:1px solid #f5f5f5;transition:background .15s;}
@@ -85,10 +88,7 @@
   #wrapLineas{height:160px;}   /* ~4 filas */
   #wrapResultados{height:280px;} /* ~8 filas */
 
-  /* Sticky en tabla Detalle de Líneas */
-  #wrapLineas thead tr:first-child th { position:sticky; top:0; z-index:10; }
-  #wrapLineas thead tr:nth-child(2) th { position:sticky; top:41px; z-index:10; }
-  /* Sticky en tabla Resultados */
+  /* Sticky cabecera Resultados */
   #wrapResultados thead tr th { position:sticky; top:0; z-index:10; }
 
   /* Toast */
@@ -408,30 +408,29 @@
 
     <!-- ── DETALLE DE LÍNEAS ── -->
     <section>
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-headline-md font-bold text-primary flex items-center gap-2">
+      <!-- Header con filtros al lado del título -->
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <h3 class="text-headline-md font-bold text-primary flex items-center gap-2 shrink-0">
           <span class="material-symbols-outlined">list_alt</span>Detalle de Líneas
         </h3>
-        <span id="countLineas" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
+        <div class="flex flex-wrap gap-2 flex-1">
+          <input oninput="filtrarTablaLineas()" data-col="0" class="col-filter text-[11px] px-2 py-1.5 border border-outline-variant rounded-lg bg-white w-40 focus:border-primary focus:ring-1 focus:ring-primary/20" placeholder="Referencia..." type="text"/>
+          <input oninput="filtrarTablaLineas()" data-col="1" class="col-filter text-[11px] px-2 py-1.5 border border-outline-variant rounded-lg bg-white w-28 focus:border-primary focus:ring-1 focus:ring-primary/20" placeholder="Código..." type="text"/>
+          <input oninput="filtrarTablaLineas()" data-col="2" class="col-filter text-[11px] px-2 py-1.5 border border-outline-variant rounded-lg bg-white w-44 focus:border-primary focus:ring-1 focus:ring-primary/20" placeholder="Descripción..." type="text"/>
+          <input oninput="filtrarTablaLineas()" data-col="3" class="col-filter text-[11px] px-2 py-1.5 border border-outline-variant rounded-lg bg-white w-32 focus:border-primary focus:ring-1 focus:ring-primary/20" placeholder="EAN 13..." type="text"/>
+        </div>
+        <span id="countLineas" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20 shrink-0">0 REGISTROS</span>
       </div>
       <div id="wrapLineas" class="tabla-scroll-wrap bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
         <table class="w-full text-left border-collapse min-w-[700px]">
           <thead>
-            <tr class="bg-surface-container-high text-on-surface-variant text-[12px] font-bold uppercase tracking-wider">
+            <tr class="bg-surface-container-high text-on-surface-variant text-[12px] font-bold uppercase tracking-wider sticky top-0 z-10">
               <th class="px-5 py-2.5 border-r border-outline-variant/30">REFERENCIA</th>
               <th class="px-5 py-2.5 border-r border-outline-variant/30">CÓDIGO</th>
               <th class="px-5 py-2.5 border-r border-outline-variant/30">DESCRIPCIÓN</th>
               <th class="px-5 py-2.5 border-r border-outline-variant/30">EAN 13</th>
               <th class="px-5 py-2.5 border-r border-outline-variant/30">FECHA</th>
               <th class="px-5 py-2.5 text-center">ACCIONES</th>
-            </tr>
-            <tr class="bg-surface-container-low/60">
-              <th class="px-2 py-1 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="0" class="col-filter w-full text-[11px] p-1 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
-              <th class="px-2 py-1 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="1" class="col-filter w-full text-[11px] p-1 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
-              <th class="px-2 py-1 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="2" class="col-filter w-full text-[11px] p-1 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
-              <th class="px-2 py-1 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="3" class="col-filter w-full text-[11px] p-1 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
-              <th class="px-2 py-1 border-r border-outline-variant/30"></th>
-              <th class="px-2 py-1"></th>
             </tr>
           </thead>
           <tbody id="tbodyLineas" class="text-body-sm divide-y divide-outline-variant">
@@ -454,6 +453,9 @@
               class="bg-transparent border-none text-[11px] w-44 focus:ring-0" placeholder="Filtrar..." type="text"/>
           </div>
           <span id="countResultados" class="bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20">0 REGISTROS</span>
+          <button onclick="exportarXLS()" class="bg-primary hover:bg-primary/90 text-on-primary px-4 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95">
+            <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+          </button>
         </div>
       </div>
       <div id="wrapResultados" class="tabla-scroll-wrap bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg">
@@ -1103,6 +1105,67 @@ function splitCSVLine(line) {
 
 function escHtml(s){
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ══════════════════════════════════════════════════
+//  EXPORTAR XLS (columnas W→AS = FECHA, CUENTA + 23 cols XI)
+// ══════════════════════════════════════════════════
+function exportarXLS() {
+  if (!datosSheet2.length) { toast('No hay datos para exportar','error'); return; }
+
+  const XI_COLS = ['XIID','XIPROD','XIDESC','XICLAS','XIUMS','XIITYP','XIVEN2','XIDSCE',
+                   'XIWGHT','XSAFLG','XIVULI','XIWHS','XIGLNO','XIREF01','XIREF02',
+                   'XIREF03','XIREF04','XIREF05','XIMPKD1','XIMPKD2','XIGTEC','XIMNOT1','XIMNOT2'];
+
+  // Cabecera (fila 1 del XLS = col W a AS)
+  const headers = ['FECHA','CUENTA',...XI_COLS];
+
+  // Filas de datos
+  const filas = datosSheet2.map(d => {
+    const xi = calcXI(d);
+    return [
+      d['FECHA']  || '',
+      d['CUENTA'] || '',
+      ...XI_COLS.map(c => {
+        const val = xi[c];
+        // XIITYP lleva apóstrofe → en XLS se guarda como texto '01
+        if (c === 'XIITYP') return { v: "'01", t: 's' };
+        // Números: XIWGHT, XIVULI
+        if (c === 'XIWGHT' || c === 'XIVULI') {
+          const n = parseFloat(val);
+          return isNaN(n) ? { v: '', t: 's' } : { v: n, t: 'n' };
+        }
+        return { v: String(val ?? ''), t: 's' };
+      })
+    ];
+  });
+
+  // Construir hoja con tipos correctos
+  const wsData = [headers, ...filas.map(row =>
+    row.map(cell => typeof cell === 'object' ? cell : { v: cell, t: 's' })
+  )];
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData.map(row => row.map(c => c.v)));
+
+  // Aplicar tipos de celda correctos
+  filas.forEach((row, ri) => {
+    row.forEach((cell, ci) => {
+      if (typeof cell === 'object' && cell.t) {
+        const addr = XLSX.utils.encode_cell({ r: ri + 1, c: ci });
+        if (ws[addr]) ws[addr].t = cell.t;
+      }
+    });
+  });
+
+  // Ancho de columnas
+  ws['!cols'] = headers.map(() => ({ wch: 18 }));
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'DATOS');
+
+  const fecha = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  XLSX.writeFile(wb, `DATOS_LOGISTICOS_${fecha}.xls`, { bookType: 'xls' });
+  toast('Archivo XLS descargado', 'success');
 }
 
 // ══════════════════════════════════════════════════
