@@ -1673,43 +1673,23 @@ async function confirmarEliminar() {
 //  FETCH + CSV
 // ══════════════════════════════════════════════════
 async function fetchCSV(url) {
-  // Método 1: allorigins /get — sigue redirecciones de Google Sheets
-  try {
-    const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), {cache:'no-store'});
-    if (r.ok) {
-      const j = await r.json();
-      if (j.contents && !j.contents.trim().startsWith('<')) return j.contents;
-    }
-  } catch(e) { console.warn('[fetchCSV] allorigins/get falló:', e.message); }
-
-  // Método 2: allorigins /raw
-  try {
-    const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url), {cache:'no-store'});
-    if (r.ok) {
-      const t = await r.text();
-      if (t && !t.trim().startsWith('<')) return t;
-    }
-  } catch(e) { console.warn('[fetchCSV] allorigins/raw falló:', e.message); }
-
-  // Método 3: corsproxy.io
-  try {
-    const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), {cache:'no-store'});
-    if (r.ok) {
-      const t = await r.text();
-      if (t && !t.trim().startsWith('<')) return t;
-    }
-  } catch(e) { console.warn('[fetchCSV] corsproxy falló:', e.message); }
-
-  // Método 4: directo (funciona si no hay CORS)
+  // Intento directo primero (rápido, funciona para hojas publicadas)
   try {
     const r = await fetch(url, {cache:'no-store'});
     if (r.ok) {
       const t = await r.text();
       if (t && !t.trim().startsWith('<')) return t;
     }
-  } catch(e) { console.warn('[fetchCSV] directo falló:', e.message); }
-
-  throw new Error('No se pudo obtener datos de Google Sheets. Verifica que la hoja esté publicada.');
+  } catch(e) { console.warn('[fetchCSV] directo:', e.message); }
+  // Fallback: corsproxy
+  try {
+    const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), {cache:'no-store'});
+    if (r.ok) {
+      const t = await r.text();
+      if (t && !t.trim().startsWith('<')) return t;
+    }
+  } catch(e) { console.warn('[fetchCSV] corsproxy:', e.message); }
+  throw new Error('No se pudo obtener datos');
 }
 
 function parseCSV(text) {
@@ -2596,14 +2576,12 @@ function cargarSeccionCuenta() { if(!datosCuenta.length) cargarCuenta(); }
 async function cargarMarca() {
   mostrarOverlay(true);
   const tbody = document.getElementById('tbodyMarca');
-  if(tbody) tbody.innerHTML='<tr><td colspan="3" class="px-6 py-6 text-center text-outline italic">Conectando con Google Sheets...</td></tr>';
+  if(tbody) tbody.innerHTML='<tr><td colspan="3" class="px-6 py-6 text-center text-outline italic">Cargando...</td></tr>';
   try {
     const csv = await fetchCSV(CONFIG.URL_MARCA);
-    console.log('[Marca] OK - bytes:', csv.length, 'preview:', csv.substring(0,80));
     const rows = parseCSV(csv);
-    console.log('[Marca] Rows:', rows.length);
     if (rows.length < 2) {
-      marcaHeaders = rows.length===1 ? rows[0].map(h=>(h||'').trim()) : ['CUENTA','MARCA'];
+      marcaHeaders = ['CUENTA','MARCA'];
       datosMarca=[]; marcaFiltradas=[];
       renderTablaMarca([]);
       return;
@@ -2612,26 +2590,26 @@ async function cargarMarca() {
     datosMarca = rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
       const o={}; marcaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
     });
-    // Construir mapa cuenta→marcas
     construirMapaMarca();
     marcaFiltradas = datosMarca;
-    // Poblar select de cuentas en filtro y formulario
-    const cuentas = [...new Set(datosMarca.map(d=>Object.values(d)[0]||'').filter(Boolean))].sort();
+    const cuentas = [...new Set(datosMarca.map(d=>(d[marcaHeaders[0]]||'').trim()).filter(Boolean))].sort();
     ['marcaFiltroCuenta','marcaFormCuenta'].forEach(id=>{
       const sel=document.getElementById(id); if(!sel) return;
-      sel.innerHTML='<option value="">— Todas —</option>'+cuentas.map(c=>`<option>${escHtml(c)}</option>`).join('');
+      sel.innerHTML='<option value="">— Todas —</option>'+cuentas.map(c=>`<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
     });
-    document.getElementById('marcaFormCuenta').querySelector('option').textContent='— Seleccionar —';
+    const fm=document.getElementById('marcaFormCuenta');
+    if(fm) fm.options[0].textContent='— Seleccionar —';
     renderTablaMarca(datosMarca);
-  } catch(e){
+  } catch(e) {
     marcaHeaders = ['CUENTA','MARCA'];
     const tb=document.getElementById('tbodyMarca');
-    if(tb) tb.innerHTML='<tr><td colspan="3" class="px-6 py-6 text-center text-error italic">Error al cargar: '+escHtml(e.message)+'</td></tr>';
+    if(tb) tb.innerHTML='<tr><td colspan="3" class="px-6 py-6 text-center text-error italic">Error: '+escHtml(e.message)+'</td></tr>';
     document.getElementById('countMarca').textContent='0 REGISTROS';
     toast('Error cargando Marcas: '+e.message,'error');
   }
   finally { mostrarOverlay(false); }
 }
+
 
 function construirMapaMarca() {
   mapaCtaMarca = {};
@@ -2718,34 +2696,33 @@ function exportarMarca(){
 async function cargarCuenta() {
   mostrarOverlay(true);
   const tbody = document.getElementById('tbodyCuenta');
-  if(tbody) tbody.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-outline italic">Conectando con Google Sheets...</td></tr>';
+  if(tbody) tbody.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-outline italic">Cargando...</td></tr>';
   try {
     const csv = await fetchCSV(CONFIG.URL_CUENTA);
-    console.log('[Cuenta] OK - bytes:', csv.length, 'preview:', csv.substring(0,80));
     const rows = parseCSV(csv);
-    console.log('[Cuenta] Rows:', rows.length);
-    if(rows.length<2){
-      cuentaHeaders = rows.length===1 ? rows[0].map(h=>(h||'').trim()) : ['CUENTA','XIVEN2'];
+    if (rows.length < 2) {
+      cuentaHeaders = ['CUENTA','XIVEN2'];
       datosCuenta=[]; cuentaFiltradas=[];
       renderTablaCuenta([]);
       return;
     }
-    cuentaHeaders=rows[0].map(h=>(h||'').trim());
-    datosCuenta=rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+    cuentaHeaders = rows[0].map(h=>(h||'').trim());
+    datosCuenta = rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
       const o={}; cuentaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
     });
     construirMapaXiven2();
-    cuentaFiltradas=datosCuenta;
+    cuentaFiltradas = datosCuenta;
     renderTablaCuenta(datosCuenta);
-  } catch(e){
+  } catch(e) {
     cuentaHeaders = ['CUENTA','XIVEN2'];
     const tb=document.getElementById('tbodyCuenta');
-    if(tb) tb.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-error italic">Error al cargar: '+escHtml(e.message)+'</td></tr>';
+    if(tb) tb.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-error italic">Error: '+escHtml(e.message)+'</td></tr>';
     document.getElementById('countCuenta').textContent='0 REGISTROS';
     toast('Error cargando Cuentas: '+e.message,'error');
   }
-  finally{mostrarOverlay(false);}
+  finally { mostrarOverlay(false); }
 }
+
 
 function construirMapaXiven2() {
   mapaCtaXiven2={};
