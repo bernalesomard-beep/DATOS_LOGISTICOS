@@ -83,11 +83,10 @@
   /* ── TABLAS CON ALTURA FIJA ── */
   .tabla-scroll-wrap{overflow:auto;}
   .tabla-scroll-wrap thead th{position:sticky;top:0;z-index:2;}
-  #wrapLineas{height:160px;}   /* ~4 filas */
-  #wrapResultados{height:280px;} /* ~8 filas */
-
-  /* Sticky cabecera Resultados */
-  #wrapResultados thead tr th { position:sticky; top:0; z-index:2; }
+  #wrapLineas{height:160px;}
+  #wrapResultados{height:340px;overflow-y:auto;overflow-x:auto;}
+  #wrapResultados thead{position:sticky;top:0;z-index:5;}
+  #wrapResultados thead tr th{position:sticky;top:0;z-index:5;background:#001035;}
 
   /* Toast */
   #toast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;
@@ -482,10 +481,21 @@
               <option>COPELLO</option>
             </select>
           </div>
-          <div class="flex flex-col gap-1 min-w-[180px]">
-            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">XIMPKD1 (Código)</label>
-            <input id="filtroResXimpkd1" type="text" oninput="filtrarTablaResultados()" placeholder="Buscar código..."
-              class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"/>
+          <div class="flex flex-col gap-1 min-w-[200px]">
+            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">XIMPKD1 (Códigos)</label>
+            <div class="cdrop-wrap" id="wrapFiltroXimpkd1">
+              <button class="cdrop-btn !py-2 !text-[12px]" onclick="toggleDrop('wrapFiltroXimpkd1')">
+                <span class="cdrop-label" id="labelFiltroXimpkd1">Todos los códigos...</span>
+                <span class="material-symbols-outlined cdrop-arrow !text-[16px]">expand_more</span>
+              </button>
+              <div class="cdrop-panel" style="z-index:500;max-height:220px;overflow-y:auto;">
+                <div class="cdrop-search-box">
+                  <input class="cdrop-search" placeholder="Buscar código..." type="text"
+                    oninput="buscarEnDrop('wrapFiltroXimpkd1',this.value)"/>
+                </div>
+                <div class="cdrop-list" id="listFiltroXimpkd1"></div>
+              </div>
+            </div>
           </div>
           <div class="flex flex-col gap-1 min-w-[160px]">
             <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Búsqueda general</label>
@@ -784,6 +794,7 @@ async function cargarSheet2() {
     filasFiltradas = datosSheet2;
     renderTablaResultados(datosSheet2);
     actualizarBadgeNotif();
+    inicializarFiltroXimpkd1();
   } catch(e) {
     console.warn('Sheet2:', e.message);
     datosSheet2=[]; renderTablaResultados([]);
@@ -1089,18 +1100,20 @@ function renderTablaResultados(datos) {
 }
 
 function filtrarTablaResultados() {
-  const q       = (document.getElementById('filtroResultados').value||'').toUpperCase();
-  const ini     = document.getElementById('filtroResIni').value || '';
-  const fin     = document.getElementById('filtroResFin').value || '';
-  const cuenta  = (document.getElementById('filtroResCuenta').value||'').toUpperCase();
-  const ximpkd1 = (document.getElementById('filtroResXimpkd1').value||'').toUpperCase();
+  const q      = (document.getElementById('filtroResultados').value||'').toUpperCase();
+  const ini    = document.getElementById('filtroResIni').value || '';
+  const fin    = document.getElementById('filtroResFin').value || '';
+  const cuenta = (document.getElementById('filtroResCuenta').value||'').toUpperCase();
+  // Códigos seleccionados en el dropdown multi-select
+  const codsSeleccionados = dropState['wrapFiltroXimpkd1']?.selected || new Set();
 
   const filtrado = datosSheet2.filter(d => {
     const fecha = d['FECHA'] || '';
     const passFechaIni = !ini || fecha >= ini;
     const passFechaFin = !fin || fecha <= fin;
-    const passCuenta   = !cuenta  || (d['CUENTA']||'').toUpperCase().includes(cuenta);
-    const passXimpkd1  = !ximpkd1 || (d['CODIGO']||'').toUpperCase().includes(ximpkd1);
+    const passCuenta   = !cuenta || (d['CUENTA']||'').toUpperCase().includes(cuenta);
+    const passXimpkd1  = codsSeleccionados.size === 0 ||
+                         codsSeleccionados.has((d['CODIGO']||'').trim());
     const passQ        = !q || Object.values(d).some(v=>String(v).toUpperCase().includes(q));
     return passFechaIni && passFechaFin && passCuenta && passXimpkd1 && passQ;
   });
@@ -1112,8 +1125,9 @@ function limpiarFiltrosResultados() {
   document.getElementById('filtroResIni').value = '';
   document.getElementById('filtroResFin').value = '';
   document.getElementById('filtroResCuenta').value = '';
-  document.getElementById('filtroResXimpkd1').value = '';
   document.getElementById('filtroResultados').value = '';
+  // Limpiar dropdown XIMPKD1
+  ximpkd1ToggleAll();
   filasFiltradas = datosSheet2;
   renderTablaResultados(datosSheet2);
 }
@@ -1313,14 +1327,12 @@ function exportarXLS() {
                    'XIREF03','XIREF04','XIREF05','XIMPKD1','XIMPKD2','XIGTEC','XIMNOT1','XIMNOT2'];
 
   // Cabecera (fila 1 del XLS = col W a AS)
-  const headers = ['FECHA','CUENTA',...XI_COLS];
+  const headers = [...XI_COLS];
 
   // Filas de datos
   const filas = datosExportar.map(d => {
     const xi = calcXI(d);
     return [
-      d['FECHA']  || '',
-      d['CUENTA'] || '',
       ...XI_COLS.map(c => {
         const val = xi[c];
         // XIITYP lleva apóstrofe → en XLS se guarda como texto '01
@@ -1555,6 +1567,51 @@ function toggleNotifRef(header) {
   const hidden = body.classList.contains('hidden');
   body.classList.toggle('hidden', !hidden);
   arrow.textContent = hidden ? 'expand_less' : 'expand_more';
+}
+
+function inicializarFiltroXimpkd1() {
+  const codigos = [...new Set(datosSheet2.map(d=>(d['CODIGO']||'').trim()).filter(Boolean))].sort();
+  // Usamos Set propio para multi-selección
+  if (!dropState['wrapFiltroXimpkd1']) {
+    dropState['wrapFiltroXimpkd1'] = { items:[], selected: new Set(), type:'multi' };
+  }
+  dropState['wrapFiltroXimpkd1'].items = codigos;
+  dropState['wrapFiltroXimpkd1'].selected = new Set();
+  renderListMulti('listFiltroXimpkd1', codigos, dropState['wrapFiltroXimpkd1'].selected);
+}
+
+function renderListMulti(listId, items, selectedSet) {
+  const list = document.getElementById(listId); if (!list) return;
+  list.innerHTML = [
+    `<div class="cdrop-item" onclick="ximpkd1ToggleAll()">
+      <div class="cdrop-check ${selectedSet.size===0?'checked':''}"></div>
+      <span style="font-style:italic;color:#555">(Todos)</span>
+    </div>`,
+    ...items.map(item => `
+      <div class="cdrop-item" onclick="ximpkd1Toggle('${item.replace(/'/g,"\'")}')">
+        <div class="cdrop-check ${selectedSet.has(item)?'checked':''}"></div>
+        <span class="font-mono text-[12px]">${escHtml(item)}</span>
+      </div>`)
+  ].join('');
+}
+
+function ximpkd1Toggle(cod) {
+  const st = dropState['wrapFiltroXimpkd1']; if (!st) return;
+  if (st.selected.has(cod)) st.selected.delete(cod); else st.selected.add(cod);
+  const lbl = st.selected.size === 0 ? 'Todos los códigos...'
+            : st.selected.size === 1 ? [...st.selected][0]
+            : st.selected.size + ' códigos sel.';
+  document.getElementById('labelFiltroXimpkd1').textContent = lbl;
+  renderListMulti('listFiltroXimpkd1', st.items, st.selected);
+  filtrarTablaResultados();
+}
+
+function ximpkd1ToggleAll() {
+  const st = dropState['wrapFiltroXimpkd1']; if (!st) return;
+  st.selected.clear();
+  document.getElementById('labelFiltroXimpkd1').textContent = 'Todos los códigos...';
+  renderListMulti('listFiltroXimpkd1', st.items, st.selected);
+  filtrarTablaResultados();
 }
 
 function actualizarBadgeNotif() {
