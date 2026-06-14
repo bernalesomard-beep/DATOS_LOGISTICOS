@@ -735,34 +735,49 @@ async function cargarSheet2() {
     const rows = parseCSV(csv);
     if (rows.length < 2) { datosSheet2=[]; renderTablaResultados([]); return; }
 
-    // Mapeamos POR POSICIÓN (columna) para evitar el conflicto de cabeceras
-    // duplicadas en Google Sheets (LAR, ANC, ALT, PESO aparecen dos veces).
-    // El orden exacto corresponde a HEADERS_SHEET2 del Apps Script:
-    // Col 0:FECHA  1:CUENTA  2:REFERENCIA  3:CODIGO  4:DESCRIPCION  5:EAN13  6:MARCA
-    // Col 7:FE
-    // Col 8:LAR_UNI  9:ANC_UNI  10:ALT_UNI  11:PES_UNI
-    // Col 12:LAR_CAJA  13:ANC_CAJA  14:ALT_CAJA  15:PES_CAJA
-    // Col 16:CAMA  17:NIVEL  18:CAJA_P  19:UNID_P
-    // Col 20:INGRESADO_POR  21:TIMESTAMP
-    const COL = [
-      'FECHA','CUENTA','REFERENCIA','CODIGO','DESCRIPCION','EAN13','MARCA',
-      'FE',
-      'LAR_UNI','ANC_UNI','ALT_UNI','PES_UNI',
-      'LAR_CAJA','ANC_CAJA','ALT_CAJA','PES_CAJA',
-      'CAMA','NIVEL','CAJA_P','UNID_P',
-      'INGRESADO_POR','TIMESTAMP'
-    ];
+    // Leemos cabeceras reales del CSV y las mapeamos a nombres canónicos.
+    // Para cabeceras duplicadas (LAR, ANC, ALT, PESO) usamos el orden de
+    // aparición: primera ocurrencia → _UNI, segunda → _CAJA.
+    const rawHeaders = rows[0].map(h => (h||'').trim().toUpperCase());
+    const seenCount  = {};
+    // Mapa de nombre canónico según cabecera real + orden de aparición
+    const DUPLICADAS = {'LAR':['LAR_UNI','LAR_CAJA'], 'ANC':['ANC_UNI','ANC_CAJA'],
+                        'ALT':['ALT_UNI','ALT_CAJA'], 'PESO':['PES_UNI','PES_CAJA']};
+    // Alias para cabeceras que pueden venir con nombres distintos
+    const ALIAS = {
+      'CÓDIGO DE PRODUCTO':'CODIGO','CODIGO DE PRODUCTO':'CODIGO',
+      'CÓDIGO':'CODIGO','CODIGO':'CODIGO',
+      'EAN 13':'EAN13','EAN13':'EAN13',
+      'DESCRIPCION':'DESCRIPCION','DESCRIPCIÓN':'DESCRIPCION',
+      'INGRESADO_POR':'INGRESADO_POR','INGRESADO POR':'INGRESADO_POR',
+      'CAJA_P':'CAJA_P','CAJA/P':'CAJA_P','CAJA P':'CAJA_P',
+      'UNID_P':'UNID_P','UNID/P':'UNID_P','UNID P':'UNID_P',
+      'FECHA':'FECHA','CUENTA':'CUENTA','REFERENCIA':'REFERENCIA',
+      'MARCA':'MARCA','FE':'FE','CAMA':'CAMA','NIVEL':'NIVEL','TIMESTAMP':'TIMESTAMP'
+    };
+
+    const colMap = rawHeaders.map(h => {
+      // Cabeceras duplicadas
+      const base = h.replace(/\s*\(.*?\)/g,'').trim(); // quitar "(cm)", "(kg)" etc
+      if (DUPLICADAS[base]) {
+        seenCount[base] = (seenCount[base]||0);
+        const canon = DUPLICADAS[base][seenCount[base]] || (base + '_' + seenCount[base]);
+        seenCount[base]++;
+        return canon;
+      }
+      // Alias directo
+      return ALIAS[h] || ALIAS[base] || h;
+    });
 
     datosSheet2 = rows.slice(1)
       .filter(r => r.some(c => c && c.trim()))
       .map(r => {
         const o = {};
-        COL.forEach((name, i) => {
-        let val = (r[i] || '').trim();
-        // Normalizar CODIGO (col 3) para evitar notación científica
-        if (name === 'CODIGO') val = normalizarCodigo(val);
-        o[name] = val;
-      });
+        colMap.forEach((name, i) => {
+          let val = (r[i] || '').trim();
+          if (name === 'CODIGO') val = normalizarCodigo(val);
+          o[name] = val;
+        });
         return o;
       });
 
