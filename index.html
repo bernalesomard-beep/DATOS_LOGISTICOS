@@ -124,16 +124,16 @@
   </div>
   <div class="flex-1 space-y-1">
     <nav class="space-y-1 px-2">
-      <a class="flex items-center gap-3 px-3 py-2 bg-primary text-on-primary rounded-lg font-semibold transition-all shadow-sm" href="#">
+      <a id="nav-tablero" class="nav-link flex items-center gap-3 px-3 py-2 bg-primary text-on-primary rounded-lg font-semibold transition-all shadow-sm cursor-pointer" onclick="cambiarSeccion('tablero')">
         <span class="material-symbols-outlined">dashboard</span><span class="text-body-md">Tablero</span>
       </a>
-      <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+      <a id="nav-productos" class="nav-link flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all cursor-pointer" onclick="cambiarSeccion('productos')">
         <span class="material-symbols-outlined">inventory_2</span><span class="text-body-md">Productos</span>
       </a>
-      <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+      <a id="nav-dimensiones" class="nav-link flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all cursor-pointer" onclick="cambiarSeccion('dimensiones')">
         <span class="material-symbols-outlined">straighten</span><span class="text-body-md">Dimensiones</span>
       </a>
-      <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+      <a id="nav-historial" class="nav-link flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all cursor-pointer" onclick="cambiarSeccion('historial')">
         <span class="material-symbols-outlined">history</span><span class="text-body-md">Historial</span>
       </a>
     </nav>
@@ -184,7 +184,10 @@
   </header>
 
   <!-- CONTENT -->
-  <div class="flex-1 overflow-y-auto p-8 space-y-6">
+  <div class="flex-1 overflow-y-auto p-8 space-y-6" id="contenido-principal">
+
+  <!-- ══════ SECCIÓN TABLERO ══════ -->
+  <div id="seccion-tablero">
 
     <!-- ── FILTROS SUPERIORES ── -->
     <section class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant relative z-30">
@@ -551,7 +554,296 @@
       </div>
     </section>
 
-  </div><!-- /content -->
+  </div><!-- /seccion-tablero -->
+
+  <!-- ══════ SECCIÓN PRODUCTOS ══════ -->
+  <div id="seccion-productos" class="hidden space-y-5">
+    <div class="flex items-center justify-between">
+      <h2 class="text-headline-lg font-bold text-primary flex items-center gap-2">
+        <span class="material-symbols-outlined">inventory_2</span>Productos
+      </h2>
+      <div class="flex gap-2">
+        <button onclick="abrirModalPlantilla()" class="flex items-center gap-2 px-4 py-2 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-all">
+          <span class="material-symbols-outlined text-[16px]">download</span>Plantilla XLS
+        </button>
+        <button onclick="abrirModalSubir()" class="flex items-center gap-2 px-4 py-2 bg-secondary text-on-secondary rounded-lg text-xs font-bold hover:bg-secondary/90 transition-all">
+          <span class="material-symbols-outlined text-[16px]">upload_file</span>Subir XLS
+        </button>
+        <button onclick="exportarProductos()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+          <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+        </button>
+      </div>
+    </div>
+    <!-- Filtros Productos -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm" style="overflow:visible;position:relative;z-index:50;">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex flex-col gap-1"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fecha Inicio</label>
+          <input id="prodFecIni" type="date" oninput="filtrarProductos()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/></div>
+        <div class="flex flex-col gap-1"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fecha Fin</label>
+          <input id="prodFecFin" type="date" oninput="filtrarProductos()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/></div>
+        <div class="flex flex-col gap-1 min-w-[160px]"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Cuenta</label>
+          <select id="prodCuenta" onchange="filtrarProductos()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none">
+            <option value="">— Todas —</option><option>DERMODIS</option><option>GLIMMER</option><option>COPELLO</option>
+          </select></div>
+        <div class="flex flex-col gap-1 min-w-[200px]" style="position:relative;z-index:60;">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Referencia</label>
+          <div class="cdrop-wrap" id="wrapProdRef">
+            <button class="cdrop-btn !py-2 !text-[12px]" onclick="toggleDrop('wrapProdRef')">
+              <span class="cdrop-label" id="labelProdRef">Todas...</span>
+              <span class="material-symbols-outlined cdrop-arrow !text-[16px]">expand_more</span>
+            </button>
+            <div class="cdrop-panel" style="z-index:700;">
+              <div class="cdrop-search-box"><input class="cdrop-search" placeholder="Buscar referencia..." type="text" oninput="buscarMultiDropGen('wrapProdRef',this.value)"/></div>
+              <div class="cdrop-list" id="listProdRef" style="max-height:200px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1 min-w-[200px]" style="position:relative;z-index:55;">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Código de Producto</label>
+          <div class="cdrop-wrap" id="wrapProdCod">
+            <button class="cdrop-btn !py-2 !text-[12px]" onclick="toggleDrop('wrapProdCod')">
+              <span class="cdrop-label" id="labelProdCod">Todos...</span>
+              <span class="material-symbols-outlined cdrop-arrow !text-[16px]">expand_more</span>
+            </button>
+            <div class="cdrop-panel" style="z-index:700;">
+              <div class="cdrop-search-box"><input class="cdrop-search" placeholder="Buscar código..." type="text" oninput="buscarMultiDropGen('wrapProdCod',this.value)"/></div>
+              <div class="cdrop-list" id="listProdCod" style="max-height:200px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+        <button onclick="limpiarFiltrosProd()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+      </div>
+    </div>
+    <!-- Tabla Productos -->
+    <div class="flex items-center justify-between mb-1">
+      <span id="countProd" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
+      <span id="countProdSel" class="hidden bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20">0 SEL.</span>
+    </div>
+    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+      <table class="w-full text-left border-collapse text-[12px]" style="min-width:900px;">
+        <thead id="theadProd"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
+        <tbody id="tbodyProd"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
+      </table>
+    </div>
+  </div><!-- /seccion-productos -->
+
+  <!-- ══════ SECCIÓN DIMENSIONES ══════ -->
+  <div id="seccion-dimensiones" class="hidden space-y-5">
+    <div class="flex items-center justify-between">
+      <h2 class="text-headline-lg font-bold text-primary flex items-center gap-2">
+        <span class="material-symbols-outlined">straighten</span>Dimensiones
+      </h2>
+      <button onclick="exportarDimensiones()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+        <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+      </button>
+    </div>
+    <!-- Filtros Dimensiones -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm" style="overflow:visible;position:relative;z-index:50;">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex flex-col gap-1"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fecha Inicio</label>
+          <input id="dimFecIni" type="date" oninput="filtrarDimensiones()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/></div>
+        <div class="flex flex-col gap-1"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fecha Fin</label>
+          <input id="dimFecFin" type="date" oninput="filtrarDimensiones()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/></div>
+        <div class="flex flex-col gap-1 min-w-[160px]"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Cuenta</label>
+          <select id="dimCuenta" onchange="filtrarDimensiones()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none">
+            <option value="">— Todas —</option><option>DERMODIS</option><option>GLIMMER</option><option>COPELLO</option>
+          </select></div>
+        <div class="flex flex-col gap-1 min-w-[200px]" style="position:relative;z-index:60;">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Referencia</label>
+          <div class="cdrop-wrap" id="wrapDimRef">
+            <button class="cdrop-btn !py-2 !text-[12px]" onclick="toggleDrop('wrapDimRef')">
+              <span class="cdrop-label" id="labelDimRef">Todas...</span>
+              <span class="material-symbols-outlined cdrop-arrow !text-[16px]">expand_more</span>
+            </button>
+            <div class="cdrop-panel" style="z-index:700;">
+              <div class="cdrop-search-box"><input class="cdrop-search" placeholder="Buscar referencia..." type="text" oninput="buscarMultiDropGen('wrapDimRef',this.value)"/></div>
+              <div class="cdrop-list" id="listDimRef" style="max-height:200px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1 min-w-[200px]" style="position:relative;z-index:55;">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Código de Producto</label>
+          <div class="cdrop-wrap" id="wrapDimCod">
+            <button class="cdrop-btn !py-2 !text-[12px]" onclick="toggleDrop('wrapDimCod')">
+              <span class="cdrop-label" id="labelDimCod">Todos...</span>
+              <span class="material-symbols-outlined cdrop-arrow !text-[16px]">expand_more</span>
+            </button>
+            <div class="cdrop-panel" style="z-index:700;">
+              <div class="cdrop-search-box"><input class="cdrop-search" placeholder="Buscar código..." type="text" oninput="buscarMultiDropGen('wrapDimCod',this.value)"/></div>
+              <div class="cdrop-list" id="listDimCod" style="max-height:200px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+        <button onclick="limpiarFiltrosDim()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+      </div>
+    </div>
+    <!-- Tabla Dimensiones -->
+    <div class="flex items-center justify-between mb-1">
+      <span id="countDim" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
+      <span id="countDimSel" class="hidden bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20">0 SEL.</span>
+    </div>
+    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+      <table class="w-full text-left border-collapse text-[12px]" style="min-width:1400px;">
+        <thead id="theadDim"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
+        <tbody id="tbodyDim"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
+      </table>
+    </div>
+  </div><!-- /seccion-dimensiones -->
+
+  <!-- ══════ SECCIÓN HISTORIAL ══════ -->
+  <div id="seccion-historial" class="hidden space-y-5">
+    <h2 class="text-headline-lg font-bold text-primary flex items-center gap-2">
+      <span class="material-symbols-outlined">history</span>Historial de Registros
+    </h2>
+    <!-- Filtros Historial -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm" style="overflow:visible;position:relative;z-index:50;">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex flex-col gap-1"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fecha Inicio</label>
+          <input id="hisFecIni" type="date" oninput="filtrarHistorial()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/></div>
+        <div class="flex flex-col gap-1"><label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fecha Fin</label>
+          <input id="hisFecFin" type="date" oninput="filtrarHistorial()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/></div>
+        <div class="flex flex-col gap-1 min-w-[200px]" style="position:relative;z-index:60;">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Referencia</label>
+          <div class="cdrop-wrap" id="wrapHisRef">
+            <button class="cdrop-btn !py-2 !text-[12px]" onclick="toggleDrop('wrapHisRef')">
+              <span class="cdrop-label" id="labelHisRef">Todas...</span>
+              <span class="material-symbols-outlined cdrop-arrow !text-[16px]">expand_more</span>
+            </button>
+            <div class="cdrop-panel" style="z-index:700;">
+              <div class="cdrop-search-box"><input class="cdrop-search" placeholder="Buscar referencia..." type="text" oninput="buscarMultiDropGen('wrapHisRef',this.value)"/></div>
+              <div class="cdrop-list" id="listHisRef" style="max-height:200px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1 min-w-[200px]" style="position:relative;z-index:55;">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Código</label>
+          <div class="cdrop-wrap" id="wrapHisCod">
+            <button class="cdrop-btn !py-2 !text-[12px]" onclick="toggleDrop('wrapHisCod')">
+              <span class="cdrop-label" id="labelHisCod">Todos...</span>
+              <span class="material-symbols-outlined cdrop-arrow !text-[16px]">expand_more</span>
+            </button>
+            <div class="cdrop-panel" style="z-index:700;">
+              <div class="cdrop-search-box"><input class="cdrop-search" placeholder="Buscar código..." type="text" oninput="buscarMultiDropGen('wrapHisCod',this.value)"/></div>
+              <div class="cdrop-list" id="listHisCod" style="max-height:200px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+        <button onclick="limpiarFiltrosHis()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+      </div>
+    </div>
+    <div class="flex items-center mb-1">
+      <span id="countHis" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
+    </div>
+    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+      <table class="w-full text-left border-collapse text-[12px]" style="min-width:700px;">
+        <thead id="theadHis"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
+        <tbody id="tbodyHis"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
+      </table>
+    </div>
+  </div><!-- /seccion-historial -->
+
+  <!-- ══════ SECCIÓN MARCA ══════ -->
+  <div id="seccion-marca" class="hidden space-y-5">
+    <div class="flex items-center justify-between">
+      <h2 class="text-headline-lg font-bold text-primary flex items-center gap-2">
+        <span class="material-symbols-outlined">sell</span>Marcas por Cuenta
+      </h2>
+      <button onclick="exportarMarca()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+        <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+      </button>
+    </div>
+    <!-- Filtros Marca -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm" style="overflow:visible;position:relative;z-index:50;">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex flex-col gap-1 min-w-[180px]">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Cuenta</label>
+          <select id="marcaFiltroCuenta" onchange="filtrarMarca()" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none">
+            <option value="">— Todas —</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1 min-w-[200px]">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Buscar Marca</label>
+          <input id="marcaBuscar" type="text" placeholder="Filtrar..." oninput="filtrarMarca()"
+            class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/>
+        </div>
+        <button onclick="limpiarFiltrosMarca()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+      </div>
+    </div>
+    <!-- Tabla + formulario Marca -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="lg:col-span-2">
+        <div class="flex items-center mb-2"><span id="countMarca" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span></div>
+        <div style="height:420px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+          <table class="w-full text-left border-collapse text-[12px]">
+            <thead id="theadMarca"></thead>
+            <tbody id="tbodyMarca"><tr><td class="px-4 py-6 text-center text-outline italic">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Formulario nuevo registro Marca -->
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm flex flex-col gap-4">
+        <h3 class="font-bold text-on-surface text-sm uppercase tracking-wider border-b border-outline-variant pb-2">Nuevo Registro</h3>
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase">Cuenta</label>
+          <select id="marcaFormCuenta" class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none">
+            <option value="">— Seleccionar —</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase">Marca</label>
+          <input id="marcaFormMarca" type="text" placeholder="Nombre de marca"
+            class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/>
+        </div>
+        <button onclick="guardarMarca()" class="mt-2 px-4 py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[16px]">save</span>Guardar
+        </button>
+        <div id="marcaFormStatus" class="hidden text-xs font-bold text-center py-1.5 rounded-lg"></div>
+      </div>
+    </div>
+  </div><!-- /seccion-marca -->
+
+  <!-- ══════ SECCIÓN CUENTA ══════ -->
+  <div id="seccion-cuenta" class="hidden space-y-5">
+    <div class="flex items-center justify-between">
+      <h2 class="text-headline-lg font-bold text-primary flex items-center gap-2">
+        <span class="material-symbols-outlined">business</span>Cuentas / XIVEN2
+      </h2>
+      <button onclick="exportarCuenta()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+        <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+      </button>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="lg:col-span-2">
+        <div class="flex items-center mb-2"><span id="countCuenta" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span></div>
+        <div style="height:420px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+          <table class="w-full text-left border-collapse text-[12px]">
+            <thead id="theadCuenta"></thead>
+            <tbody id="tbodyCuenta"><tr><td class="px-4 py-6 text-center text-outline italic">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Formulario nuevo registro Cuenta -->
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm flex flex-col gap-4">
+        <h3 class="font-bold text-on-surface text-sm uppercase tracking-wider border-b border-outline-variant pb-2">Nuevo Registro</h3>
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase">Cuenta</label>
+          <input id="cuentaFormCuenta" type="text" placeholder="Nombre de cuenta"
+            class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase">XIVEN2 (Código Destino)</label>
+          <input id="cuentaFormXiven2" type="text" placeholder="Ej: 23"
+            class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none font-mono"/>
+        </div>
+        <button onclick="guardarCuenta()" class="mt-2 px-4 py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[16px]">save</span>Guardar
+        </button>
+        <div id="cuentaFormStatus" class="hidden text-xs font-bold text-center py-1.5 rounded-lg"></div>
+      </div>
+    </div>
+  </div><!-- /seccion-cuenta -->
+
+  </div><!-- /contenido-principal -->
 
   <footer class="bg-surface-container-lowest border-t border-outline-variant px-8 py-3 flex justify-between items-center shrink-0 text-xs text-outline">
     <span>Datos Logísticos · DERMODIS</span>
@@ -615,6 +907,67 @@
   </div>
 </div>
 
+<!-- MODAL SUBIR XLS -->
+<div id="modalSubir" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50" onclick="if(event.target===this)cerrarModalSubir()">
+  <div class="bg-white rounded-2xl shadow-2xl w-[480px] max-w-[95vw] flex flex-col overflow-hidden">
+    <div class="bg-primary text-on-primary px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-[22px]">upload_file</span>
+        <div><h3 class="font-bold text-[16px]">Subir Información — Productos</h3>
+          <p class="text-[11px] text-white/70">Archivo .xls con el formato de la plantilla</p></div>
+      </div>
+      <button onclick="cerrarModalSubir()" class="hover:bg-white/20 rounded-lg p-1"><span class="material-symbols-outlined text-[20px]">close</span></button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div id="subirDropZone" onclick="document.getElementById('subirFileInput').click()"
+        class="border-2 border-dashed border-outline-variant rounded-xl p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all">
+        <span class="material-symbols-outlined text-[48px] text-outline">cloud_upload</span>
+        <p class="text-sm font-bold text-on-surface mt-2">Haz clic o arrastra tu archivo .xls aquí</p>
+        <p class="text-xs text-outline mt-1">Solo archivos .xls o .xlsx</p>
+      </div>
+      <input id="subirFileInput" type="file" accept=".xls,.xlsx" class="hidden" onchange="procesarArchivoSubir(this)"/>
+      <div id="subirPreview" class="hidden">
+        <p class="text-xs font-bold text-on-surface-variant uppercase mb-2">Vista previa — primeras 5 filas:</p>
+        <div id="subirPreviewTable" class="overflow-auto max-h-40 border border-outline-variant rounded-lg text-[11px]"></div>
+      </div>
+      <div id="subirStatus" class="hidden text-xs font-bold text-center py-2 rounded-lg"></div>
+    </div>
+    <div class="px-6 pb-5 flex justify-end gap-3">
+      <button onclick="cerrarModalSubir()" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all">Cancelar</button>
+      <button id="btnConfirmarSubir" onclick="confirmarSubir()" disabled
+        class="px-5 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+        <span class="material-symbols-outlined text-[16px] align-middle">send</span> Enviar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PLANTILLA -->
+<div id="modalPlantilla" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50" onclick="if(event.target===this)cerrarModalPlantilla()">
+  <div class="bg-white rounded-2xl shadow-2xl w-[420px] max-w-[95vw] flex flex-col overflow-hidden">
+    <div class="bg-secondary text-on-secondary px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-[22px]">description</span>
+        <h3 class="font-bold text-[16px]">Plantilla de Productos</h3>
+      </div>
+      <button onclick="cerrarModalPlantilla()" class="hover:bg-white/20 rounded-lg p-1"><span class="material-symbols-outlined text-[20px]">close</span></button>
+    </div>
+    <div class="p-6 space-y-4">
+      <p class="text-sm text-on-surface-variant">La plantilla incluye las columnas requeridas con ejemplos. Descárgala, completa los datos y súbela usando el botón <strong>Subir XLS</strong>.</p>
+      <div class="bg-surface-container-low rounded-xl p-4 border border-outline-variant text-xs space-y-1">
+        <p class="font-bold text-on-surface uppercase text-[10px] tracking-wider mb-2">Columnas requeridas:</p>
+        <p class="text-outline">REFERENCIA · FECHA · CUENTA · CÓDIGO DE PRODUCTO · DESCRIPCION · EAN 13</p>
+      </div>
+    </div>
+    <div class="px-6 pb-5 flex justify-end gap-3">
+      <button onclick="cerrarModalPlantilla()" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all">Cerrar</button>
+      <button onclick="descargarPlantilla()" class="px-5 py-2 rounded-lg bg-secondary text-on-secondary font-bold hover:bg-secondary/90 transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined text-[16px]">download</span>Descargar Plantilla
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════════
 //  CONFIG
@@ -622,7 +975,10 @@
 const CONFIG = {
   APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxriNuBNz1hKKwOpJUNuFR6hUTgMNTOM9mxd6K01SjdMP6V1t3GtOlw--M0gaCVHNhk7g/exec',
   URL_SHEET1: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=1464291631&single=true&output=csv',
-  URL_SHEET2: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=307813751&single=true&output=csv',
+  URL_SHEET2:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=307813751&single=true&output=csv',
+  URL_INFO:     'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=1464291631&single=true&output=csv',
+  URL_DATOS:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=307813751&single=true&output=csv',
+  URL_REGISTRO: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=PENDIENTE_GID_REGISTRO&single=true&output=csv',
 };
 
 // ══════════════════════════════════════════════════
@@ -1706,6 +2062,858 @@ function actualizarBadgeNotif() {
     badge.classList.add('hidden');
   }
 }
+
+// ══════════════════════════════════════════════════
+//  NAVEGACIÓN ENTRE SECCIONES
+// ══════════════════════════════════════════════════
+let seccionActual = 'tablero';
+const SECCIONES = ['tablero','productos','dimensiones','historial'];
+
+function cambiarSeccion(sec) {
+  seccionActual = sec;
+  SECCIONES.forEach(s => {
+    const div = document.getElementById('seccion-'+s);
+    if (div) div.classList.toggle('hidden', s !== sec);
+    const nav = document.getElementById('nav-'+s);
+    if (!nav) return;
+    if (s === sec) {
+      nav.classList.add('bg-primary','text-on-primary','shadow-sm');
+      nav.classList.remove('text-on-surface-variant','hover:bg-surface-container-high');
+    } else {
+      nav.classList.remove('bg-primary','text-on-primary','shadow-sm');
+      nav.classList.add('text-on-surface-variant','hover:bg-surface-container-high');
+    }
+  });
+  const cp = document.getElementById('contenido-principal');
+  if (cp) cp.className = sec==='tablero' ? 'flex-1 overflow-y-auto p-8 space-y-6' : 'flex-1 overflow-y-auto p-8';
+  if (sec==='productos'   && !datosInfo.length)     cargarInfo();
+  if (sec==='dimensiones' && !datosDatos.length)    cargarDatos_dim();
+  if (sec==='historial'   && !datosRegistro.length) cargarRegistro();
+}
+
+// ══════════════════════════════════════════════════
+//  ESTADO SECCIONES NUEVAS
+// ══════════════════════════════════════════════════
+let datosInfo=[], datosDatos=[], datosRegistro=[];
+let infoFiltradas=[], datosFiltrados=[], hisFiltradas=[];
+let infoHeaders=[], datosHeaders=[], hisHeaders=[];
+
+// ══════════════════════════════════════════════════
+//  MULTI-DROP GENÉRICO
+// ══════════════════════════════════════════════════
+function iniciarMultiDropGen(wrapId, listId, items, labelId, onFC) {
+  dropState[wrapId] = { items, selected: new Set(), type:'multi-gen', onFilterChange:onFC, labelId };
+  renderListMultiGen(listId, items, dropState[wrapId].selected, wrapId);
+}
+
+function renderListMultiGen(listId, items, selectedSet, wrapId) {
+  const list = document.getElementById(listId); if (!list) return;
+  const allChecked = selectedSet.size === 0;
+  list.innerHTML = [
+    `<div class="cdrop-item" data-mg-all="${wrapId}" onclick="multiGenToggleAll(event,'${wrapId}')">
+      <div class="cdrop-check ${allChecked?'checked':''}"></div>
+      <span style="font-style:italic;color:#555">(Todos)</span>
+    </div>`,
+    ...items.map(item => {
+      const safe = escHtml(item);
+      const attr = item.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      return `<div class="cdrop-item${selectedSet.has(item)?' checked':''}" data-mg-wrap="${wrapId}" data-mg-val="${attr}" onclick="multiGenToggle(event,this,'${wrapId}')">
+        <div class="cdrop-check ${selectedSet.has(item)?'checked':''}"></div>
+        <span class="text-[12px]">${safe}</span>
+      </div>`;
+    })
+  ].join('');
+}
+
+function multiGenToggle(e, el, wrapId) {
+  e.stopPropagation();
+  const st = dropState[wrapId]; if (!st) return;
+  const val = el.dataset.mgVal;
+  if (st.selected.has(val)) {
+    st.selected.delete(val);
+    el.classList.remove('checked');
+    el.querySelector('.cdrop-check').classList.remove('checked');
+  } else {
+    st.selected.add(val);
+    el.classList.add('checked');
+    el.querySelector('.cdrop-check').classList.add('checked');
+  }
+  const allRow = el.closest('.cdrop-list').querySelector(`[data-mg-all="${wrapId}"] .cdrop-check`);
+  if (allRow) { st.selected.size===0 ? allRow.classList.add('checked') : allRow.classList.remove('checked'); }
+  const lbl = st.selected.size===0 ? 'Todas...' : st.selected.size===1 ? [...st.selected][0] : st.selected.size+' selec.';
+  if (st.labelId) document.getElementById(st.labelId).textContent = lbl;
+  if (st.onFilterChange) st.onFilterChange();
+}
+
+function multiGenToggleAll(e, wrapId) {
+  e.stopPropagation();
+  const st = dropState[wrapId]; if (!st) return;
+  st.selected.clear();
+  if (st.labelId) document.getElementById(st.labelId).textContent = 'Todas...';
+  const listId = 'list' + wrapId.replace('wrap','');
+  const list = document.getElementById(listId);
+  if (list) {
+    list.querySelectorAll('.cdrop-item').forEach(el => {
+      el.classList.remove('checked');
+      el.querySelector('.cdrop-check')?.classList.remove('checked');
+    });
+    const allChk = list.querySelector(`[data-mg-all="${wrapId}"] .cdrop-check`);
+    if (allChk) allChk.classList.add('checked');
+  }
+  if (st.onFilterChange) st.onFilterChange();
+}
+
+function buscarMultiDropGen(wrapId, q) {
+  const st = dropState[wrapId]; if (!st) return;
+  const filtrados = q ? st.items.filter(i => i.toUpperCase().includes(q.toUpperCase())) : st.items;
+  const listId = 'list' + wrapId.replace('wrap','');
+  renderListMultiGen(listId, filtrados, st.selected, wrapId);
+}
+
+function getMultiSel(wrapId) { return dropState[wrapId]?.selected || new Set(); }
+
+// ══════════════════════════════════════════════════
+//  PRODUCTOS — Hoja INFO
+// ══════════════════════════════════════════════════
+async function cargarInfo() {
+  mostrarOverlay(true);
+  try {
+    const csv = await fetchCSV(CONFIG.URL_INFO);
+    const rows = parseCSV(csv);
+    if (rows.length < 2) { datosInfo=[]; renderTablaProductos([]); return; }
+    infoHeaders = rows[0].map(h=>(h||'').trim());
+    datosInfo = rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+      const o={}; infoHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
+    });
+    infoFiltradas = datosInfo;
+    const iRef = infoHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||infoHeaders[0];
+    const iCod = infoHeaders.find(h=>h.toUpperCase().includes('CÓDIGO')||h.toUpperCase().includes('CODIGO')||h.toUpperCase().includes('PRODUCT'))||infoHeaders[3];
+    const refs = [...new Set(datosInfo.map(d=>(d[iRef]||'').trim()).filter(Boolean))].sort();
+    const cods = [...new Set(datosInfo.map(d=>(d[iCod]||'').trim()).filter(Boolean))].sort();
+    iniciarMultiDropGen('wrapProdRef','listProdRef',refs,'labelProdRef',filtrarProductos);
+    iniciarMultiDropGen('wrapProdCod','listProdCod',cods,'labelProdCod',filtrarProductos);
+    renderTablaProductos(datosInfo);
+  } catch(e) { toast('Error cargando Productos: '+e.message,'error'); }
+  finally { mostrarOverlay(false); }
+}
+
+function renderTablaProductos(datos) {
+  if (!infoHeaders.length) return;
+  document.getElementById('countProd').textContent = datos.length+' REGISTROS';
+  document.getElementById('theadProd').innerHTML = `<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
+    <th class="px-3 py-3 border-r border-white/10"><input type="checkbox" id="chkTodosProd" onchange="toggleTodosChk('chk-prod',this)" class="w-4 h-4 rounded accent-white cursor-pointer"/></th>
+    ${infoHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
+  </tr>`;
+  if (!datos.length) {
+    document.getElementById('tbodyProd').innerHTML=`<tr><td colspan="${infoHeaders.length+1}" class="px-6 py-6 text-center text-outline italic">Sin registros</td></tr>`; return;
+  }
+  document.getElementById('tbodyProd').innerHTML = datos.map((d,i)=>{
+    const idx=datosInfo.indexOf(d);
+    return `<tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
+      <td class="px-3 py-2 border-r border-outline-variant/30 text-center">
+        <input type="checkbox" class="chk-prod w-4 h-4 rounded accent-primary cursor-pointer" data-idx="${idx}" onchange="actualizarConteoChk('chk-prod','countProdSel')"/>
+      </td>
+      ${infoHeaders.map(h=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d[h]||'')}</td>`).join('')}
+    </tr>`;
+  }).join('');
+  const chk=document.getElementById('chkTodosProd'); if(chk) chk.checked=false;
+  actualizarConteoChk('chk-prod','countProdSel');
+}
+
+function filtrarProductos() {
+  const ini=(document.getElementById('prodFecIni').value||'');
+  const fin=(document.getElementById('prodFecFin').value||'');
+  const cuenta=(document.getElementById('prodCuenta').value||'').toUpperCase();
+  const selRef=getMultiSel('wrapProdRef'); const selCod=getMultiSel('wrapProdCod');
+  const iRef=infoHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||infoHeaders[0];
+  const iCod=infoHeaders.find(h=>h.toUpperCase().includes('CÓDIGO')||h.toUpperCase().includes('CODIGO')||h.toUpperCase().includes('PRODUCT'))||infoHeaders[3];
+  const iFec=infoHeaders.find(h=>h.toUpperCase().includes('FECHA'))||infoHeaders[1];
+  const iCue=infoHeaders.find(h=>h.toUpperCase().includes('CUENTA'))||infoHeaders[2];
+  infoFiltradas=datosInfo.filter(d=>{
+    const fec=(d[iFec]||'');
+    return (!ini||fec>=ini)&&(!fin||fec<=fin)
+      &&(!cuenta||(d[iCue]||'').toUpperCase().includes(cuenta))
+      &&(selRef.size===0||selRef.has((d[iRef]||'').trim()))
+      &&(selCod.size===0||selCod.has((d[iCod]||'').trim()));
+  });
+  renderTablaProductos(infoFiltradas);
+}
+
+function limpiarFiltrosProd() {
+  document.getElementById('prodFecIni').value='';
+  document.getElementById('prodFecFin').value='';
+  document.getElementById('prodCuenta').value='';
+  multiGenToggleAll({stopPropagation:()=>{}},'wrapProdRef');
+  multiGenToggleAll({stopPropagation:()=>{}},'wrapProdCod');
+  infoFiltradas=datosInfo; renderTablaProductos(datosInfo);
+}
+
+function exportarProductos() {
+  const chks=[...document.querySelectorAll('.chk-prod:checked')];
+  const datos=chks.length ? chks.map(c=>datosInfo[+c.dataset.idx]).filter(Boolean) : (infoFiltradas.length?infoFiltradas:datosInfo);
+  if(!datos.length){toast('Sin datos','error');return;}
+  const ws=XLSX.utils.json_to_sheet(datos,{header:infoHeaders});
+  ws['!cols']=infoHeaders.map(()=>({wch:22}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'productos');
+  const cuenta=(document.getElementById('prodCuenta').value||'TODAS').toUpperCase();
+  const fecha=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  XLSX.writeFile(wb,`Productos_${cuenta}_${fecha}.xls`,{bookType:'xls'});
+  toast('Exportado OK','success');
+}
+
+// ══════════════════════════════════════════════════
+//  DIMENSIONES — Hoja DATOS cols A-T
+// ══════════════════════════════════════════════════
+async function cargarDatos_dim() {
+  mostrarOverlay(true);
+  try {
+    const csv=await fetchCSV(CONFIG.URL_DATOS);
+    const rows=parseCSV(csv);
+    if(rows.length<2){datosDatos=[];renderTablaDimensiones([]);return;}
+    datosHeaders=rows[0].slice(0,20).map(h=>(h||'').trim());
+    datosDatos=rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+      const o={}; datosHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
+    });
+    datosFiltrados=datosDatos;
+    const iRef=datosHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||datosHeaders[2];
+    const iCod=datosHeaders.find(h=>h.toUpperCase().includes('CÓDIGO')||h.toUpperCase().includes('CODIGO'))||datosHeaders[3];
+    const refs=[...new Set(datosDatos.map(d=>(d[iRef]||'').trim()).filter(Boolean))].sort();
+    const cods=[...new Set(datosDatos.map(d=>(d[iCod]||'').trim()).filter(Boolean))].sort();
+    iniciarMultiDropGen('wrapDimRef','listDimRef',refs,'labelDimRef',filtrarDimensiones);
+    iniciarMultiDropGen('wrapDimCod','listDimCod',cods,'labelDimCod',filtrarDimensiones);
+    renderTablaDimensiones(datosDatos);
+  } catch(e){toast('Error Dimensiones: '+e.message,'error');}
+  finally{mostrarOverlay(false);}
+}
+
+function renderTablaDimensiones(datos) {
+  if(!datosHeaders.length)return;
+  document.getElementById('countDim').textContent=datos.length+' REGISTROS';
+  document.getElementById('theadDim').innerHTML=`<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
+    <th class="px-3 py-3 border-r border-white/10"><input type="checkbox" id="chkTodosDim" onchange="toggleTodosChk('chk-dim',this)" class="w-4 h-4 rounded accent-white cursor-pointer"/></th>
+    ${datosHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
+  </tr>`;
+  if(!datos.length){document.getElementById('tbodyDim').innerHTML=`<tr><td colspan="${datosHeaders.length+1}" class="px-6 py-6 text-center text-outline italic">Sin registros</td></tr>`;return;}
+  document.getElementById('tbodyDim').innerHTML=datos.map((d,i)=>{
+    const idx=datosDatos.indexOf(d);
+    return `<tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
+      <td class="px-3 py-2 border-r border-outline-variant/30 text-center">
+        <input type="checkbox" class="chk-dim w-4 h-4 rounded accent-primary cursor-pointer" data-idx="${idx}" onchange="actualizarConteoChk('chk-dim','countDimSel')"/>
+      </td>
+      ${datosHeaders.map(h=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap font-mono">${escHtml(d[h]||'')}</td>`).join('')}
+    </tr>`;
+  }).join('');
+  const chk=document.getElementById('chkTodosDim'); if(chk) chk.checked=false;
+  actualizarConteoChk('chk-dim','countDimSel');
+}
+
+function filtrarDimensiones() {
+  const ini=document.getElementById('dimFecIni').value||'';
+  const fin=document.getElementById('dimFecFin').value||'';
+  const cuenta=(document.getElementById('dimCuenta').value||'').toUpperCase();
+  const selRef=getMultiSel('wrapDimRef'); const selCod=getMultiSel('wrapDimCod');
+  const iRef=datosHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||datosHeaders[2];
+  const iCod=datosHeaders.find(h=>h.toUpperCase().includes('CÓDIGO')||h.toUpperCase().includes('CODIGO'))||datosHeaders[3];
+  const iFec=datosHeaders.find(h=>h.toUpperCase().includes('FECHA'))||datosHeaders[0];
+  const iCue=datosHeaders.find(h=>h.toUpperCase().includes('CUENTA'))||datosHeaders[1];
+  datosFiltrados=datosDatos.filter(d=>{
+    const fec=d[iFec]||'';
+    return (!ini||fec>=ini)&&(!fin||fec<=fin)
+      &&(!cuenta||(d[iCue]||'').toUpperCase().includes(cuenta))
+      &&(selRef.size===0||selRef.has((d[iRef]||'').trim()))
+      &&(selCod.size===0||selCod.has((d[iCod]||'').trim()));
+  });
+  renderTablaDimensiones(datosFiltrados);
+}
+
+function limpiarFiltrosDim() {
+  document.getElementById('dimFecIni').value='';
+  document.getElementById('dimFecFin').value='';
+  document.getElementById('dimCuenta').value='';
+  multiGenToggleAll({stopPropagation:()=>{}},'wrapDimRef');
+  multiGenToggleAll({stopPropagation:()=>{}},'wrapDimCod');
+  datosFiltrados=datosDatos; renderTablaDimensiones(datosDatos);
+}
+
+function exportarDimensiones() {
+  const chks=[...document.querySelectorAll('.chk-dim:checked')];
+  const datos=chks.length?chks.map(c=>datosDatos[+c.dataset.idx]).filter(Boolean):(datosFiltrados.length?datosFiltrados:datosDatos);
+  if(!datos.length){toast('Sin datos','error');return;}
+  const ws=XLSX.utils.json_to_sheet(datos,{header:datosHeaders});
+  ws['!cols']=datosHeaders.map(()=>({wch:16}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Dimensiones');
+  const cuenta=(document.getElementById('dimCuenta').value||'TODAS').toUpperCase();
+  const fecha=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  XLSX.writeFile(wb,`Dimensiones_${cuenta}_${fecha}.xls`,{bookType:'xls'});
+  toast('Exportado OK','success');
+}
+
+// ══════════════════════════════════════════════════
+//  HISTORIAL — Hoja REGISTRO_USUARIO
+// ══════════════════════════════════════════════════
+async function cargarRegistro() {
+  mostrarOverlay(true);
+  try {
+    const csv=await fetchCSV(CONFIG.URL_REGISTRO);
+    const rows=parseCSV(csv);
+    if(rows.length<2){datosRegistro=[];renderTablaHistorial([]);return;}
+    const rawH=rows[0].map(h=>(h||'').trim());
+    const iReg=rawH.findIndex(h=>h.toUpperCase().includes('REGISTRO')||h.toUpperCase().includes('TIMESTAMP'));
+    let ordH=[...rawH];
+    if(iReg>0){ordH.splice(iReg,1);ordH.unshift(rawH[iReg]);}
+    hisHeaders=ordH;
+    datosRegistro=rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+      const orig={}; rawH.forEach((h,i)=>orig[h]=(r[i]||'').trim());
+      const o={}; hisHeaders.forEach(h=>o[h]=orig[h]||''); return o;
+    });
+    const fKey=hisHeaders[0];
+    datosRegistro.sort((a,b)=>(b[fKey]||'').localeCompare(a[fKey]||''));
+    hisFiltradas=datosRegistro;
+    const iRef=hisHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||hisHeaders[1];
+    const iCod=hisHeaders.find(h=>h.toUpperCase().includes('CODIGO')||h.toUpperCase().includes('CÓDIGO'))||hisHeaders[2];
+    const refs=[...new Set(datosRegistro.map(d=>(d[iRef]||'').trim()).filter(Boolean))].sort();
+    const cods=[...new Set(datosRegistro.map(d=>(d[iCod]||'').trim()).filter(Boolean))].sort();
+    iniciarMultiDropGen('wrapHisRef','listHisRef',refs,'labelHisRef',filtrarHistorial);
+    iniciarMultiDropGen('wrapHisCod','listHisCod',cods,'labelHisCod',filtrarHistorial);
+    renderTablaHistorial(datosRegistro);
+  } catch(e){toast('Error Historial: '+e.message,'error');}
+  finally{mostrarOverlay(false);}
+}
+
+function renderTablaHistorial(datos) {
+  if(!hisHeaders.length)return;
+  document.getElementById('countHis').textContent=datos.length+' REGISTROS';
+  document.getElementById('theadHis').innerHTML=`<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
+    ${hisHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
+  </tr>`;
+  if(!datos.length){document.getElementById('tbodyHis').innerHTML=`<tr><td colspan="${hisHeaders.length}" class="px-6 py-6 text-center text-outline italic">Sin registros</td></tr>`;return;}
+  document.getElementById('tbodyHis').innerHTML=datos.map((d,i)=>`
+    <tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
+      ${hisHeaders.map(h=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d[h]||'')}</td>`).join('')}
+    </tr>`).join('');
+}
+
+function filtrarHistorial() {
+  const ini=document.getElementById('hisFecIni').value||'';
+  const fin=document.getElementById('hisFecFin').value||'';
+  const selRef=getMultiSel('wrapHisRef'); const selCod=getMultiSel('wrapHisCod');
+  const iRef=hisHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||hisHeaders[1];
+  const iCod=hisHeaders.find(h=>h.toUpperCase().includes('CODIGO')||h.toUpperCase().includes('CÓDIGO'))||hisHeaders[2];
+  const fKey=hisHeaders[0];
+  hisFiltradas=datosRegistro.filter(d=>{
+    const fec=(d[fKey]||'').slice(0,10);
+    return (!ini||fec>=ini)&&(!fin||fec<=fin)
+      &&(selRef.size===0||selRef.has((d[iRef]||'').trim()))
+      &&(selCod.size===0||selCod.has((d[iCod]||'').trim()));
+  });
+  renderTablaHistorial(hisFiltradas);
+}
+
+function limpiarFiltrosHis() {
+  document.getElementById('hisFecIni').value='';
+  document.getElementById('hisFecFin').value='';
+  multiGenToggleAll({stopPropagation:()=>{}},'wrapHisRef');
+  multiGenToggleAll({stopPropagation:()=>{}},'wrapHisCod');
+  hisFiltradas=datosRegistro; renderTablaHistorial(datosRegistro);
+}
+
+// ══════════════════════════════════════════════════
+//  CHECKBOXES GENÉRICOS
+// ══════════════════════════════════════════════════
+function toggleTodosChk(cls,chk){
+  document.querySelectorAll('.'+cls).forEach(c=>c.checked=chk.checked);
+  const map={'chk-prod':'countProdSel','chk-dim':'countDimSel'};
+  if(map[cls]) actualizarConteoChk(cls,map[cls]);
+}
+function actualizarConteoChk(cls,spanId){
+  const sel=document.querySelectorAll('.'+cls+':checked').length;
+  const span=document.getElementById(spanId); if(!span)return;
+  if(sel>0){span.textContent=sel+' SEL.';span.classList.remove('hidden');}
+  else span.classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════════
+//  MODAL SUBIR XLS
+// ══════════════════════════════════════════════════
+let subirDatos=[], subirHeaders=[];
+
+function abrirModalSubir(){
+  document.getElementById('subirPreview').classList.add('hidden');
+  document.getElementById('subirStatus').classList.add('hidden');
+  document.getElementById('btnConfirmarSubir').disabled=true;
+  document.getElementById('subirFileInput').value='';
+  subirDatos=[]; subirHeaders=[];
+  document.getElementById('modalSubir').style.display='flex';
+}
+function cerrarModalSubir(){document.getElementById('modalSubir').style.display='none';}
+
+function procesarArchivoSubir(input){
+  const file=input.files[0]; if(!file)return;
+  const status=document.getElementById('subirStatus');
+  status.className='text-xs font-bold text-center py-2 rounded-lg bg-primary/10 text-primary';
+  status.textContent='Leyendo archivo...'; status.classList.remove('hidden');
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(json.length<2){status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';status.textContent='Sin datos';return;}
+      subirHeaders=json[0].map(h=>String(h).trim());
+      subirDatos=json.slice(1).filter(r=>r.some(c=>String(c).trim())).map(r=>{
+        const o={}; subirHeaders.forEach((h,i)=>o[h]=String(r[i]||'').trim()); return o;
+      });
+      const preview=document.getElementById('subirPreviewTable');
+      const filas=subirDatos.slice(0,5);
+      preview.innerHTML=`<table class="w-full border-collapse"><thead><tr>${subirHeaders.map(h=>`<th class="px-2 py-1 bg-primary/10 border border-outline-variant font-bold text-left">${escHtml(h)}</th>`).join('')}</tr></thead>
+        <tbody>${filas.map(r=>`<tr>${subirHeaders.map(h=>`<td class="px-2 py-1 border border-outline-variant">${escHtml(r[h]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+      document.getElementById('subirPreview').classList.remove('hidden');
+      status.className='text-xs font-bold text-center py-2 rounded-lg bg-green-50 text-green-700';
+      status.textContent=subirDatos.length+' filas. Revisa y confirma.';
+      document.getElementById('btnConfirmarSubir').disabled=false;
+    }catch(err){status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';status.textContent='Error: '+err.message;}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function confirmarSubir(){
+  if(!subirDatos.length){toast('Sin datos','error');return;}
+  const status=document.getElementById('subirStatus');
+  status.className='text-xs font-bold text-center py-2 rounded-lg bg-primary/10 text-primary';
+  status.textContent='Enviando...';
+  document.getElementById('btnConfirmarSubir').disabled=true;
+  mostrarOverlay(true);
+  try{
+    const res=await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'uploadProductos',headers:subirHeaders,rows:subirDatos})});
+    const json=await res.json();
+    if(json.ok){
+      status.className='text-xs font-bold text-center py-2 rounded-lg bg-green-50 text-green-700';
+      status.textContent='Enviado. '+(json.msg||'');
+      toast('Datos subidos OK','success');
+      setTimeout(()=>{cerrarModalSubir();datosInfo=[];cargarInfo();},1500);
+    }else{
+      status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';
+      status.textContent='Error: '+(json.msg||'');
+      document.getElementById('btnConfirmarSubir').disabled=false;
+    }
+  }catch(err){
+    status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';
+    status.textContent='Error conexión: '+err.message;
+    document.getElementById('btnConfirmarSubir').disabled=false;
+  }finally{mostrarOverlay(false);}
+}
+
+// ══════════════════════════════════════════════════
+//  MODAL PLANTILLA
+// ══════════════════════════════════════════════════
+function abrirModalPlantilla(){document.getElementById('modalPlantilla').style.display='flex';}
+function cerrarModalPlantilla(){document.getElementById('modalPlantilla').style.display='none';}
+
+function descargarPlantilla(){
+  const cols=['REFERENCIA','FECHA','CUENTA','CÓDIGO DE PRODUCTO','DESCRIPCION','EAN 13'];
+  const ej=[{'REFERENCIA':'Ingreso material | CAJA TRIPACK','FECHA':'14/04/2026','CUENTA':'DERMODIS','CÓDIGO DE PRODUCTO':'80750078','DESCRIPCION':'CAJA TRIPACK SHOT DE KERATINA','EAN 13':'7702113692549'}];
+  const ws=XLSX.utils.json_to_sheet(ej,{header:cols});
+  ws['!cols']=cols.map(()=>({wch:30}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Plantilla_Productos');
+  XLSX.writeFile(wb,'Plantilla_Productos.xls',{bookType:'xls'});
+  toast('Plantilla descargada','success');
+  cerrarModalPlantilla();
+}
+
+// ══════════════════════════════════════════════════
+//  DATOS GLOBALES MARCA / CUENTA
+// ══════════════════════════════════════════════════
+let datosMarca   = [];  // hoja MARCA
+let datosCuenta  = [];  // hoja CUENTA
+let marcaHeaders = [], cuentaHeaders = [];
+let marcaFiltradas = [], cuentaFiltradas = [];
+
+// Mapa cuenta→[marcas] para uso en tablero
+let mapaCtaMarca = {};   // { 'DERMODIS': ['Catrice','Essence',...], ... }
+// Mapa cuenta→xiven2 para uso en tablero
+let mapaCtaXiven2 = {};  // { 'DERMODIS': '23', ... }
+
+// ══════════════════════════════════════════════════
+//  NAVEGACIÓN: ampliar SECCIONES array
+// ══════════════════════════════════════════════════
+// Sobreescribir cambiarSeccion para incluir marca y cuenta
+(function(){
+  const _orig = cambiarSeccion;
+  const ALL = ['tablero','productos','dimensiones','historial','marca','cuenta'];
+  window.cambiarSeccion = function(sec) {
+    ALL.forEach(s => {
+      const div = document.getElementById('seccion-'+s);
+      if (div) div.classList.toggle('hidden', s !== sec);
+      const nav = document.getElementById('nav-'+s);
+      if (!nav) return;
+      if (s === sec) {
+        nav.classList.add('bg-primary','text-on-primary','shadow-sm');
+        nav.classList.remove('text-on-surface-variant','hover:bg-surface-container-high');
+      } else {
+        nav.classList.remove('bg-primary','text-on-primary','shadow-sm');
+        nav.classList.add('text-on-surface-variant','hover:bg-surface-container-high');
+      }
+    });
+    const cp = document.getElementById('contenido-principal');
+    if (cp) cp.className = sec==='tablero' ? 'flex-1 overflow-y-auto p-8 space-y-6' : 'flex-1 overflow-y-auto p-8';
+    if (sec==='productos'   && !datosInfo.length)     cargarInfo();
+    if (sec==='dimensiones' && !datosDatos.length)    cargarDatos_dim();
+    if (sec==='historial'   && !datosRegistro.length) cargarRegistro();
+    if (sec==='marca'       && !datosMarca.length)    cargarMarca();
+    if (sec==='cuenta'      && !datosCuenta.length)   cargarCuenta();
+  };
+})();
+
+// ══════════════════════════════════════════════════
+//  CARGAR MARCA
+// ══════════════════════════════════════════════════
+async function cargarMarca() {
+  mostrarOverlay(true);
+  try {
+    const csv = await fetchCSV(CONFIG.URL_MARCA);
+    const rows = parseCSV(csv);
+    if (rows.length < 2) { datosMarca=[]; renderTablaMarca([]); return; }
+    marcaHeaders = rows[0].map(h=>(h||'').trim());
+    datosMarca = rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+      const o={}; marcaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
+    });
+    // Construir mapa cuenta→marcas
+    construirMapaMarca();
+    marcaFiltradas = datosMarca;
+    // Poblar select de cuentas en filtro y formulario
+    const cuentas = [...new Set(datosMarca.map(d=>Object.values(d)[0]||'').filter(Boolean))].sort();
+    ['marcaFiltroCuenta','marcaFormCuenta'].forEach(id=>{
+      const sel=document.getElementById(id); if(!sel) return;
+      sel.innerHTML='<option value="">— Todas —</option>'+cuentas.map(c=>`<option>${escHtml(c)}</option>`).join('');
+    });
+    document.getElementById('marcaFormCuenta').querySelector('option').textContent='— Seleccionar —';
+    renderTablaMarca(datosMarca);
+  } catch(e){ toast('Error cargando Marcas: '+e.message,'error'); }
+  finally { mostrarOverlay(false); }
+}
+
+function construirMapaMarca() {
+  mapaCtaMarca = {};
+  const iCuenta = marcaHeaders.findIndex(h=>h.toUpperCase().includes('CUENTA'));
+  const iMarca  = marcaHeaders.findIndex(h=>h.toUpperCase().includes('MARCA'));
+  const ci = iCuenta>=0 ? iCuenta : 0;
+  const mi = iMarca>=0  ? iMarca  : 1;
+  datosMarca.forEach(d=>{
+    const cta=(Object.values(d)[ci]||'').trim().toUpperCase();
+    const mar=(Object.values(d)[mi]||'').trim();
+    if(!cta||!mar) return;
+    if(!mapaCtaMarca[cta]) mapaCtaMarca[cta]=[];
+    if(!mapaCtaMarca[cta].includes(mar)) mapaCtaMarca[cta].push(mar);
+  });
+}
+
+function renderTablaMarca(datos) {
+  if(!marcaHeaders.length) return;
+  document.getElementById('countMarca').textContent=datos.length+' REGISTROS';
+  document.getElementById('theadMarca').innerHTML=`<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
+    ${marcaHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
+  </tr>`;
+  if(!datos.length){document.getElementById('tbodyMarca').innerHTML=`<tr><td colspan="${marcaHeaders.length}" class="px-6 py-6 text-center text-outline italic">Sin registros</td></tr>`;return;}
+  document.getElementById('tbodyMarca').innerHTML=datos.map((d,i)=>`
+    <tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
+      ${marcaHeaders.map(h=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d[h]||'')}</td>`).join('')}
+    </tr>`).join('');
+}
+
+function filtrarMarca() {
+  const cta=(document.getElementById('marcaFiltroCuenta').value||'').toUpperCase();
+  const q=(document.getElementById('marcaBuscar').value||'').toUpperCase();
+  marcaFiltradas=datosMarca.filter(d=>{
+    const vals=Object.values(d).map(v=>(v||'').toUpperCase());
+    return (!cta||vals[0].includes(cta)) && (!q||vals.some(v=>v.includes(q)));
+  });
+  renderTablaMarca(marcaFiltradas);
+}
+
+function limpiarFiltrosMarca(){
+  document.getElementById('marcaFiltroCuenta').value='';
+  document.getElementById('marcaBuscar').value='';
+  marcaFiltradas=datosMarca; renderTablaMarca(datosMarca);
+}
+
+async function guardarMarca() {
+  const cta=document.getElementById('marcaFormCuenta').value.trim();
+  const mar=document.getElementById('marcaFormMarca').value.trim();
+  const status=document.getElementById('marcaFormStatus');
+  if(!cta||!mar){status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-red-50 text-red-700';status.textContent='Completa cuenta y marca';status.classList.remove('hidden');return;}
+  status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-primary/10 text-primary';
+  status.textContent='Guardando...'; status.classList.remove('hidden');
+  mostrarOverlay(true);
+  try {
+    const res=await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'saveMarca',cuenta:cta,marca:mar})});
+    const json=await res.json();
+    if(json.ok){
+      status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-green-50 text-green-700';
+      status.textContent='Guardado OK';
+      toast('Marca guardada','success');
+      document.getElementById('marcaFormMarca').value='';
+      datosMarca=[]; cargarMarca();
+    } else {
+      status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-red-50 text-red-700';
+      status.textContent='Error: '+(json.msg||'');
+    }
+  } catch(e){status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-red-50 text-red-700';status.textContent='Error: '+e.message;}
+  finally{mostrarOverlay(false);}
+}
+
+function exportarMarca(){
+  const datos=marcaFiltradas.length?marcaFiltradas:datosMarca;
+  if(!datos.length){toast('Sin datos','error');return;}
+  const ws=XLSX.utils.json_to_sheet(datos,{header:marcaHeaders});
+  ws['!cols']=marcaHeaders.map(()=>({wch:22}));
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Marcas');
+  XLSX.writeFile(wb,'Marcas_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'.xls',{bookType:'xls'});
+  toast('Exportado OK','success');
+}
+
+// ══════════════════════════════════════════════════
+//  CARGAR CUENTA
+// ══════════════════════════════════════════════════
+async function cargarCuenta() {
+  mostrarOverlay(true);
+  try {
+    const csv=await fetchCSV(CONFIG.URL_CUENTA);
+    const rows=parseCSV(csv);
+    if(rows.length<2){datosCuenta=[];renderTablaCuenta([]);return;}
+    cuentaHeaders=rows[0].map(h=>(h||'').trim());
+    datosCuenta=rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+      const o={}; cuentaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
+    });
+    construirMapaXiven2();
+    cuentaFiltradas=datosCuenta;
+    renderTablaCuenta(datosCuenta);
+  } catch(e){toast('Error cargando Cuentas: '+e.message,'error');}
+  finally{mostrarOverlay(false);}
+}
+
+function construirMapaXiven2() {
+  mapaCtaXiven2={};
+  // Columnas esperadas: CUENTA, XIVEN2
+  const iCuenta=cuentaHeaders.findIndex(h=>h.toUpperCase().includes('CUENTA'));
+  const iXiven =cuentaHeaders.findIndex(h=>h.toUpperCase().includes('XIVEN'));
+  const ci=iCuenta>=0?iCuenta:0;
+  const xi=iXiven>=0?iXiven:1;
+  datosCuenta.forEach(d=>{
+    const cta=(Object.values(d)[ci]||'').trim().toUpperCase();
+    const xv =(Object.values(d)[xi]||'').trim();
+    if(cta) mapaCtaXiven2[cta]=xv;
+  });
+}
+
+function renderTablaCuenta(datos){
+  if(!cuentaHeaders.length) return;
+  document.getElementById('countCuenta').textContent=datos.length+' REGISTROS';
+  document.getElementById('theadCuenta').innerHTML=`<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
+    ${cuentaHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
+  </tr>`;
+  if(!datos.length){document.getElementById('tbodyCuenta').innerHTML=`<tr><td colspan="${cuentaHeaders.length}" class="px-6 py-6 text-center text-outline italic">Sin registros</td></tr>`;return;}
+  document.getElementById('tbodyCuenta').innerHTML=datos.map((d,i)=>`
+    <tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
+      ${cuentaHeaders.map(h=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap font-mono">${escHtml(d[h]||'')}</td>`).join('')}
+    </tr>`).join('');
+}
+
+async function guardarCuenta(){
+  const cta=document.getElementById('cuentaFormCuenta').value.trim();
+  const xiv=document.getElementById('cuentaFormXiven2').value.trim();
+  const status=document.getElementById('cuentaFormStatus');
+  if(!cta||!xiv){status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-red-50 text-red-700';status.textContent='Completa cuenta y XIVEN2';status.classList.remove('hidden');return;}
+  status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-primary/10 text-primary';
+  status.textContent='Guardando...'; status.classList.remove('hidden');
+  mostrarOverlay(true);
+  try{
+    const res=await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'saveCuenta',cuenta:cta,xiven2:xiv})});
+    const json=await res.json();
+    if(json.ok){
+      status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-green-50 text-green-700';
+      status.textContent='Guardado OK';
+      toast('Cuenta guardada','success');
+      document.getElementById('cuentaFormCuenta').value='';
+      document.getElementById('cuentaFormXiven2').value='';
+      datosCuenta=[]; cargarCuenta();
+    } else {
+      status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-red-50 text-red-700';
+      status.textContent='Error: '+(json.msg||'');
+    }
+  }catch(e){status.className='text-xs font-bold text-center py-1.5 rounded-lg bg-red-50 text-red-700';status.textContent='Error: '+e.message;}
+  finally{mostrarOverlay(false);}
+}
+
+function exportarCuenta(){
+  const datos=cuentaFiltradas.length?cuentaFiltradas:datosCuenta;
+  if(!datos.length){toast('Sin datos','error');return;}
+  const ws=XLSX.utils.json_to_sheet(datos,{header:cuentaHeaders});
+  ws['!cols']=cuentaHeaders.map(()=>({wch:22}));
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Cuentas');
+  XLSX.writeFile(wb,'Cuentas_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'.xls',{bookType:'xls'});
+  toast('Exportado OK','success');
+}
+
+// ══════════════════════════════════════════════════
+//  FIX: campoCuenta onChange → filtrar Marca y XIVEN2 en tablero
+// ══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  const selCuenta = document.getElementById('campoCuenta');
+  if (selCuenta) {
+    selCuenta.addEventListener('change', function() {
+      aplicarFiltroCuentaTablero(this.value);
+    });
+  }
+});
+
+function aplicarFiltroCuentaTablero(ctaVal) {
+  const cta = (ctaVal||'').trim().toUpperCase();
+
+  // 1. Marcas: filtrar wrapFormMarca según cuenta
+  if (cta && mapaCtaMarca[cta]) {
+    const marcas = mapaCtaMarca[cta];
+    poblarDropRadio('wrapFormMarca','listFormMarca', marcas, (v)=>{
+      document.getElementById('campoMarca').value=v||'';
+      document.getElementById('labelFormMarca').textContent=v||'Seleccionar marca...';
+    });
+  } else if (Object.keys(mapaCtaMarca).length > 0) {
+    // Sin filtro: todas las marcas
+    const todasMarcas=[...new Set(Object.values(mapaCtaMarca).flat())].sort();
+    poblarDropRadio('wrapFormMarca','listFormMarca', todasMarcas, (v)=>{
+      document.getElementById('campoMarca').value=v||'';
+      document.getElementById('labelFormMarca').textContent=v||'Seleccionar marca...';
+    });
+  }
+
+  // 2. XIVEN2: autocompletar campo oculto/visible si existe
+  if (cta && mapaCtaXiven2[cta]) {
+    const xiv=mapaCtaXiven2[cta];
+    // Si hay un campo XIVEN2 en el form, llenarlo
+    const fXiv=document.getElementById('campoXiven2');
+    if(fXiv) fXiv.value=xiv;
+  }
+
+  // 3. Filtrar Referencias y Códigos según cuenta en Información General
+  if (!datosSheet1.length) return;
+  const datosCta = cta ? datosSheet1.filter(d=>(d.cuenta||'').toUpperCase()===cta) : datosSheet1;
+  const refs=[...new Set(datosCta.map(d=>d.referencia))].filter(Boolean).sort();
+  const cods=[...new Set(datosCta.map(d=>d.codigo))].filter(Boolean).sort();
+
+  poblarDropCheckbox('wrapFormRef','listFormRef', refs, (v)=>{ seleccionarReferenciaFormulario(v); });
+  document.getElementById('labelFormRef').textContent='Seleccionar Referencia...';
+
+  poblarDropRadio('wrapFiltroRef','listFiltroRef', refs, (v)=>{
+    filtroRefSeleccionada=v;
+    document.getElementById('labelFiltroRef').textContent=v||'Seleccionar Referencia...';
+    const codsFiltRef=[...new Set(datosCta.filter(d=>d.referencia===v).map(d=>d.codigo))];
+    poblarDropRadio('wrapFiltroCod','listFiltroCod', codsFiltRef, (c)=>{
+      filtroCodSeleccionado=c;
+      document.getElementById('labelFiltroCod').textContent=c||'Seleccionar Código...';
+      filtrarTablaLineas();
+    });
+    filtrarTablaLineas();
+  });
+  poblarDropRadio('wrapFiltroCod','listFiltroCod', cods, (c)=>{
+    filtroCodSeleccionado=c;
+    document.getElementById('labelFiltroCod').textContent=c||'Seleccionar Código...';
+    filtrarTablaLineas();
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  FIX: filtrarTablaResultados → filtrar XIMPKD1 por cuenta
+// ══════════════════════════════════════════════════
+// Sobreescribir inicializarFiltroXimpkd1 para que respete cuenta seleccionada
+const _origInicFiltro = inicializarFiltroXimpkd1;
+window.inicializarFiltroXimpkd1 = function() {
+  // Siempre reiniciar con todos los códigos al cargar Sheet2
+  _origInicFiltro();
+};
+
+// Sobreescribir filtrarTablaResultados para que XIMPKD1 dropdown
+// se filtre según la cuenta seleccionada en filtroResCuenta
+const _origFiltrarRes = filtrarTablaResultados;
+window.filtrarTablaResultados = function() {
+  const cuenta=(document.getElementById('filtroResCuenta').value||'').toUpperCase();
+  const st=dropState['wrapFiltroXimpkd1'];
+  if(st) {
+    // Recalcular items del dropdown según cuenta
+    const codsDisp = cuenta
+      ? [...new Set(datosSheet2.filter(d=>(d['CUENTA']||'').toUpperCase().includes(cuenta)).map(d=>(d['CODIGO']||'').trim()).filter(Boolean))].sort()
+      : [...new Set(datosSheet2.map(d=>(d['CODIGO']||'').trim()).filter(Boolean))].sort();
+    // Solo actualizar items; mantener selección que siga siendo válida
+    st.items = codsDisp;
+    st.selected = new Set([...st.selected].filter(c=>codsDisp.includes(c)));
+    renderListMulti('listFiltroXimpkd1', codsDisp, st.selected);
+    // Actualizar label
+    const sel=st.selected;
+    document.getElementById('labelFiltroXimpkd1').textContent =
+      sel.size===0 ? 'Todos los códigos...' : sel.size===1 ? [...sel][0] : sel.size+' códigos sel.';
+  }
+  _origFiltrarRes();
+};
+
+// Cargar Marca y Cuenta al inicio junto con los demás datos
+// para que los mapas estén disponibles en el tablero
+(async function precargarMarcaCuenta(){
+  try {
+    await Promise.all([
+      (async()=>{
+        if(datosMarca.length) return;
+        const csv=await fetchCSV(CONFIG.URL_MARCA);
+        const rows=parseCSV(csv);
+        if(rows.length<2) return;
+        marcaHeaders=rows[0].map(h=>(h||'').trim());
+        datosMarca=rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+          const o={}; marcaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
+        });
+        construirMapaMarca();
+      })(),
+      (async()=>{
+        if(datosCuenta.length) return;
+        const csv=await fetchCSV(CONFIG.URL_CUENTA);
+        const rows=parseCSV(csv);
+        if(rows.length<2) return;
+        cuentaHeaders=rows[0].map(h=>(h||'').trim());
+        datosCuenta=rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+          const o={}; cuentaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
+        });
+        construirMapaXiven2();
+      })()
+    ]);
+    // Poblar select campoCuenta con valores reales de la hoja Cuenta
+    if(datosCuenta.length && cuentaHeaders.length){
+      const iCuenta=cuentaHeaders.findIndex(h=>h.toUpperCase().includes('CUENTA'));
+      const ci=iCuenta>=0?iCuenta:0;
+      const cuentasSel=document.getElementById('campoCuenta');
+      if(cuentasSel){
+        const ctas=[...new Set(datosCuenta.map(d=>Object.values(d)[ci]||'').filter(Boolean))].sort();
+        const optsActuales=[...cuentasSel.options].map(o=>o.value).filter(Boolean);
+        ctas.forEach(c=>{ if(!optsActuales.includes(c)){ const o=document.createElement('option'); o.value=c; o.textContent=c; cuentasSel.appendChild(o); } });
+      }
+      // Igual para prodCuenta y dimCuenta
+      ['prodCuenta','dimCuenta'].forEach(id=>{
+        const sel=document.getElementById(id); if(!sel) return;
+        const iC=cuentaHeaders.findIndex(h=>h.toUpperCase().includes('CUENTA'));
+        const c2=iC>=0?iC:0;
+        const ctas2=[...new Set(datosCuenta.map(d=>Object.values(d)[c2]||'').filter(Boolean))].sort();
+        const optsA=[...sel.options].map(o=>o.value).filter(Boolean);
+        ctas2.forEach(c=>{ if(!optsA.includes(c)){ const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); }});
+      });
+    }
+    // Poblar wrapFormMarca con todas las marcas al inicio
+    if(Object.keys(mapaCtaMarca).length){
+      const todasMarcas=[...new Set(Object.values(mapaCtaMarca).flat())].sort();
+      poblarDropRadio('wrapFormMarca','listFormMarca', todasMarcas, (v)=>{
+        document.getElementById('campoMarca').value=v||'';
+        document.getElementById('labelFormMarca').textContent=v||'Seleccionar marca...';
+      });
+    }
+  } catch(e){ console.warn('Precarga marca/cuenta:', e.message); }
+})();
 </script>
 </body>
 </html>
