@@ -1626,42 +1626,68 @@ function inicializarFiltroXimpkd1() {
 
 function renderListMulti(listId, items, selectedSet) {
   const list = document.getElementById(listId); if (!list) return;
+  const allChecked = selectedSet.size === 0;
   list.innerHTML = [
-    `<div class="cdrop-item" onclick="ximpkd1ToggleAll()">
-      <div class="cdrop-check ${selectedSet.size===0?'checked':''}"></div>
+    `<div class="cdrop-item" data-xi-all="1" onclick="ximpkd1ToggleAll(event)">
+      <div class="cdrop-check ${allChecked?'checked':''}"></div>
       <span style="font-style:italic;color:#555">(Todos)</span>
     </div>`,
-    ...items.map(item => `
-      <div class="cdrop-item" onclick="ximpkd1Toggle('${item.replace(/'/g,"\'")}')">
+    ...items.map(item => {
+      const safe = escHtml(item);
+      const attr = item.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      return `<div class="cdrop-item${selectedSet.has(item)?' checked':''}" data-xi-cod="${attr}" onclick="ximpkd1Toggle(event,this)">
         <div class="cdrop-check ${selectedSet.has(item)?'checked':''}"></div>
-        <span class="font-mono text-[12px]">${escHtml(item)}</span>
-      </div>`)
+        <span class="font-mono text-[12px]">${safe}</span>
+      </div>`;
+    })
   ].join('');
 }
 
-function ximpkd1Toggle(cod) {
+function ximpkd1Toggle(e, el) {
+  e.stopPropagation();
   const st = dropState['wrapFiltroXimpkd1']; if (!st) return;
-  if (st.selected.has(cod)) st.selected.delete(cod); else st.selected.add(cod);
+  const cod = el.dataset.xiCod;
+  if (st.selected.has(cod)) {
+    st.selected.delete(cod);
+    el.classList.remove('checked');
+    el.querySelector('.cdrop-check').classList.remove('checked');
+  } else {
+    st.selected.add(cod);
+    el.classList.add('checked');
+    el.querySelector('.cdrop-check').classList.add('checked');
+  }
+  // actualizar fila Todos
+  const allRow = el.closest('.cdrop-list').querySelector('[data-xi-all] .cdrop-check');
+  if (allRow) { st.selected.size===0 ? allRow.classList.add('checked') : allRow.classList.remove('checked'); }
+  // label
   const lbl = st.selected.size === 0 ? 'Todos los códigos...'
             : st.selected.size === 1 ? [...st.selected][0]
             : st.selected.size + ' códigos sel.';
   document.getElementById('labelFiltroXimpkd1').textContent = lbl;
-  renderListMulti('listFiltroXimpkd1', st.items, st.selected);
   filtrarTablaResultados();
 }
 
-function ximpkd1ToggleAll() {
+function ximpkd1ToggleAll(e) {
+  if (e) e.stopPropagation();
   const st = dropState['wrapFiltroXimpkd1']; if (!st) return;
   st.selected.clear();
   document.getElementById('labelFiltroXimpkd1').textContent = 'Todos los códigos...';
-  renderListMulti('listFiltroXimpkd1', st.items, st.selected);
+  const list = document.getElementById('listFiltroXimpkd1');
+  if (list) {
+    list.querySelectorAll('.cdrop-item').forEach(el => {
+      el.classList.remove('checked');
+      el.querySelector('.cdrop-check')?.classList.remove('checked');
+    });
+    const allChk = list.querySelector('[data-xi-all] .cdrop-check');
+    if (allChk) allChk.classList.add('checked');
+  }
   filtrarTablaResultados();
 }
 
-// Búsqueda interna del dropdown multi sin destruir la selección
+// Búsqueda interna: filtra visualmente sin destruir selección
 function buscarMultiDrop(q) {
   const st = dropState['wrapFiltroXimpkd1']; if (!st) return;
-  const filtrados = st.items.filter(i => i.toUpperCase().includes(q.toUpperCase()));
+  const filtrados = q ? st.items.filter(i => i.toUpperCase().includes(q.toUpperCase())) : st.items;
   renderListMulti('listFiltroXimpkd1', filtrados, st.selected);
 }
 
