@@ -2555,10 +2555,17 @@ function cargarSeccionCuenta() { if(!datosCuenta.length) cargarCuenta(); }
 // ══════════════════════════════════════════════════
 async function cargarMarca() {
   mostrarOverlay(true);
+  const tbody = document.getElementById('tbodyMarca');
+  if(tbody) tbody.innerHTML='<tr><td colspan="3" class="px-6 py-6 text-center text-outline italic">Cargando datos...</td></tr>';
   try {
     const csv = await fetchCSV(CONFIG.URL_MARCA);
     const rows = parseCSV(csv);
-    if (rows.length < 2) { datosMarca=[]; renderTablaMarca([]); return; }
+    if (rows.length < 2) {
+      marcaHeaders = rows.length===1 ? rows[0].map(h=>(h||'').trim()) : ['CUENTA','MARCA'];
+      datosMarca=[]; marcaFiltradas=[];
+      renderTablaMarca([]);
+      return;
+    }
     marcaHeaders = rows[0].map(h=>(h||'').trim());
     datosMarca = rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
       const o={}; marcaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
@@ -2594,7 +2601,7 @@ function construirMapaMarca() {
 }
 
 function renderTablaMarca(datos) {
-  if(!marcaHeaders.length) return;
+  if(!marcaHeaders.length) marcaHeaders = ['CUENTA','MARCA'];
   document.getElementById('countMarca').textContent=datos.length+' REGISTROS';
   document.getElementById('theadMarca').innerHTML=`<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
     ${marcaHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
@@ -2662,10 +2669,17 @@ function exportarMarca(){
 // ══════════════════════════════════════════════════
 async function cargarCuenta() {
   mostrarOverlay(true);
+  const tbody = document.getElementById('tbodyCuenta');
+  if(tbody) tbody.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-outline italic">Cargando datos...</td></tr>';
   try {
     const csv=await fetchCSV(CONFIG.URL_CUENTA);
     const rows=parseCSV(csv);
-    if(rows.length<2){datosCuenta=[];renderTablaCuenta([]);return;}
+    if(rows.length<2){
+      cuentaHeaders = rows.length===1 ? rows[0].map(h=>(h||'').trim()) : ['CUENTA','XIVEN2'];
+      datosCuenta=[]; cuentaFiltradas=[];
+      renderTablaCuenta([]);
+      return;
+    }
     cuentaHeaders=rows[0].map(h=>(h||'').trim());
     datosCuenta=rows.slice(1).filter(r=>r.some(c=>c&&c.trim())).map(r=>{
       const o={}; cuentaHeaders.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o;
@@ -2673,7 +2687,11 @@ async function cargarCuenta() {
     construirMapaXiven2();
     cuentaFiltradas=datosCuenta;
     renderTablaCuenta(datosCuenta);
-  } catch(e){toast('Error cargando Cuentas: '+e.message,'error');}
+  } catch(e){
+    const tb=document.getElementById('tbodyCuenta');
+    if(tb) tb.innerHTML='<tr><td colspan="2" class="px-6 py-6 text-center text-error italic">Error al cargar: '+e.message+'</td></tr>';
+    toast('Error cargando Cuentas: '+e.message,'error');
+  }
   finally{mostrarOverlay(false);}
 }
 
@@ -2692,7 +2710,7 @@ function construirMapaXiven2() {
 }
 
 function renderTablaCuenta(datos){
-  if(!cuentaHeaders.length) return;
+  if(!cuentaHeaders.length) cuentaHeaders = ['CUENTA','XIVEN2'];
   document.getElementById('countCuenta').textContent=datos.length+' REGISTROS';
   document.getElementById('theadCuenta').innerHTML=`<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
     ${cuentaHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
