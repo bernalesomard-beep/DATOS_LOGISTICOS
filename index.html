@@ -9,102 +9,111 @@
 <title>Datos Logísticos</title>
 <script id="tailwind-config">
   tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        colors: {
-          "primary": "#001035",
-          "on-primary": "#ffffff",
-          "primary-container": "#dae2ff",
-          "secondary": "#5b5f63",
-          "on-secondary": "#ffffff",
-          "secondary-container": "#e0e2e8",
-          "surface": "#f9f9fc",
-          "on-surface": "#1a1c1e",
-          "surface-variant": "#e2e2e5",
-          "on-surface-variant": "#45464e",
-          "outline": "#75777f",
-          "outline-variant": "#c5c6cf",
-          "surface-container-lowest": "#ffffff",
-          "surface-container-low": "#f3f3f6",
-          "surface-container": "#eeeef0",
-          "surface-container-high": "#e8e8ea",
-          "surface-container-highest": "#e2e2e5",
-          "background": "#f9f9fc",
-          "on-background": "#1a1c1e",
-          "error": "#ba1a1a",
-          "on-error": "#ffffff"
-        },
-        borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-        spacing: {
-          "component-gap": "0.75rem", "container-margin": "2rem",
-          "table-cell-padding-y": "0.75rem", "table-cell-padding-x": "1rem", "gutter": "1.5rem"
-        },
-        fontFamily: { "body": ["Inter","sans-serif"], "mono-data": ["Inter","monospace"], "headline": ["Inter","sans-serif"] },
-        fontSize: {
-          "mono-data": ["13px",{"lineHeight":"18px","fontWeight":"500"}],
-          "body-md":   ["14px",{"lineHeight":"20px","fontWeight":"400"}],
-          "body-sm":   ["13px",{"lineHeight":"18px","fontWeight":"400"}],
-          "headline-md":["18px",{"lineHeight":"24px","fontWeight":"600"}],
-          "table-header":["12px",{"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"700"}],
-          "headline-lg": ["24px",{"lineHeight":"32px","fontWeight":"700"}]
-        }
+    darkMode:"class",
+    theme:{extend:{
+      colors:{
+        "primary":"#001035","on-primary":"#ffffff","primary-container":"#dae2ff",
+        "secondary":"#5b5f63","on-secondary":"#ffffff","secondary-container":"#e0e2e8",
+        "surface":"#f9f9fc","on-surface":"#1a1c1e","surface-variant":"#e2e2e5",
+        "on-surface-variant":"#45464e","outline":"#75777f","outline-variant":"#c5c6cf",
+        "surface-container-lowest":"#ffffff","surface-container-low":"#f3f3f6",
+        "surface-container":"#eeeef0","surface-container-high":"#e8e8ea",
+        "surface-container-highest":"#e2e2e5","background":"#f9f9fc",
+        "on-background":"#1a1c1e","error":"#ba1a1a","on-error":"#ffffff"
+      },
+      borderRadius:{"DEFAULT":"0.5rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},
+      spacing:{"component-gap":"0.75rem","container-margin":"2rem","table-cell-padding-y":"0.75rem","table-cell-padding-x":"1rem","gutter":"1.5rem"},
+      fontFamily:{"body":["Inter","sans-serif"],"mono-data":["Inter","monospace"],"headline":["Inter","sans-serif"]},
+      fontSize:{
+        "mono-data":["13px",{"lineHeight":"18px","fontWeight":"500"}],
+        "body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],
+        "body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],
+        "headline-md":["18px",{"lineHeight":"24px","fontWeight":"600"}],
+        "table-header":["12px",{"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"700"}],
+        "headline-lg":["24px",{"lineHeight":"32px","fontWeight":"700"}]
       }
-    }
+    }}
   }
 </script>
 <style>
-  .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
-  ::-webkit-scrollbar { width:6px; height:6px; }
-  ::-webkit-scrollbar-track { background:#f1f1f1; }
-  ::-webkit-scrollbar-thumb { background:#c5c6cf; border-radius:10px; }
-  ::-webkit-scrollbar-thumb:hover { background:#75777f; }
-  .sticky-header th { position:sticky; top:0; z-index:10; }
+  .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:#f1f1f1;}
+  ::-webkit-scrollbar-thumb{background:#c5c6cf;border-radius:10px;}
+  ::-webkit-scrollbar-thumb:hover{background:#75777f;}
 
-  /* Dropdown autocomplete */
-  .ac-dropdown { position:absolute; top:100%; left:0; right:0; z-index:200;
-    background:#fff; border:1px solid #c5c6cf; border-radius:0.5rem;
-    box-shadow:0 8px 24px rgba(0,0,0,.12); display:none; max-height:220px; overflow-y:auto; }
-  .ac-dropdown.open { display:block; }
-  .ac-item { padding:8px 14px; font-size:13px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
-  .ac-item:hover, .ac-item.selected { background:#f0f4ff; color:#001035; font-weight:600; }
-  .ac-item.no-result { color:#999; cursor:default; font-style:italic; }
+  /* ── DROPDOWN CUSTOM (tipo imagen 1/3/4) ── */
+  .cdrop-wrap{position:relative;}
+  .cdrop-btn{width:100%;display:flex;align-items:center;justify-content:space-between;
+    background:#fff;border:1px solid #c5c6cf;border-radius:0.5rem;
+    padding:9px 12px;font-size:13px;color:#1a1c1e;cursor:pointer;
+    transition:border-color .2s;}
+  .cdrop-btn:hover{border-color:#001035;}
+  .cdrop-btn .cdrop-label{flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cdrop-btn .cdrop-arrow{font-size:18px;color:#75777f;transition:transform .2s;flex-shrink:0;}
+  .cdrop-wrap.open .cdrop-arrow{transform:rotate(180deg);}
+  .cdrop-panel{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;
+    background:#fff;border:1px solid #c5c6cf;border-radius:0.5rem;
+    box-shadow:0 8px 24px rgba(0,0,0,.13);z-index:300;overflow:hidden;}
+  .cdrop-wrap.open .cdrop-panel{display:block;}
+  .cdrop-search-wrap{padding:8px;border-bottom:1px solid #eee;background:#f9f9fc;}
+  .cdrop-search{width:100%;border:1px solid #c5c6cf;border-radius:6px;
+    padding:6px 10px 6px 32px;font-size:12px;outline:none;}
+  .cdrop-search:focus{border-color:#001035;}
+  .cdrop-search-wrap{position:relative;}
+  .cdrop-search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);
+    font-size:16px;color:#75777f;pointer-events:none;}
+  .cdrop-list{max-height:200px;overflow-y:auto;}
+  .cdrop-item{display:flex;align-items:center;gap:10px;padding:9px 14px;
+    font-size:13px;cursor:pointer;border-bottom:1px solid #f5f5f5;transition:background .15s;}
+  .cdrop-item:hover{background:#f0f4ff;}
+  .cdrop-item.active{background:#f0f4ff;font-weight:600;color:#001035;}
+  .cdrop-item .cdrop-radio{width:16px;height:16px;border-radius:50%;border:2px solid #c5c6cf;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color .15s;}
+  .cdrop-item.active .cdrop-radio{border-color:#001035;}
+  .cdrop-item.active .cdrop-radio::after{content:'';width:8px;height:8px;
+    background:#001035;border-radius:50%;}
+  .cdrop-item .cdrop-check{width:16px;height:16px;border-radius:3px;border:2px solid #c5c6cf;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+  .cdrop-item.checked .cdrop-check{background:#001035;border-color:#001035;}
+  .cdrop-item.checked .cdrop-check::after{content:'✓';color:#fff;font-size:10px;font-weight:700;}
+  .cdrop-item.no-result{color:#999;font-style:italic;cursor:default;pointer-events:none;}
+  .cdrop-select-all{font-weight:600;color:#001035;}
+
+  /* ── TABLAS CON ALTURA FIJA ── */
+  .tabla-scroll-wrap{overflow:auto;}
+  .tabla-scroll-wrap thead th{position:sticky;top:0;z-index:10;}
+  #wrapLineas{height:160px;}   /* ~4 filas */
+  #wrapResultados{height:280px;} /* ~8 filas */
 
   /* Toast */
-  #toast { position:fixed; bottom:24px; right:24px; z-index:9999;
-    padding:12px 20px; border-radius:8px; font-size:13px; font-weight:600;
-    color:#fff; opacity:0; transform:translateY(10px);
-    transition:opacity .3s,transform .3s; pointer-events:none; }
-  #toast.show { opacity:1; transform:translateY(0); }
-  #toast.success { background:#16a34a; }
-  #toast.error   { background:#ba1a1a; }
-  #toast.info    { background:#001035; }
+  #toast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;
+    border-radius:8px;font-size:13px;font-weight:600;color:#fff;opacity:0;
+    transform:translateY(10px);transition:opacity .3s,transform .3s;pointer-events:none;}
+  #toast.show{opacity:1;transform:translateY(0);}
+  #toast.success{background:#16a34a;}
+  #toast.error{background:#ba1a1a;}
+  #toast.info{background:#001035;}
 
-  /* Spinner overlay */
-  #overlay { position:fixed; inset:0; background:rgba(0,16,53,.45);
-    z-index:9998; display:none; align-items:center; justify-content:center; }
-  #overlay.show { display:flex; }
-  .spinner { width:44px; height:44px; border:4px solid rgba(255,255,255,.3);
-    border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
+  /* Spinner */
+  #overlay{position:fixed;inset:0;background:rgba(0,16,53,.45);z-index:9998;
+    display:none;align-items:center;justify-content:center;}
+  #overlay.show{display:flex;}
+  .spinner{width:44px;height:44px;border:4px solid rgba(255,255,255,.3);
+    border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
 
-  /* readonly inputs */
-  input[readonly] { background:#f3f3f6 !important; color:#45464e; cursor:not-allowed; }
-
-  /* Table rows */
-  tbody tr { cursor:pointer; }
-  tbody tr.row-selected { background:#dae2ff !important; }
+  input[readonly]{background:#f3f3f6!important;color:#45464e;cursor:not-allowed;}
+  tbody tr{cursor:pointer;}
+  tbody tr.row-selected{background:#dae2ff!important;}
 </style>
 </head>
 <body class="bg-background text-on-surface flex h-screen overflow-hidden font-body">
 
-<!-- ═══════════ SPINNER ═══════════ -->
 <div id="overlay"><div class="spinner"></div></div>
-
-<!-- ═══════════ TOAST ═══════════ -->
 <div id="toast"></div>
 
-<!-- ═══════════ SIDEBAR ═══════════ -->
+<!-- SIDEBAR -->
 <aside class="hidden md:flex flex-col h-full w-64 bg-surface-container-low border-r border-outline-variant p-4">
   <div class="px-4 py-8 mb-4">
     <h1 class="text-primary text-headline-md font-extrabold flex items-center gap-2">
@@ -115,6 +124,15 @@
     <nav class="space-y-1 px-2">
       <a class="flex items-center gap-3 px-3 py-2 bg-primary text-on-primary rounded-lg font-semibold transition-all shadow-sm" href="#">
         <span class="material-symbols-outlined">dashboard</span><span class="text-body-md">Tablero</span>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+        <span class="material-symbols-outlined">inventory_2</span><span class="text-body-md">Productos</span>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+        <span class="material-symbols-outlined">straighten</span><span class="text-body-md">Dimensiones</span>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+        <span class="material-symbols-outlined">history</span><span class="text-body-md">Historial</span>
       </a>
     </nav>
     <div class="px-4 mt-8">
@@ -136,10 +154,10 @@
   </div>
 </aside>
 
-<!-- ═══════════ MAIN ═══════════ -->
+<!-- MAIN -->
 <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-  <!-- TOP BAR -->
+  <!-- HEADER -->
   <header class="bg-primary text-on-primary shadow-lg flex justify-between items-center w-full px-8 py-3 z-20">
     <div class="flex items-center gap-8">
       <div class="flex items-center gap-4 bg-white/10 rounded-lg px-4 py-2 border border-white/10 w-96">
@@ -161,50 +179,75 @@
   <!-- CONTENT -->
   <div class="flex-1 overflow-y-auto p-8 space-y-6">
 
-    <!-- ── BUSCADOR DE REFERENCIA ── -->
-    <section class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant relative z-30">
-      <div class="flex flex-wrap gap-6 items-end">
+    <!-- ── FILTROS SUPERIORES ── -->
+    <section class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant relative z-30">
+      <div class="flex flex-wrap gap-5 items-end">
 
-        <!-- Referencia autocomplete -->
-        <div class="flex-1 min-w-[280px]">
+        <!-- REFERENCIA FILTRO (imagen 3: radio + buscar) -->
+        <div class="flex-1 min-w-[240px]">
           <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wider">Referencia</label>
-          <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
-            <input id="inputReferencia" type="text"
-              class="w-full pl-10 pr-4 py-2.5 border border-outline-variant rounded-lg text-body-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              placeholder="Escribir para filtrar referencias..."
-              oninput="filtrarReferencias()" autocomplete="off"/>
-            <div id="dropReferencia" class="ac-dropdown"></div>
+          <div class="cdrop-wrap" id="wrapFiltroRef">
+            <button class="cdrop-btn" onclick="toggleDrop('wrapFiltroRef')">
+              <span class="cdrop-label" id="labelFiltroRef">Seleccionar Referencia...</span>
+              <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
+            </button>
+            <div class="cdrop-panel">
+              <div class="cdrop-search-wrap">
+                <span class="material-symbols-outlined cdrop-search-icon">search</span>
+                <input class="cdrop-search" placeholder="Buscar" type="text"
+                  oninput="buscarEnDrop('wrapFiltroRef',this.value)"/>
+              </div>
+              <div class="cdrop-list" id="listFiltroRef"></div>
+            </div>
           </div>
         </div>
 
-        <!-- Fecha inicio / fin -->
-        <div class="w-44">
+        <!-- CÓDIGO FILTRO (imagen 4: radio + buscar, filtrado por referencia) -->
+        <div class="flex-1 min-w-[240px]">
+          <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wider">Código de Producto (XIMPKD1)</label>
+          <div class="cdrop-wrap" id="wrapFiltroCod">
+            <button class="cdrop-btn" onclick="toggleDrop('wrapFiltroCod')">
+              <span class="cdrop-label" id="labelFiltroCod">Seleccionar Código...</span>
+              <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
+            </button>
+            <div class="cdrop-panel">
+              <div class="cdrop-search-wrap">
+                <span class="material-symbols-outlined cdrop-search-icon">search</span>
+                <input class="cdrop-search" placeholder="Buscar" type="text"
+                  oninput="buscarEnDrop('wrapFiltroCod',this.value)"/>
+              </div>
+              <div class="cdrop-list" id="listFiltroCod"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FECHAS -->
+        <div class="w-40">
           <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wider">Fecha Inicio</label>
           <input id="filtroFechaIni" type="date" class="w-full px-3 py-2.5 rounded-lg border border-outline-variant focus:border-primary text-body-md transition-all" oninput="filtrarTablaLineas()"/>
         </div>
-        <div class="w-44">
+        <div class="w-40">
           <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wider">Fecha Fin</label>
           <input id="filtroFechaFin" type="date" class="w-full px-3 py-2.5 rounded-lg border border-outline-variant focus:border-primary text-body-md transition-all" oninput="filtrarTablaLineas()"/>
         </div>
 
         <div class="flex gap-3">
-          <button onclick="limpiarFormulario()" class="bg-surface-container-high text-on-surface-variant px-6 py-2.5 rounded-lg font-bold hover:bg-surface-dim transition-all">
+          <button onclick="limpiarFormulario()" class="bg-surface-container-high text-on-surface-variant px-5 py-2.5 rounded-lg font-bold hover:bg-surface-container-highest transition-all">
             Limpiar
           </button>
-          <button onclick="guardarRegistro()" class="bg-primary hover:bg-primary/90 text-on-primary px-6 py-2.5 rounded-lg font-bold transition-all flex items-center gap-2 shadow-md">
-            <span class="material-symbols-outlined text-[20px]">save</span>Guardar y Alimentar
+          <button onclick="guardarRegistro()" class="bg-primary hover:bg-primary/90 text-on-primary px-5 py-2.5 rounded-lg font-bold transition-all flex items-center gap-2 shadow-md">
+            <span class="material-symbols-outlined text-[18px]">save</span>Guardar y Alimentar
           </button>
         </div>
       </div>
     </section>
 
     <!-- ── PANELES DE DATOS ── -->
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
 
       <!-- INFORMACIÓN GENERAL -->
-      <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm flex flex-col">
-        <div class="bg-primary text-on-primary px-4 py-3 font-bold text-center tracking-widest text-xs uppercase">
+      <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-visible shadow-sm flex flex-col">
+        <div class="bg-primary text-on-primary px-4 py-3 font-bold text-center tracking-widest text-xs uppercase rounded-t-xl">
           Información General
         </div>
         <div class="p-5 space-y-4 flex-1">
@@ -213,12 +256,26 @@
             <input id="campoFecha" type="text" placeholder="dd/mm/aaaa"
               class="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
           </div>
+
+          <!-- REFERENCIA FORMULARIO (imagen 1: checkbox + buscar + check azul) -->
           <div>
             <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Referencia</label>
-            <input id="campoReferenciaDisplay" type="text" readonly
-              class="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md"
-              placeholder="Se autocompleta al seleccionar..."/>
+            <div class="cdrop-wrap" id="wrapFormRef">
+              <button class="cdrop-btn" onclick="toggleDrop('wrapFormRef')">
+                <span class="cdrop-label" id="labelFormRef">Seleccionar Referencia...</span>
+                <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
+              </button>
+              <div class="cdrop-panel" style="z-index:400;">
+                <div class="cdrop-search-wrap">
+                  <span class="material-symbols-outlined cdrop-search-icon">search</span>
+                  <input class="cdrop-search" placeholder="Buscar" type="text"
+                    oninput="buscarEnDrop('wrapFormRef',this.value)"/>
+                </div>
+                <div class="cdrop-list" id="listFormRef"></div>
+              </div>
+            </div>
           </div>
+
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Cuenta</label>
@@ -239,22 +296,28 @@
       </div>
 
       <!-- DETALLES DEL PRODUCTO -->
-      <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm flex flex-col">
-        <div class="bg-secondary text-on-secondary px-4 py-3 font-bold text-center tracking-widest text-xs uppercase">
+      <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-visible shadow-sm flex flex-col">
+        <div class="bg-secondary text-on-secondary px-4 py-3 font-bold text-center tracking-widest text-xs uppercase rounded-t-xl">
           Detalles del Producto
         </div>
         <div class="p-5 space-y-4 flex-1">
 
-          <!-- Código con autocomplete filtrado por referencia -->
+          <!-- CÓDIGO ARTÍCULO (filtrado por referencia seleccionada en formulario) -->
           <div>
             <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Código de Artículo</label>
-            <div class="relative">
-              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[16px]">inventory_2</span>
-              <input id="inputCodigo" type="text"
-                class="w-full pl-10 pr-4 py-2 border border-outline-variant rounded-lg text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                placeholder="Seleccione referencia primero..."
-                oninput="filtrarCodigos()" autocomplete="off"/>
-              <div id="dropCodigo" class="ac-dropdown"></div>
+            <div class="cdrop-wrap" id="wrapFormCod">
+              <button class="cdrop-btn" onclick="toggleDrop('wrapFormCod')" id="btnFormCod" disabled>
+                <span class="cdrop-label" id="labelFormCod">Seleccione referencia primero...</span>
+                <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
+              </button>
+              <div class="cdrop-panel" style="z-index:400;">
+                <div class="cdrop-search-wrap">
+                  <span class="material-symbols-outlined cdrop-search-icon">search</span>
+                  <input class="cdrop-search" placeholder="Buscar código..." type="text"
+                    oninput="buscarEnDrop('wrapFormCod',this.value)"/>
+                </div>
+                <div class="cdrop-list" id="listFormCod"></div>
+              </div>
             </div>
           </div>
 
@@ -269,8 +332,7 @@
             <div>
               <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">EAN 13</label>
               <input id="campoEan" type="text" readonly
-                class="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md font-mono"
-                placeholder="—"/>
+                class="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md font-mono" placeholder="—"/>
             </div>
             <div>
               <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">FACT. EMPQ. (FE)</label>
@@ -291,13 +353,11 @@
 
       <!-- DIMENSIONES + PALETIZACIÓN -->
       <div class="flex flex-col gap-4">
-        <!-- Dimensiones -->
         <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm flex-1">
           <div class="bg-surface-container-high text-on-surface px-4 py-2 font-bold text-center tracking-widest text-[10px] uppercase">
             Dimensiones y Peso
           </div>
           <div class="p-3 grid grid-cols-2 gap-4">
-            <!-- Unidad -->
             <div class="space-y-2">
               <h4 class="text-center font-bold text-[10px] text-primary bg-primary/5 py-1 rounded-md uppercase">Unidad Individual</h4>
               <div class="grid grid-cols-2 gap-2">
@@ -307,7 +367,6 @@
                 <div class="relative"><input id="pesUni" type="number" step="0.001" class="w-full border border-outline-variant rounded px-2 py-1.5 text-[11px] text-center focus:border-primary pr-5" placeholder="PES"/><span class="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] text-outline">kg</span></div>
               </div>
             </div>
-            <!-- Caja -->
             <div class="space-y-2">
               <h4 class="text-center font-bold text-[10px] text-secondary bg-secondary/5 py-1 rounded-md uppercase">Caja de Empaque</h4>
               <div class="grid grid-cols-2 gap-2">
@@ -319,7 +378,6 @@
             </div>
           </div>
         </div>
-        <!-- Paletización -->
         <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm">
           <div class="bg-secondary text-on-secondary px-4 py-2 font-bold text-center tracking-widest text-[10px] uppercase">Paletización</div>
           <div class="p-3 grid grid-cols-4 gap-2">
@@ -332,86 +390,86 @@
       </div>
     </section>
 
-    <!-- ── DETALLE DE LÍNEAS (Sheet1) ── -->
+    <!-- ── DETALLE DE LÍNEAS ── -->
     <section>
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-3">
         <h3 class="text-headline-md font-bold text-primary flex items-center gap-2">
           <span class="material-symbols-outlined">list_alt</span>Detalle de Líneas
         </h3>
         <span id="countLineas" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
       </div>
-      <div class="overflow-x-auto bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
-        <table class="w-full text-left border-collapse">
+      <div id="wrapLineas" class="tabla-scroll-wrap bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+        <table class="w-full text-left border-collapse min-w-[700px]">
           <thead>
             <tr class="bg-surface-container-high text-on-surface-variant text-[12px] font-bold uppercase tracking-wider">
-              <th class="px-6 py-3 border-r border-outline-variant/30">REFERENCIA</th>
-              <th class="px-6 py-3 border-r border-outline-variant/30">CÓDIGO</th>
-              <th class="px-6 py-3 border-r border-outline-variant/30">DESCRIPCIÓN</th>
-              <th class="px-6 py-3 border-r border-outline-variant/30">EAN 13</th>
-              <th class="px-6 py-3 border-r border-outline-variant/30">FECHA</th>
-              <th class="px-6 py-3 text-center">ACCIONES</th>
+              <th class="px-5 py-2.5 border-r border-outline-variant/30">REFERENCIA</th>
+              <th class="px-5 py-2.5 border-r border-outline-variant/30">CÓDIGO</th>
+              <th class="px-5 py-2.5 border-r border-outline-variant/30">DESCRIPCIÓN</th>
+              <th class="px-5 py-2.5 border-r border-outline-variant/30">EAN 13</th>
+              <th class="px-5 py-2.5 border-r border-outline-variant/30">FECHA</th>
+              <th class="px-5 py-2.5 text-center">ACCIONES</th>
             </tr>
-            <tr class="bg-surface-container-low/50">
-              <th class="px-2 py-1.5 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="0" class="col-filter w-full text-[11px] p-1.5 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
-              <th class="px-2 py-1.5 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="1" class="col-filter w-full text-[11px] p-1.5 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
-              <th class="px-2 py-1.5 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="2" class="col-filter w-full text-[11px] p-1.5 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
-              <th class="px-2 py-1.5 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="3" class="col-filter w-full text-[11px] p-1.5 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
-              <th class="px-2 py-1.5 border-r border-outline-variant/30"></th>
-              <th class="px-2 py-1.5"></th>
+            <tr class="bg-surface-container-low/60">
+              <th class="px-2 py-1 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="0" class="col-filter w-full text-[11px] p-1 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
+              <th class="px-2 py-1 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="1" class="col-filter w-full text-[11px] p-1 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
+              <th class="px-2 py-1 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="2" class="col-filter w-full text-[11px] p-1 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
+              <th class="px-2 py-1 border-r border-outline-variant/30"><input oninput="filtrarTablaLineas()" data-col="3" class="col-filter w-full text-[11px] p-1 border border-outline-variant rounded bg-white" placeholder="Filtrar..." type="text"/></th>
+              <th class="px-2 py-1 border-r border-outline-variant/30"></th>
+              <th class="px-2 py-1"></th>
             </tr>
           </thead>
           <tbody id="tbodyLineas" class="text-body-sm divide-y divide-outline-variant">
-            <tr><td colspan="6" class="px-6 py-8 text-center text-outline text-sm italic">Cargando datos...</td></tr>
+            <tr><td colspan="6" class="px-6 py-6 text-center text-outline text-sm italic">Cargando datos...</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- ── RESULTADOS LOGÍSTICOS (Sheet2) ── -->
+    <!-- ── RESULTADOS LOGÍSTICOS ── -->
     <section>
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-3">
         <h3 class="text-headline-md font-bold text-secondary flex items-center gap-2">
           <span class="material-symbols-outlined">analytics</span>Resultados Logísticos
         </h3>
-        <div class="flex gap-3">
+        <div class="flex gap-3 items-center">
           <div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant">
             <span class="material-symbols-outlined text-outline text-[16px]">search</span>
             <input id="filtroResultados" oninput="filtrarTablaResultados()"
-              class="bg-transparent border-none text-[11px] w-44 focus:ring-0" placeholder="Filtrar referencia..." type="text"/>
+              class="bg-transparent border-none text-[11px] w-44 focus:ring-0" placeholder="Filtrar..." type="text"/>
           </div>
-          <span id="countResultados" class="bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20 self-center">0 REGISTROS</span>
+          <span id="countResultados" class="bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20">0 REGISTROS</span>
         </div>
       </div>
-      <div class="overflow-x-auto bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg">
+      <div id="wrapResultados" class="tabla-scroll-wrap bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg">
         <table class="w-full text-left border-collapse min-w-[1800px]">
           <thead>
-            <tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky-header">
-              <th class="px-4 py-4 border-r border-white/10">FECHA</th>
-              <th class="px-4 py-4 border-r border-white/10">CUENTA</th>
-              <th class="px-4 py-4 border-r border-white/10">REFERENCIA</th>
-              <th class="px-4 py-4 border-r border-white/10">CÓDIGO</th>
-              <th class="px-4 py-4 border-r border-white/10">DESCRIPCIÓN</th>
-              <th class="px-4 py-4 border-r border-white/10">EAN 13</th>
-              <th class="px-4 py-4 border-r border-white/10">MARCA</th>
-              <th class="px-4 py-4 border-r border-white/10">FE</th>
-              <th class="px-4 py-4 border-r border-white/10">LAR UNI</th>
-              <th class="px-4 py-4 border-r border-white/10">ANC UNI</th>
-              <th class="px-4 py-4 border-r border-white/10">ALT UNI</th>
-              <th class="px-4 py-4 border-r border-white/10">PES UNI</th>
-              <th class="px-4 py-4 border-r border-white/10">LAR CAJA</th>
-              <th class="px-4 py-4 border-r border-white/10">ANC CAJA</th>
-              <th class="px-4 py-4 border-r border-white/10">ALT CAJA</th>
-              <th class="px-4 py-4 border-r border-white/10">PES CAJA</th>
-              <th class="px-4 py-4 border-r border-white/10">CAMA</th>
-              <th class="px-4 py-4 border-r border-white/10">NIVEL</th>
-              <th class="px-4 py-4 border-r border-white/10">CAJA/P</th>
-              <th class="px-4 py-4 border-r border-white/10">UNID/P</th>
-              <th class="px-4 py-4 border-r border-white/10">INGRESADO POR</th>
-              <th class="px-4 py-4 text-center">ACCIONES</th>
+            <tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest">
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">FECHA</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">CUENTA</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">REFERENCIA</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">CÓDIGO</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">DESCRIPCIÓN</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">EAN 13</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">MARCA</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">FE</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">LAR UNI</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">ANC UNI</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">ALT UNI</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">PES UNI</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">LAR CAJA</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">ANC CAJA</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">ALT CAJA</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">PES CAJA</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">CAMA</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">NIVEL</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">CAJA/P</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">UNID/P</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">INGRESADO POR</th>
+              <th class="px-4 py-3 text-center whitespace-nowrap">ACCIONES</th>
             </tr>
           </thead>
           <tbody id="tbodyResultados" class="text-[12px] font-mono-data divide-y divide-outline-variant">
-            <tr><td colspan="22" class="px-6 py-8 text-center text-outline text-sm italic">Cargando datos...</td></tr>
+            <tr><td colspan="22" class="px-6 py-6 text-center text-outline text-sm italic">Cargando datos...</td></tr>
           </tbody>
         </table>
       </div>
@@ -425,7 +483,7 @@
   </footer>
 </main>
 
-<!-- ═══════════ MODAL ELIMINAR ═══════════ -->
+<!-- MODAL ELIMINAR -->
 <div id="modalEliminar" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
   <div class="bg-white rounded-xl shadow-2xl p-6 w-96">
     <h3 class="text-headline-md font-bold text-error mb-2 flex items-center gap-2">
@@ -440,37 +498,40 @@
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-//  CONFIGURACIÓN  — EDITAR ANTES DE USAR
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════
 const CONFIG = {
-  // URL del Apps Script desplegado como Web App
   APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxriNuBNz1hKKwOpJUNuFR6hUTgMNTOM9mxd6K01SjdMP6V1t3GtOlw--M0gaCVHNhk7g/exec',
-
-  // Sheet 1 — fuente de referencias y códigos (CSV)
   URL_SHEET1: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=1464291631&single=true&output=csv',
-
-  // Sheet 2 — resultados logísticos guardados (CSV para lectura)
   URL_SHEET2: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=307813751&single=true&output=csv',
 };
 
-// ════════════════════════════════════════════════════════════
-//  ESTADO GLOBAL
-// ════════════════════════════════════════════════════════════
-let datosSheet1  = [];   // [{referencia, fecha, codigo, descripcion, ean13}, ...]
-let datosSheet2  = [];   // filas guardadas
-let referenciaSeleccionada = null;
-let codigoSeleccionado     = null;
-let pendingDeleteRef  = null;
-let pendingDeleteCod  = null;
+// ══════════════════════════════════════════════════
+//  ESTADO
+// ══════════════════════════════════════════════════
+let datosSheet1 = [];
+let datosSheet2 = [];
+let referenciaSeleccionada = null;  // para formulario
+let codigoSeleccionado     = null;  // para formulario
+let filtroRefSeleccionada  = null;  // para filtro superior
+let filtroCodSeleccionado  = null;  // para filtro superior
+let pendingDeleteRef = null;
+let pendingDeleteCod = null;
 let modoEdicion = false;
 
-// ════════════════════════════════════════════════════════════
+// Almacena ítems actuales de cada dropdown para búsqueda interna
+const dropState = {};
+
+// ══════════════════════════════════════════════════
 //  INIT
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   cargarDatos();
-  cerrarDropdownsAlClick();
+  document.addEventListener('click', cerrarTodosDrops);
+  document.getElementById('modalEliminar').addEventListener('click', function(e){
+    if(e.target===this) cerrarModalEliminar();
+  });
 });
 
 async function cargarDatos() {
@@ -487,143 +548,233 @@ async function cargarDatos() {
   }
 }
 
-// ════════════════════════════════════════════════════════════
-//  SHEET 1 — CARGA Y PARSE
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  SHEET 1
+// ══════════════════════════════════════════════════
 async function cargarSheet1() {
-  const csv = await fetchCSV(CONFIG.URL_SHEET1);
+  const csv  = await fetchCSV(CONFIG.URL_SHEET1);
   const rows = parseCSV(csv);
   if (rows.length < 2) return;
 
-  // Detectar columnas por cabecera
-  const headers = rows[0].map(h => h.trim().toUpperCase());
-  const iREF  = headers.findIndex(h => h.includes('REFERENCIA'));
-  const iFEC  = headers.findIndex(h => h.includes('FECHA'));
-  const iCOD  = headers.findIndex(h => h.includes('CÓDIGO') || h.includes('CODIGO') || h.includes('PRODUCT'));
-  const iDESC = headers.findIndex(h => h.includes('DESCRI'));
-  const iEAN  = headers.findIndex(h => h.includes('EAN'));
+  const h = rows[0].map(x => x.trim().toUpperCase());
+  const iREF  = h.findIndex(x => x.includes('REFERENCIA'));
+  const iFEC  = h.findIndex(x => x.includes('FECHA'));
+  const iCOD  = h.findIndex(x => x.includes('CÓDIGO')||x.includes('CODIGO')||x.includes('PRODUCT'));
+  const iDESC = h.findIndex(x => x.includes('DESCRI'));
+  const iEAN  = h.findIndex(x => x.includes('EAN'));
 
   datosSheet1 = rows.slice(1)
     .filter(r => r[iREF] && r[iREF].trim())
     .map(r => ({
-      referencia:  (r[iREF]  || '').trim(),
-      fecha:       (r[iFEC]  || '').trim(),
-      codigo:      (r[iCOD]  || '').trim(),
-      descripcion: (r[iDESC] || '').trim(),
-      ean13:       (r[iEAN]  || '').trim()
+      referencia:  (r[iREF]||'').trim(),
+      fecha:       (r[iFEC]||'').trim(),
+      codigo:      (r[iCOD]||'').trim(),
+      descripcion: (r[iDESC]||'').trim(),
+      ean13:       (r[iEAN]||'').trim()
     }));
+
+  // Poblar dropdowns de referencias
+  const refs = [...new Set(datosSheet1.map(d => d.referencia))];
+  poblarDropRadio('wrapFiltroRef','listFiltroRef', refs, (v) => {
+    filtroRefSeleccionada = v;
+    document.getElementById('labelFiltroRef').textContent = v || 'Seleccionar Referencia...';
+    // Poblar códigos filtro según referencia
+    const cods = [...new Set(datosSheet1.filter(d=>d.referencia===v).map(d=>d.codigo))];
+    poblarDropRadio('wrapFiltroCod','listFiltroCod', cods, (c) => {
+      filtroCodSeleccionado = c;
+      document.getElementById('labelFiltroCod').textContent = c || 'Seleccionar Código...';
+      filtrarTablaLineas();
+    });
+    filtrarTablaLineas();
+  });
+
+  poblarDropCheckbox('wrapFormRef','listFormRef', refs, (v) => {
+    seleccionarReferenciaFormulario(v);
+  });
+
+  // Poblar todos los códigos en filtro superior al inicio
+  const todosCods = [...new Set(datosSheet1.map(d=>d.codigo))];
+  poblarDropRadio('wrapFiltroCod','listFiltroCod', todosCods, (c) => {
+    filtroCodSeleccionado = c;
+    document.getElementById('labelFiltroCod').textContent = c || 'Seleccionar Código...';
+    filtrarTablaLineas();
+  });
 
   renderTablaLineas(datosSheet1);
 }
 
-// ════════════════════════════════════════════════════════════
-//  SHEET 2 — CARGA Y PARSE
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  SHEET 2
+// ══════════════════════════════════════════════════
 async function cargarSheet2() {
   try {
     const csv  = await fetchCSV(CONFIG.URL_SHEET2);
     const rows = parseCSV(csv);
-    if (rows.length < 2) { datosSheet2 = []; renderTablaResultados([]); return; }
-
-    const headers = rows[0].map(h => (h || '').trim());
+    if (rows.length < 2) { datosSheet2=[]; renderTablaResultados([]); return; }
+    const headers = rows[0].map(h=>(h||'').trim());
     datosSheet2 = rows.slice(1)
-      .filter(r => r.some(c => c && c.trim()))
-      .map(r => {
-        const obj = {};
-        headers.forEach((h, i) => obj[h] = (r[i] || '').trim());
-        return obj;
-      });
+      .filter(r=>r.some(c=>c&&c.trim()))
+      .map(r=>{ const o={}; headers.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o; });
     renderTablaResultados(datosSheet2);
   } catch(e) {
-    console.warn('Sheet2 aún vacío o sin datos:', e.message);
-    datosSheet2 = [];
-    renderTablaResultados([]);
+    console.warn('Sheet2:', e.message);
+    datosSheet2=[]; renderTablaResultados([]);
   }
 }
 
-// ════════════════════════════════════════════════════════════
-//  AUTOCOMPLETE — REFERENCIA
-// ════════════════════════════════════════════════════════════
-function filtrarReferencias() {
-  const q    = document.getElementById('inputReferencia').value.trim().toUpperCase();
-  const drop = document.getElementById('dropReferencia');
+// ══════════════════════════════════════════════════
+//  DROPDOWNS CUSTOM
+// ══════════════════════════════════════════════════
+function poblarDropRadio(wrapId, listId, items, onSelect) {
+  dropState[wrapId] = { items, onSelect, type:'radio' };
+  renderListRadio(listId, items, null, onSelect, wrapId);
+}
 
-  // Si limpian el campo, resetear código
-  if (!q) {
-    drop.innerHTML = '';
-    drop.classList.remove('open');
-    referenciaSeleccionada = null;
+function poblarDropCheckbox(wrapId, listId, items, onSelect) {
+  dropState[wrapId] = { items, onSelect, type:'checkbox', selected:null };
+  renderListCheckbox(listId, items, null, onSelect, wrapId);
+}
+
+function renderListRadio(listId, items, current, onSelect, wrapId) {
+  const list = document.getElementById(listId);
+  if (!items.length) {
+    list.innerHTML = '<div class="cdrop-item no-result">Sin opciones</div>'; return;
+  }
+  list.innerHTML = items.map(item => `
+    <div class="cdrop-item ${item===current?'active':''}" onclick="seleccionarRadio('${wrapId}','${escHtml(item)}')">
+      <div class="cdrop-radio"></div>
+      <span>${escHtml(item)}</span>
+    </div>`).join('');
+}
+
+function renderListCheckbox(listId, items, current, onSelect, wrapId) {
+  const list = document.getElementById(listId);
+  // "Seleccionar todo" header
+  const allRow = `<div class="cdrop-item cdrop-select-all" onclick="seleccionarCheckAll('${wrapId}')">
+    <div class="cdrop-check ${!current?'checked':''}"></div>
+    <span>(Seleccionar todo)</span>
+  </div>`;
+  const rows = items.map(item => `
+    <div class="cdrop-item ${item===current?'checked':''}" onclick="seleccionarCheckbox('${wrapId}','${escHtml(item)}')">
+      <div class="cdrop-check"></div>
+      <span>${escHtml(item)}</span>
+    </div>`).join('');
+  list.innerHTML = allRow + rows;
+}
+
+function seleccionarRadio(wrapId, value) {
+  const s = dropState[wrapId];
+  if (!s) return;
+  s.current = value;
+  const listId = wrapId.replace('wrap','list');
+  renderListRadio(listId, s.items, value, s.onSelect, wrapId);
+  cerrarDrop(wrapId);
+  s.onSelect(value);
+}
+
+function seleccionarCheckbox(wrapId, value) {
+  const s = dropState[wrapId];
+  if (!s) return;
+  s.selected = (s.selected === value) ? null : value;
+  const listId = wrapId.replace('wrap','list');
+  renderListCheckbox(listId, s.items, s.selected, s.onSelect, wrapId);
+  const labelEl = document.getElementById('label' + wrapId.replace('wrap',''));
+  // Update label
+  const lId = wrapId === 'wrapFormRef' ? 'labelFormRef' :
+              wrapId === 'wrapFormCod' ? 'labelFormCod' : null;
+  if (lId) document.getElementById(lId).textContent = s.selected || 'Seleccionar Referencia...';
+  cerrarDrop(wrapId);
+  s.onSelect(s.selected);
+}
+
+function seleccionarCheckAll(wrapId) {
+  const s = dropState[wrapId];
+  if (!s) return;
+  s.selected = null;
+  const listId = wrapId.replace('wrap','list');
+  renderListCheckbox(listId, s.items, null, s.onSelect, wrapId);
+  const lId = wrapId === 'wrapFormRef' ? 'labelFormRef' : 'labelFormCod';
+  if (document.getElementById(lId))
+    document.getElementById(lId).textContent = 'Seleccionar Referencia...';
+  cerrarDrop(wrapId);
+  s.onSelect(null);
+}
+
+function toggleDrop(wrapId) {
+  const wrap = document.getElementById(wrapId);
+  const wasOpen = wrap.classList.contains('open');
+  cerrarTodosDrops();
+  if (!wasOpen) {
+    const btn = wrap.querySelector('.cdrop-btn');
+    if (btn && btn.disabled) return;
+    wrap.classList.add('open');
+    // focus search
+    const inp = wrap.querySelector('.cdrop-search');
+    if (inp) setTimeout(()=>inp.focus(),50);
+  }
+}
+
+function cerrarDrop(wrapId) {
+  document.getElementById(wrapId)?.classList.remove('open');
+}
+
+function cerrarTodosDrops(e) {
+  if (e && e.target.closest('.cdrop-wrap')) return;
+  document.querySelectorAll('.cdrop-wrap.open').forEach(w=>w.classList.remove('open'));
+}
+
+function buscarEnDrop(wrapId, q) {
+  const s = dropState[wrapId];
+  if (!s) return;
+  const filtrados = s.items.filter(i => i.toUpperCase().includes(q.toUpperCase()));
+  const listId = wrapId.replace('wrap','list');
+  if (s.type === 'radio') {
+    renderListRadio(listId, filtrados, s.current, s.onSelect, wrapId);
+  } else {
+    renderListCheckbox(listId, filtrados, s.selected, s.onSelect, wrapId);
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  SELECCIÓN REFERENCIA FORMULARIO
+// ══════════════════════════════════════════════════
+function seleccionarReferenciaFormulario(ref) {
+  referenciaSeleccionada = ref;
+  const lbl = document.getElementById('labelFormRef');
+
+  if (!ref) {
+    lbl.textContent = 'Seleccionar Referencia...';
     resetCamposCodigo();
     return;
   }
 
-  const refs = [...new Set(datosSheet1.map(d => d.referencia))]
-    .filter(r => r.toUpperCase().includes(q))
-    .slice(0, 15);
+  lbl.textContent = ref;
 
-  if (refs.length === 0) {
-    drop.innerHTML = '<div class="ac-item no-result">Sin resultados</div>';
-  } else {
-    drop.innerHTML = refs.map(r =>
-      `<div class="ac-item" onclick="seleccionarReferencia('${escHtml(r)}')">${escHtml(r)}</div>`
-    ).join('');
-  }
-  drop.classList.add('open');
-}
-
-function seleccionarReferencia(ref) {
-  referenciaSeleccionada = ref;
-  document.getElementById('inputReferencia').value         = ref;
-  document.getElementById('campoReferenciaDisplay').value  = ref;
-  document.getElementById('dropReferencia').classList.remove('open');
-
-  // Autocompletar fecha con la primera fecha de esa referencia
+  // Autocompletar fecha
   const match = datosSheet1.find(d => d.referencia === ref);
-  if (match && match.fecha) {
-    document.getElementById('campoFecha').value = match.fecha;
-  }
+  if (match && match.fecha) document.getElementById('campoFecha').value = match.fecha;
 
-  // Resetear y recargar dropdown de códigos
-  resetCamposCodigo();
-  document.getElementById('inputCodigo').placeholder = 'Escribir para filtrar códigos...';
-  document.getElementById('inputCodigo').disabled    = false;
+  // Poblar dropdown de código filtrado por esta referencia
+  const cods = [...new Set(datosSheet1.filter(d=>d.referencia===ref).map(d=>d.codigo))];
+  const btnCod = document.getElementById('btnFormCod');
+  btnCod.disabled = false;
+  document.getElementById('labelFormCod').textContent = 'Seleccione código...';
+  codigoSeleccionado = null;
+  document.getElementById('campoDescripcion').value = '';
+  document.getElementById('campoEan').value = '';
 
-  // Filtrar tabla inferior
+  poblarDropRadio('wrapFormCod','listFormCod', cods, (cod) => {
+    seleccionarCodigoFormulario(cod);
+  });
+
   filtrarTablaLineas();
 }
 
-// ════════════════════════════════════════════════════════════
-//  AUTOCOMPLETE — CÓDIGO (filtrado por referencia)
-// ════════════════════════════════════════════════════════════
-function filtrarCodigos() {
-  if (!referenciaSeleccionada) {
-    toast('Selecciona primero una Referencia', 'info');
-    return;
-  }
-  const q    = document.getElementById('inputCodigo').value.trim().toUpperCase();
-  const drop = document.getElementById('dropCodigo');
-
-  const codigosRef = datosSheet1
-    .filter(d => d.referencia === referenciaSeleccionada)
-    .filter(d => !q || d.codigo.toUpperCase().includes(q));
-
-  if (codigosRef.length === 0) {
-    drop.innerHTML = '<div class="ac-item no-result">Sin resultados</div>';
-  } else {
-    drop.innerHTML = codigosRef.map(d =>
-      `<div class="ac-item" onclick="seleccionarCodigo('${escHtml(d.codigo)}')">${escHtml(d.codigo)} — ${escHtml(d.descripcion)}</div>`
-    ).join('');
-  }
-  drop.classList.add('open');
-}
-
-function seleccionarCodigo(cod) {
+function seleccionarCodigoFormulario(cod) {
   codigoSeleccionado = cod;
-  document.getElementById('inputCodigo').value = cod;
-  document.getElementById('dropCodigo').classList.remove('open');
-
-  // Autocompletar descripción y EAN
-  const match = datosSheet1.find(d => d.referencia === referenciaSeleccionada && d.codigo === cod);
+  document.getElementById('labelFormCod').textContent = cod || 'Seleccione código...';
+  if (!cod) { document.getElementById('campoDescripcion').value=''; document.getElementById('campoEan').value=''; return; }
+  const match = datosSheet1.find(d=>d.referencia===referenciaSeleccionada && d.codigo===cod);
   if (match) {
     document.getElementById('campoDescripcion').value = match.descripcion;
     document.getElementById('campoEan').value         = match.ean13;
@@ -632,148 +783,123 @@ function seleccionarCodigo(cod) {
 
 function resetCamposCodigo() {
   codigoSeleccionado = null;
-  document.getElementById('inputCodigo').value        = '';
-  document.getElementById('inputCodigo').placeholder  = 'Seleccione referencia primero...';
-  document.getElementById('inputCodigo').disabled     = true;
-  document.getElementById('campoDescripcion').value   = '';
-  document.getElementById('campoEan').value           = '';
-  document.getElementById('dropCodigo').classList.remove('open');
+  const btn = document.getElementById('btnFormCod');
+  if(btn) btn.disabled = true;
+  document.getElementById('labelFormCod').textContent = 'Seleccione referencia primero...';
+  document.getElementById('campoDescripcion').value = '';
+  document.getElementById('campoEan').value = '';
 }
 
-// ════════════════════════════════════════════════════════════
-//  RENDER — TABLA DETALLE LÍNEAS (Sheet1)
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  TABLAS
+// ══════════════════════════════════════════════════
 function renderTablaLineas(datos) {
   const tbody = document.getElementById('tbodyLineas');
   document.getElementById('countLineas').textContent = datos.length + ' REGISTROS';
-
   if (!datos.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-outline text-sm italic">Sin registros</td></tr>';
-    return;
+    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-6 text-center text-outline text-sm italic">Sin registros</td></tr>'; return;
   }
-
-  tbody.innerHTML = datos.map((d, i) => `
-    <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors"
-        onclick="cargarEnFormulario('${escHtml(d.referencia)}','${escHtml(d.codigo)}')">
-      <td class="px-6 py-3 border-r border-outline-variant/30 text-xs">${escHtml(d.referencia)}</td>
-      <td class="px-6 py-3 border-r border-outline-variant/30 font-mono font-bold text-primary">${escHtml(d.codigo)}</td>
-      <td class="px-6 py-3 border-r border-outline-variant/30">${escHtml(d.descripcion)}</td>
-      <td class="px-6 py-3 border-r border-outline-variant/30 font-mono text-xs">${escHtml(d.ean13)}</td>
-      <td class="px-6 py-3 border-r border-outline-variant/30 text-xs text-outline">${escHtml(d.fecha)}</td>
-      <td class="px-6 py-3 text-center">
-        <button onclick="event.stopPropagation(); cargarEnFormulario('${escHtml(d.referencia)}','${escHtml(d.codigo)}')"
-          class="material-symbols-outlined text-primary text-[18px] hover:scale-110 transition-transform" title="Cargar en formulario">edit</button>
+  tbody.innerHTML = datos.map((d,i) => `
+    <tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors"
+      onclick="cargarEnFormulario('${escHtml(d.referencia)}','${escHtml(d.codigo)}')">
+      <td class="px-5 py-2 border-r border-outline-variant/30 text-xs">${escHtml(d.referencia)}</td>
+      <td class="px-5 py-2 border-r border-outline-variant/30 font-mono font-bold text-primary text-xs">${escHtml(d.codigo)}</td>
+      <td class="px-5 py-2 border-r border-outline-variant/30 text-xs">${escHtml(d.descripcion)}</td>
+      <td class="px-5 py-2 border-r border-outline-variant/30 font-mono text-xs">${escHtml(d.ean13)}</td>
+      <td class="px-5 py-2 border-r border-outline-variant/30 text-xs text-outline">${escHtml(d.fecha)}</td>
+      <td class="px-5 py-2 text-center">
+        <button onclick="event.stopPropagation();cargarEnFormulario('${escHtml(d.referencia)}','${escHtml(d.codigo)}')"
+          class="material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform">edit</button>
       </td>
     </tr>`).join('');
 }
 
 function filtrarTablaLineas() {
-  const global = (document.getElementById('globalSearch').value || '').toUpperCase();
-  const cols   = [...document.querySelectorAll('.col-filter')].map(i => i.value.toUpperCase());
-
+  const global = (document.getElementById('globalSearch').value||'').toUpperCase();
+  const cols   = [...document.querySelectorAll('.col-filter')].map(i=>i.value.toUpperCase());
   const filtrado = datosSheet1.filter(d => {
     const vals = [d.referencia, d.codigo, d.descripcion, d.ean13];
-    const passCol = cols.every((f, ci) => !f || (vals[ci] || '').toUpperCase().includes(f));
-    const passGlobal = !global || vals.some(v => (v || '').toUpperCase().includes(global));
-    return passCol && passGlobal;
+    const passCol    = cols.every((f,ci) => !f||(vals[ci]||'').toUpperCase().includes(f));
+    const passGlobal = !global||vals.some(v=>(v||'').toUpperCase().includes(global));
+    const passRef    = !filtroRefSeleccionada || d.referencia===filtroRefSeleccionada;
+    const passCod    = !filtroCodSeleccionado || d.codigo===filtroCodSeleccionado;
+    return passCol && passGlobal && passRef && passCod;
   });
   renderTablaLineas(filtrado);
 }
 
-// ════════════════════════════════════════════════════════════
-//  RENDER — TABLA RESULTADOS LOGÍSTICOS (Sheet2)
-// ════════════════════════════════════════════════════════════
 function renderTablaResultados(datos) {
   const tbody = document.getElementById('tbodyResultados');
   document.getElementById('countResultados').textContent = datos.length + ' REGISTROS';
-
   const COLS = ['FECHA','CUENTA','REFERENCIA','CODIGO','DESCRIPCION','EAN13','MARCA','FE',
-                'LAR_UNI','ANC_UNI','ALT_UNI','PES_UNI',
-                'LAR_CAJA','ANC_CAJA','ALT_CAJA','PES_CAJA',
+                'LAR_UNI','ANC_UNI','ALT_UNI','PES_UNI','LAR_CAJA','ANC_CAJA','ALT_CAJA','PES_CAJA',
                 'CAMA','NIVEL','CAJA_P','UNID_P','INGRESADO_POR'];
-
   if (!datos.length) {
-    tbody.innerHTML = '<tr><td colspan="22" class="px-6 py-8 text-center text-outline text-sm italic">Sin registros guardados</td></tr>';
-    return;
+    tbody.innerHTML = '<tr><td colspan="22" class="px-6 py-6 text-center text-outline text-sm italic">Sin registros guardados</td></tr>'; return;
   }
-
-  tbody.innerHTML = datos.map((d, i) => {
-    const cells = COLS.map(c => `<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d[c] || '')}</td>`).join('');
-    return `
-      <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
-        ${cells}
-        <td class="px-4 py-2 text-center whitespace-nowrap">
-          <div class="flex justify-center gap-2">
-            <button onclick="cargarParaEditar(${i})" class="material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform" title="Editar">edit</button>
-            <button onclick="abrirModalEliminar('${escHtml(d['REFERENCIA']||'')}','${escHtml(d['CODIGO']||'')}')"
-              class="material-symbols-outlined text-error text-[17px] hover:scale-110 transition-transform" title="Eliminar">delete</button>
-          </div>
-        </td>
-      </tr>`;
+  tbody.innerHTML = datos.map((d,i)=>{
+    const cells = COLS.map(c=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d[c]||'')}</td>`).join('');
+    return `<tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
+      ${cells}
+      <td class="px-4 py-2 text-center whitespace-nowrap">
+        <div class="flex justify-center gap-2">
+          <button onclick="cargarParaEditar(${i})" class="material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform">edit</button>
+          <button onclick="abrirModalEliminar('${escHtml(d['REFERENCIA']||'')}','${escHtml(d['CODIGO']||'')}')"
+            class="material-symbols-outlined text-error text-[17px] hover:scale-110 transition-transform">delete</button>
+        </div>
+      </td></tr>`;
   }).join('');
 }
 
 function filtrarTablaResultados() {
-  const q = (document.getElementById('filtroResultados').value || '').toUpperCase();
-  const filtrado = datosSheet2.filter(d =>
-    !q || Object.values(d).some(v => String(v).toUpperCase().includes(q))
-  );
-  renderTablaResultados(filtrado);
+  const q = (document.getElementById('filtroResultados').value||'').toUpperCase();
+  renderTablaResultados(datosSheet2.filter(d=>!q||Object.values(d).some(v=>String(v).toUpperCase().includes(q))));
 }
 
-// ════════════════════════════════════════════════════════════
-//  CARGAR EN FORMULARIO (desde tabla lineas o resultados)
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  FORMULARIO
+// ══════════════════════════════════════════════════
 function cargarEnFormulario(ref, cod) {
-  seleccionarReferencia(ref);
-  setTimeout(() => seleccionarCodigo(cod), 50);
+  seleccionarReferenciaFormulario(ref);
+  setTimeout(()=>seleccionarCodigoFormulario(cod), 80);
 }
 
 function cargarParaEditar(idx) {
-  const d = datosSheet2[idx];
-  if (!d) return;
+  const d = datosSheet2[idx]; if(!d) return;
   modoEdicion = true;
-
-  seleccionarReferencia(d['REFERENCIA'] || '');
-  setTimeout(() => {
-    seleccionarCodigo(d['CODIGO'] || '');
-    document.getElementById('campoCuenta').value      = d['CUENTA']        || '';
-    document.getElementById('campoFecha').value       = d['FECHA']         || '';
-    document.getElementById('campoIngresadoPor').value= d['INGRESADO_POR'] || '';
-    document.getElementById('campoMarca').value       = d['MARCA']         || '';
-    document.getElementById('campoFe').value          = d['FE']            || '';
-    document.getElementById('larUni').value           = d['LAR_UNI']       || '';
-    document.getElementById('ancUni').value           = d['ANC_UNI']       || '';
-    document.getElementById('altUni').value           = d['ALT_UNI']       || '';
-    document.getElementById('pesUni').value           = d['PES_UNI']       || '';
-    document.getElementById('larCaja').value          = d['LAR_CAJA']      || '';
-    document.getElementById('ancCaja').value          = d['ANC_CAJA']      || '';
-    document.getElementById('altCaja').value          = d['ALT_CAJA']      || '';
-    document.getElementById('pesCaja').value          = d['PES_CAJA']      || '';
-    document.getElementById('campoCama').value        = d['CAMA']          || '';
-    document.getElementById('campoNivel').value       = d['NIVEL']         || '';
-    document.getElementById('campoCajaP').value       = d['CAJA_P']        || '';
-    document.getElementById('campoUnidP').value       = d['UNID_P']        || '';
-    toast('Registro cargado — modifica y guarda para actualizar', 'info');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 100);
+  seleccionarReferenciaFormulario(d['REFERENCIA']||'');
+  setTimeout(()=>{
+    seleccionarCodigoFormulario(d['CODIGO']||'');
+    document.getElementById('campoCuenta').value       = d['CUENTA']||'';
+    document.getElementById('campoFecha').value        = d['FECHA']||'';
+    document.getElementById('campoIngresadoPor').value = d['INGRESADO_POR']||'';
+    document.getElementById('campoMarca').value        = d['MARCA']||'';
+    document.getElementById('campoFe').value           = d['FE']||'';
+    document.getElementById('larUni').value            = d['LAR_UNI']||'';
+    document.getElementById('ancUni').value            = d['ANC_UNI']||'';
+    document.getElementById('altUni').value            = d['ALT_UNI']||'';
+    document.getElementById('pesUni').value            = d['PES_UNI']||'';
+    document.getElementById('larCaja').value           = d['LAR_CAJA']||'';
+    document.getElementById('ancCaja').value           = d['ANC_CAJA']||'';
+    document.getElementById('altCaja').value           = d['ALT_CAJA']||'';
+    document.getElementById('pesCaja').value           = d['PES_CAJA']||'';
+    document.getElementById('campoCama').value         = d['CAMA']||'';
+    document.getElementById('campoNivel').value        = d['NIVEL']||'';
+    document.getElementById('campoCajaP').value        = d['CAJA_P']||'';
+    document.getElementById('campoUnidP').value        = d['UNID_P']||'';
+    toast('Registro cargado — modifica y guarda para actualizar','info');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }, 120);
 }
 
-// ════════════════════════════════════════════════════════════
-//  GUARDAR / ACTUALIZAR
-// ════════════════════════════════════════════════════════════
 async function guardarRegistro() {
-  if (!referenciaSeleccionada) { toast('Selecciona una Referencia', 'error'); return; }
-  if (!codigoSeleccionado)     { toast('Selecciona un Código de Artículo', 'error'); return; }
-  if (!document.getElementById('campoFecha').value) { toast('Ingresa la Fecha', 'error'); return; }
-
-  if (CONFIG.APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxriNuBNz1hKKwOpJUNuFR6hUTgMNTOM9mxd6K01SjdMP6V1t3GtOlw--M0gaCVHNhk7g/exec') {
-    toast('⚠ Configura la URL del Apps Script en CONFIG', 'error');
-    return;
-  }
+  if (!referenciaSeleccionada) { toast('Selecciona una Referencia','error'); return; }
+  if (!codigoSeleccionado)     { toast('Selecciona un Código de Artículo','error'); return; }
+  if (!document.getElementById('campoFecha').value) { toast('Ingresa la Fecha','error'); return; }
+  if (CONFIG.APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxriNuBNz1hKKwOpJUNuFR6hUTgMNTOM9mxd6K01SjdMP6V1t3GtOlw--M0gaCVHNhk7g/exec') { toast('⚠ Configura la URL del Apps Script','error'); return; }
 
   const payload = {
-    action:       modoEdicion ? 'update' : 'save',
+    action: modoEdicion?'update':'save',
     referencia:   referenciaSeleccionada,
     codigo:       codigoSeleccionado,
     fecha:        document.getElementById('campoFecha').value,
@@ -799,159 +925,103 @@ async function guardarRegistro() {
 
   mostrarOverlay(true);
   try {
-    const res  = await fetch(CONFIG.APPS_SCRIPT_URL, {
-      method: 'POST',
-      body:   JSON.stringify(payload)
-    });
+    const res  = await fetch(CONFIG.APPS_SCRIPT_URL, {method:'POST', body:JSON.stringify(payload)});
     const json = await res.json();
-
     if (json.ok) {
-      toast(json.msg || 'Guardado correctamente', 'success');
+      toast(json.msg||'Guardado correctamente','success');
       modoEdicion = false;
       limpiarFormulario();
-      // Refrescar tabla Sheet2 después de 2s (GSheets tarda en publicar)
-      setTimeout(() => cargarSheet2(), 2500);
-    } else {
-      toast('Error: ' + json.msg, 'error');
-    }
-  } catch(e) {
-    toast('Error de conexión con Apps Script', 'error');
-  } finally {
-    mostrarOverlay(false);
-  }
+      setTimeout(()=>cargarSheet2(), 2500);
+    } else toast('Error: '+json.msg,'error');
+  } catch(e) { toast('Error de conexión con Apps Script','error'); }
+  finally { mostrarOverlay(false); }
 }
 
-// ════════════════════════════════════════════════════════════
-//  ELIMINAR
-// ════════════════════════════════════════════════════════════
-function abrirModalEliminar(ref, cod) {
-  pendingDeleteRef = ref;
-  pendingDeleteCod = cod;
-  document.getElementById('modalEliminarRef').textContent = ref + ' / ' + cod;
-  document.getElementById('modalEliminar').style.display = 'flex';
-  document.getElementById('modalEliminar').classList.add('flex');
-}
-function cerrarModalEliminar() {
-  document.getElementById('modalEliminar').style.display = 'none';
-  pendingDeleteRef = pendingDeleteCod = null;
-}
-async function confirmarEliminar() {
-  cerrarModalEliminar();
-  if (!pendingDeleteRef && !pendingDeleteCod) return;
-
-  // Guardamos antes de cerrar el modal
-  const ref = pendingDeleteRef || document.getElementById('modalEliminarRef').textContent.split(' / ')[0];
-  const cod = pendingDeleteCod || document.getElementById('modalEliminarRef').textContent.split(' / ')[1];
-
-  mostrarOverlay(true);
-  try {
-    const res  = await fetch(CONFIG.APPS_SCRIPT_URL, {
-      method: 'POST',
-      body:   JSON.stringify({ action: 'delete', referencia: ref, codigo: cod })
-    });
-    const json = await res.json();
-    toast(json.ok ? 'Registro eliminado' : 'Error: ' + json.msg, json.ok ? 'success' : 'error');
-    if (json.ok) setTimeout(() => cargarSheet2(), 2500);
-  } catch(e) {
-    toast('Error de conexión', 'error');
-  } finally {
-    mostrarOverlay(false);
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-//  LIMPIAR FORMULARIO
-// ════════════════════════════════════════════════════════════
 function limpiarFormulario() {
-  ['campoFecha','campoReferenciaDisplay','campoIngresadoPor','campoDescripcion',
-   'campoEan','campoFe','campoMarca','larUni','ancUni','altUni','pesUni',
-   'larCaja','ancCaja','altCaja','pesCaja','campoCama','campoNivel','campoCajaP','campoUnidP',
-   'inputReferencia'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
+  ['campoFecha','campoIngresadoPor','campoDescripcion','campoEan','campoFe','campoMarca',
+   'larUni','ancUni','altUni','pesUni','larCaja','ancCaja','altCaja','pesCaja',
+   'campoCama','campoNivel','campoCajaP','campoUnidP'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
   });
-  document.getElementById('campoCuenta').value = '';
-  referenciaSeleccionada = null;
-  modoEdicion = false;
+  document.getElementById('campoCuenta').value='';
+  referenciaSeleccionada=null; modoEdicion=false;
+  document.getElementById('labelFormRef').textContent='Seleccionar Referencia...';
+  if(dropState['wrapFormRef']) dropState['wrapFormRef'].selected=null;
   resetCamposCodigo();
 }
 
-// ════════════════════════════════════════════════════════════
-//  HELPERS — CSV / FETCH
-// ════════════════════════════════════════════════════════════
-async function fetchCSV(url) {
-  // Intento 1: directo (funciona desde GitHub Pages)
+// ══════════════════════════════════════════════════
+//  ELIMINAR
+// ══════════════════════════════════════════════════
+function abrirModalEliminar(ref,cod) {
+  pendingDeleteRef=ref; pendingDeleteCod=cod;
+  document.getElementById('modalEliminarRef').textContent = ref+' / '+cod;
+  document.getElementById('modalEliminar').style.display='flex';
+}
+function cerrarModalEliminar() {
+  document.getElementById('modalEliminar').style.display='none';
+  pendingDeleteRef=pendingDeleteCod=null;
+}
+async function confirmarEliminar() {
+  const ref=pendingDeleteRef, cod=pendingDeleteCod;
+  cerrarModalEliminar();
+  if(!ref) return;
+  mostrarOverlay(true);
   try {
-    const r = await fetch(url, { cache: 'no-store' });
-    if (r.ok) return await r.text();
-  } catch(_) {}
-  // Intento 2: proxy CORS
-  const proxy = 'https://corsproxy.io/?' + encodeURIComponent(url);
-  const r2 = await fetch(proxy, { cache: 'no-store' });
-  if (!r2.ok) throw new Error('No se pudo obtener datos del Sheet');
+    const res  = await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'delete',referencia:ref,codigo:cod})});
+    const json = await res.json();
+    toast(json.ok?'Registro eliminado':'Error: '+json.msg, json.ok?'success':'error');
+    if(json.ok) setTimeout(()=>cargarSheet2(),2500);
+  } catch(e){ toast('Error de conexión','error'); }
+  finally { mostrarOverlay(false); }
+}
+
+// ══════════════════════════════════════════════════
+//  FETCH + CSV
+// ══════════════════════════════════════════════════
+async function fetchCSV(url) {
+  try {
+    const r = await fetch(url,{cache:'no-store'});
+    if(r.ok) return await r.text();
+  } catch(_){}
+  const r2 = await fetch('https://corsproxy.io/?'+encodeURIComponent(url),{cache:'no-store'});
+  if(!r2.ok) throw new Error('No se pudo obtener datos');
   return await r2.text();
 }
 
 function parseCSV(text) {
-  const lines  = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-  const result = [];
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    result.push(splitCSVLine(line));
-  }
-  return result;
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  return lines.filter(l=>l.trim()).map(splitCSVLine);
 }
 
 function splitCSVLine(line) {
-  const cols = []; let cur = ''; let inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
-      else inQ = !inQ;
-    } else if (ch === ',' && !inQ) { cols.push(cur); cur = ''; }
-    else cur += ch;
+  const cols=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){ if(inQ&&line[i+1]==='"'){cur+='"';i++;} else inQ=!inQ; }
+    else if(ch===','&&!inQ){cols.push(cur);cur='';}
+    else cur+=ch;
   }
-  cols.push(cur);
-  return cols;
+  cols.push(cur); return cols;
 }
 
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+function escHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// ════════════════════════════════════════════════════════════
-//  UI HELPERS
-// ════════════════════════════════════════════════════════════
-function mostrarOverlay(v) {
-  document.getElementById('overlay').classList.toggle('show', v);
+// ══════════════════════════════════════════════════
+//  UI
+// ══════════════════════════════════════════════════
+function mostrarOverlay(v){ document.getElementById('overlay').classList.toggle('show',v); }
+function toast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show '+type;
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3500);
 }
-
-function toast(msg, type = 'info') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = 'show ' + type;
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-function actualizarStatus(msg, ok) {
-  const el = document.getElementById('statusSheet1');
-  el.innerHTML = `<span class="material-symbols-outlined text-[14px]">${ok ? 'cloud_done' : 'cloud_off'}</span> ${msg}`;
-  document.getElementById('footerStatus').textContent = msg;
-}
-
-function cerrarDropdownsAlClick() {
-  document.addEventListener('click', e => {
-    if (!e.target.closest('#inputReferencia') && !e.target.closest('#dropReferencia'))
-      document.getElementById('dropReferencia').classList.remove('open');
-    if (!e.target.closest('#inputCodigo') && !e.target.closest('#dropCodigo'))
-      document.getElementById('dropCodigo').classList.remove('open');
-  });
-  // Cerrar modal al click fuera
-  document.getElementById('modalEliminar').addEventListener('click', function(e) {
-    if (e.target === this) cerrarModalEliminar();
-  });
+function actualizarStatus(msg,ok){
+  document.getElementById('statusSheet1').innerHTML=
+    `<span class="material-symbols-outlined text-[14px]">${ok?'cloud_done':'cloud_off'}</span> ${msg}`;
+  document.getElementById('footerStatus').textContent=msg;
 }
 </script>
 </body>
