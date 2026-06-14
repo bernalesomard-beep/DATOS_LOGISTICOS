@@ -459,7 +459,7 @@
         </div>
       </div>
       <!-- Filtros de Resultados -->
-      <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 mb-3 shadow-sm">
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 mb-3 shadow-sm" style="overflow:visible;position:relative;z-index:50;">
         <div class="flex flex-wrap gap-4 items-end">
           <div class="flex flex-col gap-1">
             <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fecha Inicio</label>
@@ -488,12 +488,12 @@
                 <span class="cdrop-label" id="labelFiltroXimpkd1">Todos los códigos...</span>
                 <span class="material-symbols-outlined cdrop-arrow !text-[16px]">expand_more</span>
               </button>
-              <div class="cdrop-panel" style="z-index:500;max-height:220px;overflow-y:auto;">
+              <div class="cdrop-panel" style="z-index:600;">
                 <div class="cdrop-search-box">
                   <input class="cdrop-search" placeholder="Buscar código..." type="text"
-                    oninput="buscarEnDrop('wrapFiltroXimpkd1',this.value)"/>
+                    oninput="buscarMultiDrop(this.value)"/>
                 </div>
-                <div class="cdrop-list" id="listFiltroXimpkd1"></div>
+                <div class="cdrop-list" id="listFiltroXimpkd1" style="max-height:200px;overflow-y:auto;"></div>
               </div>
             </div>
           </div>
@@ -1412,10 +1412,10 @@ function exportarXLS() {
   ws['!cols'] = headers.map(() => ({ wch: 18 }));
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'DATOS');
+  XLSX.utils.book_append_sheet(wb, ws, 'IIMXLS');
 
   const fecha = new Date().toISOString().slice(0,10).replace(/-/g,'');
-  XLSX.writeFile(wb, `DATOS_LOGISTICOS_${fecha}.xls`, { bookType: 'xls' });
+  XLSX.writeFile(wb, `IIMXLS_${fecha}.xls`, { bookType: 'xls' });
   toast('Archivo XLS descargado', 'success');
 }
 
@@ -1656,6 +1656,13 @@ function ximpkd1ToggleAll() {
   document.getElementById('labelFiltroXimpkd1').textContent = 'Todos los códigos...';
   renderListMulti('listFiltroXimpkd1', st.items, st.selected);
   filtrarTablaResultados();
+}
+
+// Búsqueda interna del dropdown multi sin destruir la selección
+function buscarMultiDrop(q) {
+  const st = dropState['wrapFiltroXimpkd1']; if (!st) return;
+  const filtrados = st.items.filter(i => i.toUpperCase().includes(q.toUpperCase()));
+  renderListMulti('listFiltroXimpkd1', filtrados, st.selected);
 }
 
 function actualizarBadgeNotif() {
