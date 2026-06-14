@@ -59,12 +59,10 @@
   .cdrop-wrap.open .cdrop-panel{display:block;}
   .cdrop-search-box{position:relative;padding:8px 8px 4px 8px;}
   .cdrop-search{width:100%;border:1px solid #c5c6cf;border-radius:6px;
-    padding:7px 10px 7px 32px;font-size:12px;outline:none;box-sizing:border-box;
+    padding:7px 10px;font-size:12px;outline:none;box-sizing:border-box;
     background:#fff;color:#1a1c1e;}
   .cdrop-search:focus{border-color:#001035;box-shadow:0 0 0 2px rgba(0,16,53,.1);}
-  .cdrop-search-box .cdrop-search-icon{position:absolute;left:16px;top:50%;
-    transform:translateY(-50%);font-size:16px;color:#75777f;pointer-events:none;
-    margin-top:2px;}
+  .cdrop-search-box .cdrop-search-icon{display:none;}
   .cdrop-list{max-height:200px;overflow-y:auto;}
   .cdrop-item{display:flex;align-items:center;gap:10px;padding:9px 14px;
     font-size:13px;cursor:pointer;border-bottom:1px solid #f5f5f5;transition:background .15s;}
@@ -176,6 +174,12 @@
       </span>
       <button onclick="cargarDatos()" class="bg-white/10 hover:bg-white/20 text-on-primary px-4 py-2 rounded-lg text-body-sm font-bold flex items-center gap-2 border border-white/20 transition-all">
         <span class="material-symbols-outlined text-[18px]">refresh</span>Actualizar
+      </button>
+      <!-- Botón notificaciones -->
+      <button onclick="abrirNotificaciones()" id="btnNotif"
+        class="relative bg-white/10 hover:bg-white/20 text-on-primary p-2 rounded-lg border border-white/20 transition-all" title="Pendientes por registrar">
+        <span class="material-symbols-outlined text-[22px]">notifications</span>
+        <span id="badgeNotif" class="hidden absolute -top-1.5 -right-1.5 bg-error text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow">0</span>
       </button>
     </div>
   </header>
@@ -442,26 +446,66 @@
 
     <!-- ── RESULTADOS LOGÍSTICOS ── -->
     <section>
+      <!-- Header -->
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-headline-md font-bold text-secondary flex items-center gap-2">
           <span class="material-symbols-outlined">analytics</span>Resultados Logísticos
         </h3>
-        <div class="flex gap-3 items-center">
-          <div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant">
-            <span class="material-symbols-outlined text-outline text-[16px]">search</span>
-            <input id="filtroResultados" oninput="filtrarTablaResultados()"
-              class="bg-transparent border-none text-[11px] w-44 focus:ring-0" placeholder="Filtrar..." type="text"/>
-          </div>
+        <div class="flex gap-3 items-center flex-wrap">
           <span id="countResultados" class="bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20">0 REGISTROS</span>
+          <span id="countSeleccionados" class="hidden bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 SEL.</span>
           <button onclick="exportarXLS()" class="bg-primary hover:bg-primary/90 text-on-primary px-4 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95">
             <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
           </button>
         </div>
       </div>
+      <!-- Filtros de Resultados -->
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 mb-3 shadow-sm">
+        <div class="flex flex-wrap gap-4 items-end">
+          <div class="flex flex-col gap-1">
+            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fecha Inicio</label>
+            <input id="filtroResIni" type="date" oninput="filtrarTablaResultados()"
+              class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"/>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fecha Fin</label>
+            <input id="filtroResFin" type="date" oninput="filtrarTablaResultados()"
+              class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"/>
+          </div>
+          <div class="flex flex-col gap-1 min-w-[160px]">
+            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Cuenta</label>
+            <select id="filtroResCuenta" onchange="filtrarTablaResultados()"
+              class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
+              <option value="">— Todas —</option>
+              <option>DERMODIS S.A.C</option>
+              <option>GLIMMER</option>
+              <option>COPELLO</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1 min-w-[180px]">
+            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">XIMPKD1 (Código)</label>
+            <input id="filtroResXimpkd1" type="text" oninput="filtrarTablaResultados()" placeholder="Buscar código..."
+              class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"/>
+          </div>
+          <div class="flex flex-col gap-1 min-w-[160px]">
+            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Búsqueda general</label>
+            <input id="filtroResultados" type="text" oninput="filtrarTablaResultados()" placeholder="Filtrar..."
+              class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"/>
+          </div>
+          <button onclick="limpiarFiltrosResultados()"
+            class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">
+            Limpiar filtros
+          </button>
+        </div>
+      </div>
       <div id="wrapResultados" class="tabla-scroll-wrap bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg">
-        <table class="w-full text-left border-collapse min-w-[1800px]">
+        <table class="w-full text-left border-collapse min-w-[1900px]">
           <thead>
             <tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest">
+              <th class="px-3 py-3 border-r border-white/10 whitespace-nowrap">
+                <input type="checkbox" id="chkTodos" onchange="toggleTodosCheck(this)"
+                  class="w-4 h-4 rounded accent-white cursor-pointer" title="Seleccionar todo"/>
+              </th>
               <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">FECHA</th>
               <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">CUENTA</th>
               <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIID</th>
@@ -491,7 +535,7 @@
             </tr>
           </thead>
           <tbody id="tbodyResultados" class="text-[12px] font-mono-data divide-y divide-outline-variant">
-            <tr><td colspan="26" class="px-6 py-6 text-center text-outline text-sm italic">Cargando datos...</td></tr>
+            <tr><td colspan="27" class="px-6 py-6 text-center text-outline text-sm italic">Cargando datos...</td></tr>
           </tbody>
         </table>
       </div>
@@ -504,6 +548,48 @@
     <span id="footerStatus">—</span>
   </footer>
 </main>
+
+<!-- MODAL NOTIFICACIONES -->
+<div id="modalNotif" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50" onclick="if(event.target===this)cerrarNotificaciones()">
+  <div class="bg-white rounded-2xl shadow-2xl w-[680px] max-w-[95vw] max-h-[85vh] flex flex-col overflow-hidden">
+    <!-- Header modal -->
+    <div class="bg-primary text-on-primary px-6 py-4 flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-[22px]">notifications_active</span>
+        <div>
+          <h3 class="font-bold text-[16px] leading-tight">Pendientes por Registrar</h3>
+          <p class="text-[11px] text-white/70 mt-0.5">Códigos del catálogo sin datos logísticos</p>
+        </div>
+      </div>
+      <button onclick="cerrarNotificaciones()" class="hover:bg-white/20 rounded-lg p-1 transition-all">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+
+    <!-- Resumen total -->
+    <div id="notifResumen" class="bg-surface-container-low px-6 py-3 border-b border-outline-variant shrink-0 flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-error text-[18px]">pending_actions</span>
+        <span id="notifTotalTxt" class="text-sm font-bold text-on-surface">—</span>
+      </div>
+      <input id="notifBuscar" type="text" placeholder="Buscar referencia o código..."
+        oninput="filtrarNotif(this.value)"
+        class="ml-auto border border-outline-variant rounded-lg px-3 py-1.5 text-[12px] w-56 focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"/>
+    </div>
+
+    <!-- Cuerpo: acordeón por cuenta -->
+    <div id="notifBody" class="overflow-y-auto flex-1 px-4 py-3 space-y-3">
+      <p class="text-center text-outline text-sm italic py-8">Calculando...</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-3 border-t border-outline-variant shrink-0 flex justify-end">
+      <button onclick="cerrarNotificaciones()" class="px-5 py-2 rounded-lg bg-primary text-on-primary font-bold text-sm hover:bg-primary/90 transition-all">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL ELIMINAR -->
 <div id="modalEliminar" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
@@ -534,6 +620,7 @@ const CONFIG = {
 // ══════════════════════════════════════════════════
 let datosSheet1 = [];
 let datosSheet2 = [];
+let filasFiltradas = [];
 let referenciaSeleccionada = null;  // para formulario
 let codigoSeleccionado     = null;  // para formulario
 let filtroRefSeleccionada  = null;  // para filtro superior
@@ -562,6 +649,7 @@ async function cargarDatos() {
   try {
     await Promise.all([cargarSheet1(), cargarSheet2()]);
     actualizarStatus('Conectado · ' + new Date().toLocaleTimeString('es-PE'), true);
+    actualizarBadgeNotif();
   } catch(e) {
     actualizarStatus('Error de conexión', false);
     toast('Error al cargar datos: ' + e.message, 'error');
@@ -579,17 +667,19 @@ async function cargarSheet1() {
   if (rows.length < 2) return;
 
   const h = rows[0].map(x => x.trim().toUpperCase());
-  const iREF  = h.findIndex(x => x.includes('REFERENCIA'));
-  const iFEC  = h.findIndex(x => x.includes('FECHA'));
-  const iCOD  = h.findIndex(x => x.includes('CÓDIGO')||x.includes('CODIGO')||x.includes('PRODUCT'));
-  const iDESC = h.findIndex(x => x.includes('DESCRI'));
-  const iEAN  = h.findIndex(x => x.includes('EAN'));
+  const iREF    = h.findIndex(x => x.includes('REFERENCIA'));
+  const iFEC    = h.findIndex(x => x.includes('FECHA'));
+  const iCUENTA = h.findIndex(x => x.includes('CUENTA'));
+  const iCOD    = h.findIndex(x => x.includes('CÓDIGO')||x.includes('CODIGO')||x.includes('PRODUCT'));
+  const iDESC   = h.findIndex(x => x.includes('DESCRI'));
+  const iEAN    = h.findIndex(x => x.includes('EAN'));
 
   datosSheet1 = rows.slice(1)
     .filter(r => r[iREF] && r[iREF].trim())
     .map(r => ({
       referencia:  (r[iREF]||'').trim(),
       fecha:       (r[iFEC]||'').trim(),
+      cuenta:      (r[iCUENTA]||'').trim(),
       codigo:      (r[iCOD]||'').trim(),
       descripcion: (r[iDESC]||'').trim(),
       ean13:       (r[iEAN]||'').trim()
@@ -644,11 +734,36 @@ async function cargarSheet2() {
     const csv  = await fetchCSV(CONFIG.URL_SHEET2);
     const rows = parseCSV(csv);
     if (rows.length < 2) { datosSheet2=[]; renderTablaResultados([]); return; }
-    const headers = rows[0].map(h=>(h||'').trim());
+
+    // Mapeamos POR POSICIÓN (columna) para evitar el conflicto de cabeceras
+    // duplicadas en Google Sheets (LAR, ANC, ALT, PESO aparecen dos veces).
+    // El orden exacto corresponde a HEADERS_SHEET2 del Apps Script:
+    // Col 0:FECHA  1:CUENTA  2:REFERENCIA  3:CODIGO  4:DESCRIPCION  5:EAN13  6:MARCA
+    // Col 7:FE
+    // Col 8:LAR_UNI  9:ANC_UNI  10:ALT_UNI  11:PES_UNI
+    // Col 12:LAR_CAJA  13:ANC_CAJA  14:ALT_CAJA  15:PES_CAJA
+    // Col 16:CAMA  17:NIVEL  18:CAJA_P  19:UNID_P
+    // Col 20:INGRESADO_POR  21:TIMESTAMP
+    const COL = [
+      'FECHA','CUENTA','REFERENCIA','CODIGO','DESCRIPCION','EAN13','MARCA',
+      'FE',
+      'LAR_UNI','ANC_UNI','ALT_UNI','PES_UNI',
+      'LAR_CAJA','ANC_CAJA','ALT_CAJA','PES_CAJA',
+      'CAMA','NIVEL','CAJA_P','UNID_P',
+      'INGRESADO_POR','TIMESTAMP'
+    ];
+
     datosSheet2 = rows.slice(1)
-      .filter(r=>r.some(c=>c&&c.trim()))
-      .map(r=>{ const o={}; headers.forEach((h,i)=>o[h]=(r[i]||'').trim()); return o; });
+      .filter(r => r.some(c => c && c.trim()))
+      .map(r => {
+        const o = {};
+        COL.forEach((name, i) => { o[name] = (r[i] || '').trim(); });
+        return o;
+      });
+
+    filasFiltradas = datosSheet2;
     renderTablaResultados(datosSheet2);
+    actualizarBadgeNotif();
   } catch(e) {
     console.warn('Sheet2:', e.message);
     datosSheet2=[]; renderTablaResultados([]);
@@ -923,28 +1038,80 @@ function renderTablaResultados(datos) {
                    'XIWGHT','XSAFLG','XIVULI','XIWHS','XIGLNO','XIREF01','XIREF02',
                    'XIREF03','XIREF04','XIREF05','XIMPKD1','XIMPKD2','XIGTEC','XIMNOT1','XIMNOT2'];
   if (!datos.length) {
-    tbody.innerHTML = '<tr><td colspan="26" class="px-6 py-6 text-center text-outline text-sm italic">Sin registros guardados</td></tr>'; return;
+    tbody.innerHTML = '<tr><td colspan="27" class="px-6 py-6 text-center text-outline text-sm italic">Sin registros guardados</td></tr>';
+    actualizarConteoSeleccionados(); return;
   }
+  // Guardar índice original para editar/eliminar
   tbody.innerHTML = datos.map((d,i)=>{
     const xi = calcXI(d);
+    const idxOriginal = datosSheet2.indexOf(d);
+    const chkCell = `<td class="px-3 py-2 border-r border-outline-variant/30 text-center">
+      <input type="checkbox" class="chk-fila w-4 h-4 rounded accent-primary cursor-pointer"
+        data-idx="${idxOriginal}" onchange="actualizarConteoSeleccionados()"/>
+    </td>`;
     const fechaCel = `<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d['FECHA']||'')}</td>`;
     const cuentaCel = `<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d['CUENTA']||'')}</td>`;
     const xiCells = XI_COLS.map(c=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap font-mono">${escHtml(String(xi[c]??''))}</td>`).join('');
     return `<tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
-      ${fechaCel}${cuentaCel}${xiCells}
+      ${chkCell}${fechaCel}${cuentaCel}${xiCells}
       <td class="px-4 py-2 text-center whitespace-nowrap">
         <div class="flex justify-center gap-2">
-          <button onclick="cargarParaEditar(${i})" class="material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform">edit</button>
+          <button onclick="cargarParaEditar(${idxOriginal})" class="material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform">edit</button>
           <button onclick="abrirModalEliminar('${escHtml(d['REFERENCIA']||'')}','${escHtml(d['CODIGO']||'')}')"
             class="material-symbols-outlined text-error text-[17px] hover:scale-110 transition-transform">delete</button>
         </div>
       </td></tr>`;
   }).join('');
+  // Resetear checkbox "todos"
+  const chkTodos = document.getElementById('chkTodos');
+  if (chkTodos) chkTodos.checked = false;
+  actualizarConteoSeleccionados();
 }
 
 function filtrarTablaResultados() {
-  const q = (document.getElementById('filtroResultados').value||'').toUpperCase();
-  renderTablaResultados(datosSheet2.filter(d=>!q||Object.values(d).some(v=>String(v).toUpperCase().includes(q))));
+  const q       = (document.getElementById('filtroResultados').value||'').toUpperCase();
+  const ini     = document.getElementById('filtroResIni').value || '';
+  const fin     = document.getElementById('filtroResFin').value || '';
+  const cuenta  = (document.getElementById('filtroResCuenta').value||'').toUpperCase();
+  const ximpkd1 = (document.getElementById('filtroResXimpkd1').value||'').toUpperCase();
+
+  const filtrado = datosSheet2.filter(d => {
+    const fecha = d['FECHA'] || '';
+    const passFechaIni = !ini || fecha >= ini;
+    const passFechaFin = !fin || fecha <= fin;
+    const passCuenta   = !cuenta  || (d['CUENTA']||'').toUpperCase().includes(cuenta);
+    const passXimpkd1  = !ximpkd1 || (d['CODIGO']||'').toUpperCase().includes(ximpkd1);
+    const passQ        = !q || Object.values(d).some(v=>String(v).toUpperCase().includes(q));
+    return passFechaIni && passFechaFin && passCuenta && passXimpkd1 && passQ;
+  });
+  filasFiltradas = filtrado;
+  renderTablaResultados(filtrado);
+}
+
+function limpiarFiltrosResultados() {
+  document.getElementById('filtroResIni').value = '';
+  document.getElementById('filtroResFin').value = '';
+  document.getElementById('filtroResCuenta').value = '';
+  document.getElementById('filtroResXimpkd1').value = '';
+  document.getElementById('filtroResultados').value = '';
+  filasFiltradas = datosSheet2;
+  renderTablaResultados(datosSheet2);
+}
+
+function toggleTodosCheck(chk) {
+  document.querySelectorAll('.chk-fila').forEach(c => c.checked = chk.checked);
+  actualizarConteoSeleccionados();
+}
+
+function actualizarConteoSeleccionados() {
+  const sel = document.querySelectorAll('.chk-fila:checked').length;
+  const span = document.getElementById('countSeleccionados');
+  if (sel > 0) {
+    span.textContent = sel + ' SEL.';
+    span.classList.remove('hidden');
+  } else {
+    span.classList.add('hidden');
+  }
 }
 
 // ══════════════════════════════════════════════════
@@ -992,8 +1159,6 @@ async function guardarRegistro() {
   if (!referenciaSeleccionada) { toast('Selecciona una Referencia','error'); return; }
   if (!codigoSeleccionado)     { toast('Selecciona un Código de Artículo','error'); return; }
   if (!document.getElementById('campoFecha').value) { toast('Ingresa la Fecha','error'); return; }
-  if (CONFIG.APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxriNuBNz1hKKwOpJUNuFR6hUTgMNTOM9mxd6K01SjdMP6V1t3GtOlw--M0gaCVHNhk7g/exec') { toast('⚠ Configura la URL del Apps Script','error'); return; }
-
   const payload = {
     action: modoEdicion?'update':'save',
     referencia:   referenciaSeleccionada,
@@ -1111,7 +1276,17 @@ function escHtml(s){
 //  EXPORTAR XLS (columnas W→AS = FECHA, CUENTA + 23 cols XI)
 // ══════════════════════════════════════════════════
 function exportarXLS() {
-  if (!datosSheet2.length) { toast('No hay datos para exportar','error'); return; }
+  // Si hay filas seleccionadas, exportar solo esas; si no, exportar todo lo filtrado
+  const chksSeleccionados = [...document.querySelectorAll('.chk-fila:checked')];
+  let datosExportar;
+  if (chksSeleccionados.length > 0) {
+    const idxs = chksSeleccionados.map(c => parseInt(c.dataset.idx));
+    datosExportar = idxs.map(i => datosSheet2[i]).filter(Boolean);
+    toast(datosExportar.length + ' registros seleccionados serán exportados', 'info');
+  } else {
+    datosExportar = filasFiltradas.length ? filasFiltradas : datosSheet2;
+  }
+  if (!datosExportar.length) { toast('No hay datos para exportar','error'); return; }
 
   const XI_COLS = ['XIID','XIPROD','XIDESC','XICLAS','XIUMS','XIITYP','XIVEN2','XIDSCE',
                    'XIWGHT','XSAFLG','XIVULI','XIWHS','XIGLNO','XIREF01','XIREF02',
@@ -1121,7 +1296,7 @@ function exportarXLS() {
   const headers = ['FECHA','CUENTA',...XI_COLS];
 
   // Filas de datos
-  const filas = datosSheet2.map(d => {
+  const filas = datosExportar.map(d => {
     const xi = calcXI(d);
     return [
       d['FECHA']  || '',
@@ -1181,6 +1356,187 @@ function actualizarStatus(msg,ok){
   document.getElementById('statusSheet1').innerHTML=
     `<span class="material-symbols-outlined text-[14px]">${ok?'cloud_done':'cloud_off'}</span> ${msg}`;
   document.getElementById('footerStatus').textContent=msg;
+}
+
+// ══════════════════════════════════════════════════
+//  NOTIFICACIONES — PENDIENTES POR REGISTRAR
+// ══════════════════════════════════════════════════
+
+// Mapa de cuenta por código (viene de Sheet2 ya guardados)
+// "Registrado" = el código aparece en Sheet2
+function calcularPendientes() {
+  // Códigos ya registrados en Sheet2
+  const registrados = new Set(datosSheet2.map(d => (d['CODIGO']||'').trim()).filter(Boolean));
+
+  // Armar pendientes: { cuenta → { referencia → [codigos] } }
+  // La CUENTA viene directamente de Sheet1 (campo "cuenta" mapeado al cargar)
+  const pendientes = {};
+
+  datosSheet1.forEach(item => {
+    const cod    = (item.codigo||'').trim();
+    const ref    = (item.referencia||'').trim();
+    const cuenta = (item.cuenta||'Sin cuenta asignada').trim() || 'Sin cuenta asignada';
+    if (!cod || !ref) return;
+    if (registrados.has(cod)) return; // ya registrado en DATOS
+
+    if (!pendientes[cuenta]) pendientes[cuenta] = {};
+    if (!pendientes[cuenta][ref]) pendientes[cuenta][ref] = [];
+    if (!pendientes[cuenta][ref].includes(cod)) {
+      pendientes[cuenta][ref].push(cod);
+    }
+  });
+
+  return pendientes;
+}
+
+let _notifData = {}; // cache para búsqueda
+
+function abrirNotificaciones() {
+  document.getElementById('modalNotif').style.display = 'flex';
+  document.getElementById('notifBuscar').value = '';
+  renderNotif('');
+}
+
+function cerrarNotificaciones() {
+  document.getElementById('modalNotif').style.display = 'none';
+}
+
+function renderNotif(filtro) {
+  const body = document.getElementById('notifBody');
+  const data = _notifData;
+  const q = (filtro||'').toUpperCase();
+
+  const cuentas = Object.keys(data);
+  if (!cuentas.length) {
+    body.innerHTML = `<div class="flex flex-col items-center gap-3 py-10">
+      <span class="material-symbols-outlined text-[48px] text-green-500">check_circle</span>
+      <p class="text-on-surface font-bold text-[15px]">¡Todo al día!</p>
+      <p class="text-outline text-sm">No hay códigos pendientes de registro.</p>
+    </div>`;
+    return;
+  }
+
+  let totalCods = 0;
+  let html = '';
+
+  cuentas.forEach((cuenta, ci) => {
+    const refs = data[cuenta];
+    let cuentaHtml = '';
+    let cuentaTotal = 0;
+    let cuentaVisible = false;
+
+    Object.keys(refs).forEach(ref => {
+      const cods = refs[ref];
+      // Filtro
+      const refMatch = !q || ref.toUpperCase().includes(q);
+      const codMatch = cods.some(c => c.toUpperCase().includes(q));
+      if (!refMatch && !codMatch) return;
+
+      cuentaVisible = true;
+      const codsVisible = q && !refMatch ? cods.filter(c=>c.toUpperCase().includes(q)) : cods;
+      cuentaTotal += codsVisible.length;
+      totalCods += codsVisible.length;
+
+      cuentaHtml += `
+        <div class="mb-2 bg-surface-container-low rounded-lg border border-outline-variant/50 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-surface-container"
+            onclick="toggleNotifRef(this)">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+              <span class="text-[13px] font-semibold text-on-surface">${escHtml(ref)}</span>
+            </div>
+            <span class="bg-error/10 text-error text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-error/20">
+              ${codsVisible.length} pendiente${codsVisible.length!==1?'s':''}
+            </span>
+          </div>
+          <div class="notif-ref-body px-4 pb-3 hidden">
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              ${codsVisible.map(c=>`
+                <span class="inline-flex items-center gap-1 bg-white border border-outline-variant rounded-md px-2 py-1 text-[11px] font-mono text-on-surface hover:bg-primary/5 cursor-pointer transition-all"
+                  onclick="cargarEnFormulario('${escHtml(ref)}','${escHtml(c)}');cerrarNotificaciones();"
+                  title="Clic para cargar en formulario">
+                  <span class="material-symbols-outlined text-[12px] text-primary">add_circle</span>${escHtml(c)}
+                </span>`).join('')}
+            </div>
+          </div>
+        </div>`;
+    });
+
+    if (!cuentaVisible) return;
+
+    html += `
+      <div class="rounded-xl border border-outline-variant overflow-hidden shadow-sm">
+        <!-- Cabecera cuenta -->
+        <div class="flex items-center justify-between px-5 py-3 bg-primary/5 border-b border-outline-variant cursor-pointer hover:bg-primary/10 transition-all"
+          onclick="toggleNotifCuenta(this)">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary text-[20px]">business</span>
+            <span class="font-bold text-[14px] text-primary">${escHtml(cuenta)}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="bg-error text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-sm">
+              ${cuentaTotal} código${cuentaTotal!==1?'s':''}
+            </span>
+            <span class="material-symbols-outlined text-primary text-[18px] notif-cuenta-arrow transition-transform duration-200">expand_more</span>
+          </div>
+        </div>
+        <!-- Referencias dentro de la cuenta -->
+        <div class="notif-cuenta-body p-3 space-y-1">
+          ${cuentaHtml}
+        </div>
+      </div>`;
+  });
+
+  if (!html) {
+    body.innerHTML = `<p class="text-center text-outline text-sm italic py-8">Sin resultados para "<strong>${escHtml(filtro)}</strong>"</p>`;
+  } else {
+    body.innerHTML = html;
+  }
+
+  // Actualizar resumen
+  const totalRefs = cuentas.reduce((acc,cu)=>acc+Object.keys(data[cu]).length,0);
+  document.getElementById('notifTotalTxt').textContent =
+    `${totalCods} código${totalCods!==1?'s':''} pendiente${totalCods!==1?'s':''} en ${totalRefs} referencia${totalRefs!==1?'s':''}`;
+}
+
+function filtrarNotif(q) { renderNotif(q); }
+
+function toggleNotifCuenta(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.notif-cuenta-arrow');
+  const hidden = body.style.display === 'none' || body.classList.contains('hidden');
+  // Alternar
+  if (hidden) {
+    body.style.display = 'block';
+    arrow.style.transform = 'rotate(180deg)';
+  } else {
+    body.style.display = 'none';
+    arrow.style.transform = 'rotate(0deg)';
+  }
+}
+
+function toggleNotifRef(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.material-symbols-outlined');
+  const hidden = body.classList.contains('hidden');
+  body.classList.toggle('hidden', !hidden);
+  arrow.textContent = hidden ? 'expand_less' : 'expand_more';
+}
+
+function actualizarBadgeNotif() {
+  const data = calcularPendientes();
+  _notifData = data;
+  let total = 0;
+  Object.values(data).forEach(refs => {
+    Object.values(refs).forEach(cods => { total += cods.length; });
+  });
+  const badge = document.getElementById('badgeNotif');
+  if (total > 0) {
+    badge.textContent = total > 99 ? '99+' : total;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
 }
 </script>
 </body>
