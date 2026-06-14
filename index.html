@@ -445,7 +445,7 @@
 // ════════════════════════════════════════════════════════════
 const CONFIG = {
   // URL del Apps Script desplegado como Web App
-  APPS_SCRIPT_URL: 'TU_URL_APPS_SCRIPT_AQUI',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxriNuBNz1hKKwOpJUNuFR6hUTgMNTOM9mxd6K01SjdMP6V1t3GtOlw--M0gaCVHNhk7g/exec',
 
   // Sheet 1 — fuente de referencias y códigos (CSV)
   URL_SHEET1: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=1464291631&single=true&output=csv',
@@ -767,7 +767,7 @@ async function guardarRegistro() {
   if (!codigoSeleccionado)     { toast('Selecciona un Código de Artículo', 'error'); return; }
   if (!document.getElementById('campoFecha').value) { toast('Ingresa la Fecha', 'error'); return; }
 
-  if (CONFIG.APPS_SCRIPT_URL === 'TU_URL_APPS_SCRIPT_AQUI') {
+  if (CONFIG.APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxriNuBNz1hKKwOpJUNuFR6hUTgMNTOM9mxd6K01SjdMP6V1t3GtOlw--M0gaCVHNhk7g/exec') {
     toast('⚠ Configura la URL del Apps Script en CONFIG', 'error');
     return;
   }
