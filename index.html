@@ -56,13 +56,12 @@
     background:#fff;border:1px solid #c5c6cf;border-radius:0.5rem;
     box-shadow:0 8px 24px rgba(0,0,0,.13);z-index:300;overflow:hidden;}
   .cdrop-wrap.open .cdrop-panel{display:block;}
-  .cdrop-search-wrap{padding:8px;border-bottom:1px solid #eee;background:#f9f9fc;}
+  .cdrop-search-box{position:relative;padding:8px;}
   .cdrop-search{width:100%;border:1px solid #c5c6cf;border-radius:6px;
-    padding:6px 10px 6px 32px;font-size:12px;outline:none;}
+    padding:7px 10px 7px 30px;font-size:12px;outline:none;box-sizing:border-box;}
   .cdrop-search:focus{border-color:#001035;}
-  .cdrop-search-wrap{position:relative;}
   .cdrop-search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);
-    font-size:16px;color:#75777f;pointer-events:none;}
+    font-size:16px;color:#75777f;pointer-events:none;z-index:1;}
   .cdrop-list{max-height:200px;overflow-y:auto;}
   .cdrop-item{display:flex;align-items:center;gap:10px;padding:9px 14px;
     font-size:13px;cursor:pointer;border-bottom:1px solid #f5f5f5;transition:background .15s;}
@@ -85,6 +84,12 @@
   .tabla-scroll-wrap thead th{position:sticky;top:0;z-index:10;}
   #wrapLineas{height:160px;}   /* ~4 filas */
   #wrapResultados{height:280px;} /* ~8 filas */
+
+  /* Sticky en tabla Detalle de Líneas */
+  #wrapLineas thead tr:first-child th { position:sticky; top:0; z-index:10; }
+  #wrapLineas thead tr:nth-child(2) th { position:sticky; top:41px; z-index:10; }
+  /* Sticky en tabla Resultados */
+  #wrapResultados thead tr th { position:sticky; top:0; z-index:10; }
 
   /* Toast */
   #toast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;
@@ -143,9 +148,8 @@
   </div>
   <div class="px-2 pb-4">
     <div class="flex items-center gap-3 p-3 bg-surface-container rounded-xl border border-outline-variant/30">
-      <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-        <span class="material-symbols-outlined text-primary">person</span>
-      </div>
+      <img alt="User Logo" class="w-10 h-10 rounded-lg object-contain bg-white p-1"
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkc-ybAelD_bZmZhxxrgWgqRdn6g7nc9NTaOa1_Z2cN-Dqd9MRCmHcTscIvbFSPbTxjGYjHiHxn-m65-7sFnd6lADOM0H5aKCU0U4Rl3p1o_lCyWJ9GUX7H8rw0uQqelOlg0wcQKAttD4_WiZaRQM9zVPYkFoCzhrxODPXDDM3_OghAay-huTW9xV_K4qf3g12WoI4Cx4aEoIaF7JnHxCVj_uJLNKFGpSHjU5K3toHQJOyKgJChY_0j7FhT45ysGzFbyc"/>
       <div class="overflow-hidden">
         <p class="text-body-sm font-bold truncate text-on-surface">Omar Bernales</p>
         <p class="text-xs text-on-surface-variant truncate">Odan89</p>
@@ -192,11 +196,11 @@
               <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
             </button>
             <div class="cdrop-panel">
-              <div class="cdrop-search-wrap">
-                <span class="material-symbols-outlined cdrop-search-icon">search</span>
+              <div class="cdrop-search-box">
+                  <span class="material-symbols-outlined cdrop-search-icon">search</span>
                 <input class="cdrop-search" placeholder="Buscar" type="text"
                   oninput="buscarEnDrop('wrapFiltroRef',this.value)"/>
-              </div>
+                </div>
               <div class="cdrop-list" id="listFiltroRef"></div>
             </div>
           </div>
@@ -211,7 +215,7 @@
               <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
             </button>
             <div class="cdrop-panel">
-              <div class="cdrop-search-wrap">
+              <div class="cdrop-search-box">
                 <span class="material-symbols-outlined cdrop-search-icon">search</span>
                 <input class="cdrop-search" placeholder="Buscar" type="text"
                   oninput="buscarEnDrop('wrapFiltroCod',this.value)"/>
@@ -253,7 +257,7 @@
         <div class="p-5 space-y-4 flex-1">
           <div>
             <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Fecha</label>
-            <input id="campoFecha" type="text" placeholder="dd/mm/aaaa"
+            <input id="campoFecha" type="date"
               class="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
           </div>
 
@@ -266,7 +270,7 @@
                 <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
               </button>
               <div class="cdrop-panel" style="z-index:400;">
-                <div class="cdrop-search-wrap">
+                <div class="cdrop-search-box">
                   <span class="material-symbols-outlined cdrop-search-icon">search</span>
                   <input class="cdrop-search" placeholder="Buscar" type="text"
                     oninput="buscarEnDrop('wrapFormRef',this.value)"/>
@@ -311,7 +315,7 @@
                 <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
               </button>
               <div class="cdrop-panel" style="z-index:400;">
-                <div class="cdrop-search-wrap">
+                <div class="cdrop-search-box">
                   <span class="material-symbols-outlined cdrop-search-icon">search</span>
                   <input class="cdrop-search" placeholder="Buscar código..." type="text"
                     oninput="buscarEnDrop('wrapFormCod',this.value)"/>
@@ -344,9 +348,21 @@
 
           <div>
             <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Marca</label>
-            <input id="campoMarca" type="text"
-              class="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-              placeholder="Ej: RECAMIER"/>
+            <div class="cdrop-wrap" id="wrapFormMarca">
+              <button class="cdrop-btn" onclick="toggleDrop('wrapFormMarca')">
+                <span class="cdrop-label" id="labelFormMarca">Seleccionar marca...</span>
+                <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
+              </button>
+              <div class="cdrop-panel" style="z-index:400;">
+                <div class="cdrop-search-box">
+                  <span class="material-symbols-outlined cdrop-search-icon">search</span>
+                  <input class="cdrop-search" placeholder="Buscar marca..." type="text"
+                    oninput="buscarEnDrop('wrapFormMarca',this.value)"/>
+                </div>
+                <div class="cdrop-list" id="listFormMarca"></div>
+              </div>
+            </div>
+            <input type="hidden" id="campoMarca"/>
           </div>
         </div>
       </div>
@@ -446,30 +462,34 @@
             <tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest">
               <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">FECHA</th>
               <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">CUENTA</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">REFERENCIA</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">CÓDIGO</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">DESCRIPCIÓN</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">EAN 13</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">MARCA</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">FE</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">LAR UNI</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">ANC UNI</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">ALT UNI</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">PES UNI</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">LAR CAJA</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">ANC CAJA</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">ALT CAJA</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">PES CAJA</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">CAMA</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">NIVEL</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">CAJA/P</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">UNID/P</th>
-              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">INGRESADO POR</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIID</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIPROD</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIDESC</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XICLAS</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIUMS</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIITYP</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIVEN2</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIDSCE</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIWGHT</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XSAFLG</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIVULI</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIWHS</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIGLNO</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIREF01</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIREF02</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIREF03</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIREF04</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIREF05</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIMPKD1</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIMPKD2</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIGTEC</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIMNOT1</th>
+              <th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">XIMNOT2</th>
               <th class="px-4 py-3 text-center whitespace-nowrap">ACCIONES</th>
             </tr>
           </thead>
           <tbody id="tbodyResultados" class="text-[12px] font-mono-data divide-y divide-outline-variant">
-            <tr><td colspan="22" class="px-6 py-6 text-center text-outline text-sm italic">Cargando datos...</td></tr>
+            <tr><td colspan="26" class="px-6 py-6 text-center text-outline text-sm italic">Cargando datos...</td></tr>
           </tbody>
         </table>
       </div>
@@ -590,6 +610,17 @@ async function cargarSheet1() {
 
   poblarDropCheckbox('wrapFormRef','listFormRef', refs, (v) => {
     seleccionarReferenciaFormulario(v);
+  });
+
+  // Inicializar dropdown de marcas
+  const MARCAS = ['Bacterion','Brescia','Calendario','Catrice','Chapstick','Coloriss',
+    'Deo Pies',"Dr. Scholl'S",'Essence','Hairuwear','Inv.Y Suministro Para Regalo',
+    'Kiss','Kleer Lac','Luminance','Muss','Nails','Ofertas','Salonin','Saloonin',
+    'Sensalialabs','Soleclair','Suministros Armado De Ofertas','Suministros Cosnova',
+    'Tanga','Vitane','Zeena'];
+  poblarDropRadio('wrapFormMarca','listFormMarca', MARCAS, (v) => {
+    document.getElementById('campoMarca').value = v || '';
+    document.getElementById('labelFormMarca').textContent = v || 'Seleccionar marca...';
   });
 
   // Poblar todos los códigos en filtro superior al inicio
@@ -828,19 +859,77 @@ function filtrarTablaLineas() {
   renderTablaLineas(filtrado);
 }
 
+// Calcula las columnas XI a partir de los datos del formulario guardado
+function calcXI(d) {
+  const cuenta    = (d['CUENTA']||'').toUpperCase();
+  const desc      = (d['DESCRIPCION']||'');
+  const pesUni    = parseFloat(d['PES_UNI'])||0;
+  const larUni    = parseFloat(d['LAR_UNI'])||0;
+  const ancUni    = parseFloat(d['ANC_UNI'])||0;
+  const altUni    = parseFloat(d['ALT_UNI'])||0;
+  const ean13     = d['EAN13']||'';
+  const codigo    = d['CODIGO']||'';
+  const marca     = d['MARCA']||'';
+
+  // XIVEN2 según cuenta
+  let xiven2 = '';
+  if (cuenta.includes('DERMODIS')) xiven2 = '23';
+  else if (cuenta.includes('COPELLO')) xiven2 = '239';
+  else if (cuenta.includes('GLIMMER')) xiven2 = '254';
+
+  // XIWGHT — peso unidad, máx 3 decimales
+  const xiwght = pesUni > 0 ? parseFloat(pesUni.toFixed(3)) : '';
+
+  // XIVULI — LAR*ANC*ALT unidad, mín 0.01, máx 2 decimales
+  let xivuli = '';
+  if (larUni > 0 && ancUni > 0 && altUni > 0) {
+    const vol = larUni * ancUni * altUni;
+    xivuli = parseFloat(Math.max(vol, 0.01).toFixed(2));
+  }
+
+  return {
+    XIID:    '',
+    XIPROD:  '',
+    XIDESC:  desc.substring(0, 30),
+    XICLAS:  'PZ',
+    XIUMS:   'UN',
+    XIITYP:  "'01",
+    XIVEN2:  xiven2,
+    XIDSCE:  desc.substring(30, 60),
+    XIWGHT:  xiwght,
+    XSAFLG:  '2',
+    XIVULI:  xivuli,
+    XIWHS:   '',
+    XIGLNO:  ean13,
+    XIREF01: 'I',
+    XIREF02: '',
+    XIREF03: 'HAS30',
+    XIREF04: 'H.REL',
+    XIREF05: '',
+    XIMPKD1: codigo,
+    XIMPKD2: marca,
+    XIGTEC:  '',
+    XIMNOT1: '',
+    XIMNOT2: ''
+  };
+}
+
 function renderTablaResultados(datos) {
   const tbody = document.getElementById('tbodyResultados');
   document.getElementById('countResultados').textContent = datos.length + ' REGISTROS';
-  const COLS = ['FECHA','CUENTA','REFERENCIA','CODIGO','DESCRIPCION','EAN13','MARCA','FE',
-                'LAR_UNI','ANC_UNI','ALT_UNI','PES_UNI','LAR_CAJA','ANC_CAJA','ALT_CAJA','PES_CAJA',
-                'CAMA','NIVEL','CAJA_P','UNID_P','INGRESADO_POR'];
+  const XI_COLS = ['XIID','XIPROD','XIDESC','XICLAS','XIUMS','XIITYP','XIVEN2','XIDSCE',
+                   'XIWGHT','XSAFLG','XIVULI','XIWHS','XIGLNO','XIREF01','XIREF02',
+                   'XIREF03','XIREF04','XIREF05','XIMPKD1','XIMPKD2','XIGTEC','XIMNOT1','XIMNOT2'];
   if (!datos.length) {
-    tbody.innerHTML = '<tr><td colspan="22" class="px-6 py-6 text-center text-outline text-sm italic">Sin registros guardados</td></tr>'; return;
+    tbody.innerHTML = '<tr><td colspan="26" class="px-6 py-6 text-center text-outline text-sm italic">Sin registros guardados</td></tr>'; return;
   }
   tbody.innerHTML = datos.map((d,i)=>{
-    const cells = COLS.map(c=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d[c]||'')}</td>`).join('');
+    const xi = calcXI(d);
+    const fechaCel = `<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d['FECHA']||'')}</td>`;
+    const cuentaCel = `<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d['CUENTA']||'')}</td>`;
+    const xiCells = XI_COLS.map(c=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap font-mono">${escHtml(String(xi[c]??''))}</td>`).join('');
     return `<tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
-      ${cells}
+      ${fechaCel}${cuentaCel}${xiCells}
       <td class="px-4 py-2 text-center whitespace-nowrap">
         <div class="flex justify-center gap-2">
           <button onclick="cargarParaEditar(${i})" class="material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform">edit</button>
@@ -874,6 +963,11 @@ function cargarParaEditar(idx) {
     document.getElementById('campoFecha').value        = d['FECHA']||'';
     document.getElementById('campoIngresadoPor').value = d['INGRESADO_POR']||'';
     document.getElementById('campoMarca').value        = d['MARCA']||'';
+    // Actualizar label del dropdown de marca
+    const mval = d['MARCA']||'';
+    document.getElementById('labelFormMarca').textContent = mval || 'Seleccionar marca...';
+    if(dropState['wrapFormMarca']) dropState['wrapFormMarca'].current = mval || null;
+    renderListRadio('listFormMarca', dropState['wrapFormMarca']?.items||[], mval||null, dropState['wrapFormMarca']?.onSelect, 'wrapFormMarca');
     document.getElementById('campoFe').value           = d['FE']||'';
     document.getElementById('larUni').value            = d['LAR_UNI']||'';
     document.getElementById('ancUni').value            = d['ANC_UNI']||'';
@@ -938,6 +1032,8 @@ async function guardarRegistro() {
 }
 
 function limpiarFormulario() {
+  document.getElementById('labelFormMarca').textContent='Seleccionar marca...';
+  if(dropState['wrapFormMarca']) dropState['wrapFormMarca'].current=null;
   ['campoFecha','campoIngresadoPor','campoDescripcion','campoEan','campoFe','campoMarca',
    'larUni','ancUni','altUni','pesUni','larCaja','ancCaja','altCaja','pesCaja',
    'campoCama','campoNivel','campoCajaP','campoUnidP'].forEach(id=>{
