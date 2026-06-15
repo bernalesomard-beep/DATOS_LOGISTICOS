@@ -214,7 +214,7 @@
     </div>
 
     <!-- ── PANELES DE DATOS ── -->
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-40">
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-[200]">
 
       <!-- INFORMACIÓN GENERAL -->
       <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-visible shadow-sm flex flex-col">
@@ -317,7 +317,7 @@
                 <span class="cdrop-label" id="labelFormMarca">Seleccionar marca...</span>
                 <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
               </button>
-              <div class="cdrop-panel" style="z-index:500;">
+              <div class="cdrop-panel" style="z-index:1000;">
                 <div class="cdrop-search-box">
                   <span class="material-symbols-outlined cdrop-search-icon">search</span>
                   <input class="cdrop-search" placeholder="Buscar marca..." type="text"
@@ -686,6 +686,13 @@
       <div class="flex-1 min-w-0 space-y-4">
         <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm">
           <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex flex-col gap-1 min-w-[200px]">
+              <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Filtrar por Cuenta</label>
+              <select id="filtroMarcaCuenta" onchange="filtrarMarca()"
+                class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none">
+                <option value="">— Todas las cuentas —</option>
+              </select>
+            </div>
             <div class="flex flex-col gap-1 min-w-[240px]">
               <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Búsqueda general</label>
               <input id="filtroMarca" type="text" oninput="filtrarMarca()" placeholder="Filtrar..."
@@ -908,14 +915,21 @@
         <p class="text-xs font-bold text-on-surface-variant uppercase mb-2">Vista previa — primeras 5 filas:</p>
         <div id="subirPreviewTable" class="overflow-auto max-h-40 border border-outline-variant rounded-lg text-[11px]"></div>
       </div>
+      <!-- Aviso de duplicados -->
+      <div id="subirAvisoDup" class="hidden text-[11px] bg-orange-50 border border-orange-200 rounded-lg p-3 space-y-1 max-h-48 overflow-y-auto"></div>
       <div id="subirStatus" class="hidden text-xs font-bold text-center py-2 rounded-lg"></div>
     </div>
-    <div class="px-6 pb-5 flex justify-end gap-3">
-      <button onclick="cerrarModalSubir()" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all">Cancelar</button>
-      <button id="btnConfirmarSubir" onclick="confirmarSubir()" disabled
-        class="px-5 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
-        <span class="material-symbols-outlined text-[16px] align-middle">send</span> Enviar
+    <div class="px-6 pb-5 flex justify-between items-center gap-3">
+      <button id="btnDescargarDup" onclick="descargarDuplicados()" class="hidden px-4 py-2 rounded-lg bg-orange-500 text-white font-bold text-xs hover:bg-orange-600 transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[15px]">download</span>Descargar duplicados
       </button>
+      <div class="flex gap-3 ml-auto">
+        <button onclick="cerrarModalSubir()" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all">Cancelar</button>
+        <button id="btnConfirmarSubir" onclick="confirmarSubir()" disabled
+          class="px-5 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined text-[16px] align-middle">send</span> Enviar
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1223,7 +1237,7 @@ async function cargarSheet2() {
 
     const colMap = rawHeaders.map(h => {
       // Cabeceras duplicadas
-      const base = h.replace(/\s*\(.*?\)/g,'').replace(/UNI$|CAJA$/,'').trim(); // quitar "(cm)", "(kg)", sufijos "uni"/"caja"
+      const base = h.replace(/\s*\(.*?\)/g,'').replace(/(?<![_A-Z])UNI$|(?<![_A-Z])CAJA$/,'').trim(); // quitar "(cm)", "(kg)", sufijos "uni"/"caja" pegados
       if (DUPLICADAS[base]) {
         seenCount[base] = (seenCount[base]||0);
         const canon = DUPLICADAS[base][seenCount[base]] || (base + '_' + seenCount[base]);
@@ -2679,9 +2693,13 @@ let subirDatos=[], subirHeaders=[];
 function abrirModalSubir(){
   document.getElementById('subirPreview').classList.add('hidden');
   document.getElementById('subirStatus').classList.add('hidden');
+  document.getElementById('subirAvisoDup').classList.add('hidden');
+  document.getElementById('subirAvisoDup').innerHTML='';
+  document.getElementById('btnDescargarDup').classList.add('hidden');
   document.getElementById('btnConfirmarSubir').disabled=true;
   document.getElementById('subirFileInput').value='';
   subirDatos=[]; subirHeaders=[];
+  window._dupDetectados = null;
   document.getElementById('modalSubir').style.display='flex';
 }
 function cerrarModalSubir(){document.getElementById('modalSubir').style.display='none';}
@@ -2702,13 +2720,70 @@ function procesarArchivoSubir(input){
       subirDatos=json.slice(1).filter(r=>r.some(c=>String(c).trim())).map(r=>{
         const o={}; subirHeaders.forEach((h,i)=>o[h]=String(r[i]||'').trim()); return o;
       });
+
+      // ── DETECCIÓN DE DUPLICADOS ──────────────────────────────
+      // 1) Duplicados DENTRO del archivo XLS
+      const iRef = subirHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||subirHeaders[0];
+      const iCod = subirHeaders.find(h=>h.toUpperCase().includes('CÓDIGO')||h.toUpperCase().includes('CODIGO')||h.toUpperCase().includes('PRODUCT'))||subirHeaders[3];
+      const vistoEnArchivo = new Map();
+      const dupEnArchivo = [];
+      subirDatos.forEach((r,i)=>{
+        const key = (r[iRef]||'').trim()+'||'+(r[iCod]||'').trim();
+        if(vistoEnArchivo.has(key)){
+          dupEnArchivo.push({ fila: i+2, ref: r[iRef]||'', cod: r[iCod]||'' });
+        } else {
+          vistoEnArchivo.set(key, i+2);
+        }
+      });
+
+      // 2) Duplicados contra lo que ya existe en la hoja INFO (datosInfo)
+      const hRef = infoHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||infoHeaders[0];
+      const hCod = infoHeaders.find(h=>h.toUpperCase().includes('CÓDIGO')||h.toUpperCase().includes('CODIGO')||h.toUpperCase().includes('PRODUCT'))||infoHeaders[3];
+      const existenteSet = new Set(datosInfo.map(d=>((d[hRef]||'').trim()+'||'+(d[hCod]||'').trim())));
+      const dupConHoja = [];
+      subirDatos.forEach((r,i)=>{
+        const key = (r[iRef]||'').trim()+'||'+(r[iCod]||'').trim();
+        if(existenteSet.has(key)){
+          dupConHoja.push({ fila: i+2, ref: r[iRef]||'', cod: r[iCod]||'' });
+        }
+      });
+
+      // Mostrar advertencias si hay duplicados
+      const avisoEl = document.getElementById('subirAvisoDup');
+      const btnDup  = document.getElementById('btnDescargarDup');
+      // Guardar para exportar
+      window._dupDetectados = { enArchivo: dupEnArchivo, conHoja: dupConHoja };
+
+      if(dupEnArchivo.length || dupConHoja.length){
+        let html = '';
+        if(dupEnArchivo.length){
+          html += `<div class="mb-2"><span class="font-bold text-orange-700">⚠ ${dupEnArchivo.length} duplicado(s) dentro del archivo:</span><ul class="mt-1 space-y-0.5 max-h-20 overflow-y-auto">`;
+          dupEnArchivo.forEach(d=>{ html+=`<li class="text-orange-600">Fila ${d.fila}: ${escHtml(d.ref)} / ${escHtml(d.cod)}</li>`; });
+          html += '</ul></div>';
+        }
+        if(dupConHoja.length){
+          html += `<div><span class="font-bold text-red-700">🔴 ${dupConHoja.length} código(s) ya existen en la hoja INFO:</span><ul class="mt-1 space-y-0.5 max-h-20 overflow-y-auto">`;
+          dupConHoja.forEach(d=>{ html+=`<li class="text-red-600">Fila ${d.fila}: ${escHtml(d.ref)} / ${escHtml(d.cod)}</li>`; });
+          html += '</ul><p class="mt-1.5 text-red-700 font-bold">Si confirmas, se agregarán igualmente (filas duplicadas).</p></div>';
+        }
+        avisoEl.innerHTML = html;
+        avisoEl.classList.remove('hidden');
+        btnDup.classList.remove('hidden');
+      } else {
+        avisoEl.classList.add('hidden');
+        avisoEl.innerHTML = '';
+        btnDup.classList.add('hidden');
+        window._dupDetectados = null;
+      }
+      // ────────────────────────────────────────────────────────
+
       const preview=document.getElementById('subirPreviewTable');
       const filas=subirDatos.slice(0,5);
       preview.innerHTML=`<table class="w-full border-collapse"><thead><tr>${subirHeaders.map(h=>`<th class="px-2 py-1 bg-primary/10 border border-outline-variant font-bold text-left">${escHtml(h)}</th>`).join('')}</tr></thead>
         <tbody>${filas.map(r=>`<tr>${subirHeaders.map(h=>`<td class="px-2 py-1 border border-outline-variant">${escHtml(r[h]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
       document.getElementById('subirPreview').classList.remove('hidden');
       status.className='text-xs font-bold text-center py-2 rounded-lg bg-green-50 text-green-700';
-      status.textContent=subirDatos.length+' filas. Revisa y confirma.';
+      status.textContent=subirDatos.length+' filas listas. Revisa y confirma.';
       document.getElementById('btnConfirmarSubir').disabled=false;
     }catch(err){status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';status.textContent='Error: '+err.message;}
   };
@@ -2740,6 +2815,58 @@ async function confirmarSubir(){
     status.textContent='Error conexión: '+err.message;
     document.getElementById('btnConfirmarSubir').disabled=false;
   }finally{mostrarOverlay(false);}
+}
+
+function descargarDuplicados(){
+  const dup = window._dupDetectados;
+  if(!dup) return;
+
+  const filas = [];
+
+  // Duplicados dentro del archivo
+  dup.enArchivo.forEach(d => {
+    // Buscar la fila completa en subirDatos (fila en XLS = índice +2 porque fila 1 es cabecera)
+    const idx = d.fila - 2;
+    const fila = subirDatos[idx] || {};
+    filas.push({
+      TIPO_DUPLICADO: 'Duplicado en archivo',
+      FILA_XLS: d.fila,
+      REFERENCIA: d.ref,
+      CODIGO: d.cod,
+      ...Object.fromEntries(subirHeaders.filter(h=>h!=='REFERENCIA'&&!h.toUpperCase().includes('REFERENCIA')).map(h=>[h, fila[h]||'']))
+    });
+  });
+
+  // Duplicados contra hoja INFO
+  dup.conHoja.forEach(d => {
+    const idx = d.fila - 2;
+    const fila = subirDatos[idx] || {};
+    // Buscar el registro existente en datosInfo
+    const hRef = infoHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||infoHeaders[0];
+    const hCod = infoHeaders.find(h=>h.toUpperCase().includes('CÓDIGO')||h.toUpperCase().includes('CODIGO')||h.toUpperCase().includes('PRODUCT'))||infoHeaders[3];
+    const existente = datosInfo.find(r=>(r[hRef]||'').trim()===d.ref && (r[hCod]||'').trim()===d.cod);
+    filas.push({
+      TIPO_DUPLICADO: 'Ya existe en hoja INFO',
+      FILA_XLS: d.fila,
+      REFERENCIA: d.ref,
+      CODIGO: d.cod,
+      ...Object.fromEntries(subirHeaders.filter(h=>h!=='REFERENCIA'&&!h.toUpperCase().includes('REFERENCIA')).map(h=>[h, fila[h]||''])),
+      DATOS_EXISTENTES: existente ? JSON.stringify(existente) : ''
+    });
+  });
+
+  if(!filas.length){ toast('Sin duplicados para exportar','info'); return; }
+
+  const hdrs = [...new Set(filas.flatMap(f=>Object.keys(f)))];
+  const ws = XLSX.utils.json_to_sheet(filas, {header: hdrs});
+  ws['!cols'] = hdrs.map(()=>({wch:22}));
+
+  // Colorear cabecera (fila 1) — naranja para "en archivo", rojo para "en hoja"
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Duplicados');
+  const fecha = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  XLSX.writeFile(wb, `Duplicados_INFO_${fecha}.xls`, {bookType:'xls'});
+  toast('Reporte de duplicados descargado','success');
 }
 
 // ══════════════════════════════════════════════════
@@ -2781,13 +2908,20 @@ function renderTablaMarca(datos) {
 }
 
 function filtrarMarca() {
-  const q = (document.getElementById('filtroMarca').value||'').toUpperCase();
-  marcaFiltradas = q ? datosMarca.filter(d=>marcaHeaders.some(h=>(d[h]||'').toUpperCase().includes(q))) : datosMarca;
+  const q       = (document.getElementById('filtroMarca').value||'').toUpperCase();
+  const cuenta  = (document.getElementById('filtroMarcaCuenta')?.value||'').toUpperCase();
+  const hCuenta = marcaHeaders.find(h=>h.toUpperCase().includes('CUENTA')) || marcaHeaders[0];
+  marcaFiltradas = datosMarca.filter(d => {
+    const passCuenta = !cuenta || (d[hCuenta]||'').toUpperCase() === cuenta;
+    const passQ      = !q || marcaHeaders.some(h=>(d[h]||'').toUpperCase().includes(q));
+    return passCuenta && passQ;
+  });
   renderTablaMarca(marcaFiltradas);
 }
 
 function limpiarFiltrosMarca() {
   document.getElementById('filtroMarca').value='';
+  const sel = document.getElementById('filtroMarcaCuenta'); if(sel) sel.value='';
   marcaFiltradas=datosMarca; renderTablaMarca(datosMarca);
 }
 
@@ -2826,7 +2960,7 @@ async function cargarCuenta() {
 function sincronizarSelectsCuenta() {
   const hNombre = cuentaHeaders.find(h=>h.toUpperCase().includes('NOMBRE')||h.toUpperCase().includes('CUENTA')) || cuentaHeaders[0];
   const nombres = [...new Set(datosCuenta.map(d=>(d[hNombre]||'').trim()).filter(Boolean))].sort();
-  const IDS = ['campoCuenta','filtroResCuenta','prodCuenta','dimCuenta','marcaModalCuenta'];
+  const IDS = ['campoCuenta','filtroResCuenta','prodCuenta','dimCuenta','marcaModalCuenta','filtroMarcaCuenta'];
   IDS.forEach(id=>{
     const sel = document.getElementById(id); if(!sel) return;
     const val = sel.value;
