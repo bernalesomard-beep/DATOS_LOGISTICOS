@@ -865,10 +865,22 @@
     <h3 class="text-headline-md font-bold text-error mb-2 flex items-center gap-2">
       <span class="material-symbols-outlined">warning</span>Eliminar Registro
     </h3>
-    <p class="text-body-sm text-on-surface-variant mb-6">¿Eliminar el registro <strong id="modalEliminarRef"></strong>? Esta acción no se puede deshacer.</p>
+    <p class="text-body-sm text-on-surface-variant mb-4">¿Eliminar el registro <strong id="modalEliminarRef"></strong>? Esta acción no se puede deshacer.</p>
+    <div class="mb-4">
+      <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5 flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px]">lock</span>PIN de autorización
+      </label>
+      <input id="inputPinEliminar" type="password" maxlength="4" placeholder="••••"
+        class="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md text-center tracking-widest focus:ring-2 focus:ring-error/20 focus:border-error transition-all"
+        oninput="this.value=this.value.replace(/\D/g,'')"
+        onkeydown="if(event.key==='Enter') validarPinEliminar()"/>
+      <p id="pinEliminarError" class="hidden text-xs text-error font-bold mt-1.5 text-center">PIN incorrecto. Acceso denegado.</p>
+    </div>
     <div class="flex justify-end gap-3">
       <button onclick="cerrarModalEliminar()" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all">Cancelar</button>
-      <button onclick="confirmarEliminar()" class="px-5 py-2 rounded-lg bg-error text-on-error font-bold hover:bg-error/90 transition-all">Eliminar</button>
+      <button onclick="validarPinEliminar()" class="px-5 py-2 rounded-lg bg-error text-on-error font-bold hover:bg-error/90 transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px]">delete</span>Eliminar
+      </button>
     </div>
   </div>
 </div>
@@ -1211,7 +1223,7 @@ async function cargarSheet2() {
 
     const colMap = rawHeaders.map(h => {
       // Cabeceras duplicadas
-      const base = h.replace(/\s*\(.*?\)/g,'').trim(); // quitar "(cm)", "(kg)" etc
+      const base = h.replace(/\s*\(.*?\)/g,'').replace(/UNI$|CAJA$/,'').trim(); // quitar "(cm)", "(kg)", sufijos "uni"/"caja"
       if (DUPLICADAS[base]) {
         seenCount[base] = (seenCount[base]||0);
         const canon = DUPLICADAS[base][seenCount[base]] || (base + '_' + seenCount[base]);
@@ -1801,9 +1813,9 @@ async function guardarRegistro() {
       toast(json.msg||'Guardado correctamente','success');
       modoEdicion = false;
       limpiarFormulario();
-      // Invalidar cache de Sheet2 para forzar recarga
+      // Invalidar cache de Sheet2 y recargar tabla de inmediato
       delete _fetchCache[CONFIG.URL_SHEET2];
-      setTimeout(()=>cargarSheet2(), 2500);
+      setTimeout(()=>cargarSheet2(), 800);
     } else toast('Error: '+json.msg,'error');
   } catch(e) { toast('Error de conexión con Apps Script','error'); }
   finally { mostrarOverlay(false); }
@@ -1830,11 +1842,28 @@ function limpiarFormulario() {
 function abrirModalEliminar(ref,cod) {
   pendingDeleteRef=ref; pendingDeleteCod=cod;
   document.getElementById('modalEliminarRef').textContent = ref+' / '+cod;
+  document.getElementById('inputPinEliminar').value='';
+  document.getElementById('pinEliminarError').classList.add('hidden');
   document.getElementById('modalEliminar').style.display='flex';
+  setTimeout(()=>document.getElementById('inputPinEliminar').focus(), 100);
 }
 function cerrarModalEliminar() {
   document.getElementById('modalEliminar').style.display='none';
+  document.getElementById('inputPinEliminar').value='';
+  document.getElementById('pinEliminarError').classList.add('hidden');
   pendingDeleteRef=pendingDeleteCod=null;
+}
+function validarPinEliminar() {
+  const pin = document.getElementById('inputPinEliminar').value;
+  const errEl = document.getElementById('pinEliminarError');
+  if (pin !== '9891') {
+    errEl.classList.remove('hidden');
+    document.getElementById('inputPinEliminar').value='';
+    document.getElementById('inputPinEliminar').focus();
+    return;
+  }
+  errEl.classList.add('hidden');
+  confirmarEliminar();
 }
 async function confirmarEliminar() {
   const ref=pendingDeleteRef, cod=pendingDeleteCod;
@@ -1845,7 +1874,7 @@ async function confirmarEliminar() {
     const res  = await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'delete',referencia:ref,codigo:cod})});
     const json = await res.json();
     toast(json.ok?'Registro eliminado':'Error: '+json.msg, json.ok?'success':'error');
-    if(json.ok) { delete _fetchCache[CONFIG.URL_SHEET2]; setTimeout(()=>cargarSheet2(),2500); }
+    if(json.ok) { delete _fetchCache[CONFIG.URL_SHEET2]; setTimeout(()=>cargarSheet2(),800); }
   } catch(e){ toast('Error de conexión','error'); }
   finally { mostrarOverlay(false); }
 }
