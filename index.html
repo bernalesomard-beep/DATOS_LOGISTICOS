@@ -84,7 +84,7 @@
   .tabla-scroll-wrap{overflow:auto;}
   .tabla-scroll-wrap thead th{position:sticky;top:0;z-index:2;}
   #wrapLineas{height:160px;}
-  #wrapResultados{height:340px;overflow-y:auto;overflow-x:auto;}
+  #wrapResultados{height:414px;overflow-y:auto;overflow-x:auto;}
   #wrapResultados thead{position:sticky;top:0;z-index:5;}
   #wrapResultados thead tr th{position:sticky;top:0;z-index:5;background:#001035;}
 
@@ -377,19 +377,12 @@
     </div>
 
     <!-- ── RESULTADOS LOGÍSTICOS ── -->
-    <section>
+    <section class="mt-8">
       <!-- Header -->
-      <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center mb-3">
         <h3 class="text-headline-md font-bold text-secondary flex items-center gap-2">
           <span class="material-symbols-outlined">analytics</span>Resultados Logísticos
         </h3>
-        <div class="flex gap-3 items-center flex-wrap">
-          <span id="countResultados" class="bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20">0 REGISTROS</span>
-          <span id="countSeleccionados" class="hidden bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 SEL.</span>
-          <button onclick="exportarXLS()" class="bg-primary hover:bg-primary/90 text-on-primary px-4 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95">
-            <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
-          </button>
-        </div>
       </div>
       <!-- Filtros de Resultados -->
       <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 mb-3 shadow-sm" style="overflow:visible;position:relative;z-index:50;">
@@ -436,6 +429,13 @@
             class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">
             Limpiar filtros
           </button>
+          <div class="flex gap-2 items-center ml-auto">
+            <span id="countResultados" class="bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20">0 REGISTROS</span>
+            <span id="countSeleccionados" class="hidden bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 SEL.</span>
+            <button onclick="exportarXLS()" class="bg-primary hover:bg-primary/90 text-on-primary px-4 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95">
+              <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
+            </button>
+          </div>
         </div>
       </div>
       <div id="wrapResultados" class="tabla-scroll-wrap bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg">
@@ -546,7 +546,7 @@
       <span id="countProd" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
       <span id="countProdSel" class="hidden bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20">0 SEL.</span>
     </div>
-    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+    <div style="height:740px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
       <table class="w-full text-left border-collapse text-[12px]" style="min-width:900px;">
         <thead id="theadProd"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
         <tbody id="tbodyProd"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
@@ -609,7 +609,7 @@
       <span id="countDim" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
       <span id="countDimSel" class="hidden bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-bold text-secondary border border-secondary/20">0 SEL.</span>
     </div>
-    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+    <div style="height:740px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
       <table class="w-full text-left border-collapse text-[12px]" style="min-width:1400px;">
         <thead id="theadDim"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
         <tbody id="tbodyDim"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
@@ -661,7 +661,7 @@
     <div class="flex items-center mb-1">
       <span id="countHis" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
     </div>
-    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+    <div style="height:740px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
       <table class="w-full text-left border-collapse text-[12px]" style="min-width:700px;">
         <thead id="theadHis"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
         <tbody id="tbodyHis"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
@@ -676,7 +676,7 @@
         <span class="material-symbols-outlined">label</span>Marca
       </h2>
       <div class="flex gap-2">
-        <button onclick="abrirModalAgregarMarca()" class="flex items-center gap-2 px-4 py-2 bg-secondary text-on-secondary rounded-lg text-xs font-bold hover:bg-secondary/90 transition-all">
+        <button onclick="togglePanelMarca()" class="flex items-center gap-2 px-4 py-2 bg-secondary text-on-secondary rounded-lg text-xs font-bold hover:bg-secondary/90 transition-all">
           <span class="material-symbols-outlined text-[16px]">add</span>Agregar Marca
         </button>
         <button onclick="exportarMarca()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
@@ -684,24 +684,64 @@
         </button>
       </div>
     </div>
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm">
-      <div class="flex flex-wrap gap-4 items-end">
-        <div class="flex flex-col gap-1 min-w-[240px]">
-          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Búsqueda general</label>
-          <input id="filtroMarca" type="text" oninput="filtrarMarca()" placeholder="Filtrar..."
-            class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/>
+    <div class="flex gap-5 items-start">
+      <!-- Columna izquierda: filtros + tabla -->
+      <div class="flex-1 min-w-0 space-y-4">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm">
+          <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex flex-col gap-1 min-w-[240px]">
+              <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Búsqueda general</label>
+              <input id="filtroMarca" type="text" oninput="filtrarMarca()" placeholder="Filtrar..."
+                class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/>
+            </div>
+            <button onclick="limpiarFiltrosMarca()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+          </div>
         </div>
-        <button onclick="limpiarFiltrosMarca()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+        <div class="flex items-center mb-1">
+          <span id="countMarca" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
+        </div>
+        <div style="height:520px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+          <table class="w-full text-left border-collapse text-[12px]">
+            <thead id="theadMarca"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
+            <tbody id="tbodyMarca"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
+          </table>
+        </div>
       </div>
-    </div>
-    <div class="flex items-center mb-1">
-      <span id="countMarca" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
-    </div>
-    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
-      <table class="w-full text-left border-collapse text-[12px]">
-        <thead id="theadMarca"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
-        <tbody id="tbodyMarca"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
-      </table>
+      <!-- Panel lateral derecho: formulario Agregar Marca -->
+      <div id="panelMarca" class="hidden w-72 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-md overflow-hidden">
+        <div class="bg-primary text-on-primary px-5 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">label</span>
+            <div>
+              <p class="font-bold text-[14px]">Agregar Marca</p>
+              <p class="text-[11px] text-white/70">Asocia una marca a una cuenta</p>
+            </div>
+          </div>
+          <button onclick="togglePanelMarca()" class="hover:bg-white/20 rounded-lg p-1 transition-all">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+        <div class="p-5 space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Cuenta *</label>
+            <select id="marcaModalCuenta" class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+              <option value="">— Seleccionar cuenta —</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Marca *</label>
+            <input id="marcaModalNombre" type="text" placeholder="Nombre de la marca"
+              class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+          </div>
+          <div id="marcaModalStatus" class="hidden text-xs font-bold text-center py-2 rounded-lg"></div>
+          <div class="flex gap-3 pt-1">
+            <button onclick="togglePanelMarca()" class="flex-1 px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all text-sm">Cancelar</button>
+            <button onclick="guardarMarca()" class="flex-1 px-4 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 text-sm">
+              <span class="material-symbols-outlined text-[15px]">save</span>Guardar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div><!-- /seccion-marca -->
 
@@ -712,7 +752,7 @@
         <span class="material-symbols-outlined">account_balance_wallet</span>Cuenta
       </h2>
       <div class="flex gap-2">
-        <button onclick="abrirModalAgregarCuenta()" class="flex items-center gap-2 px-4 py-2 bg-secondary text-on-secondary rounded-lg text-xs font-bold hover:bg-secondary/90 transition-all">
+        <button onclick="togglePanelCuenta()" class="flex items-center gap-2 px-4 py-2 bg-secondary text-on-secondary rounded-lg text-xs font-bold hover:bg-secondary/90 transition-all">
           <span class="material-symbols-outlined text-[16px]">add</span>Agregar Cuenta
         </button>
         <button onclick="exportarCuenta()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
@@ -720,24 +760,68 @@
         </button>
       </div>
     </div>
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm">
-      <div class="flex flex-wrap gap-4 items-end">
-        <div class="flex flex-col gap-1 min-w-[240px]">
-          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Búsqueda general</label>
-          <input id="filtroCuentaSec" type="text" oninput="filtrarCuenta()" placeholder="Filtrar..."
-            class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/>
+    <div class="flex gap-5 items-start">
+      <!-- Columna izquierda: filtros + tabla -->
+      <div class="flex-1 min-w-0 space-y-4">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm">
+          <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex flex-col gap-1 min-w-[240px]">
+              <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Búsqueda general</label>
+              <input id="filtroCuentaSec" type="text" oninput="filtrarCuenta()" placeholder="Filtrar..."
+                class="px-3 py-2 border border-outline-variant rounded-lg text-[12px] focus:border-primary outline-none"/>
+            </div>
+            <button onclick="limpiarFiltrosCuenta()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+          </div>
         </div>
-        <button onclick="limpiarFiltrosCuenta()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">Limpiar</button>
+        <div class="flex items-center mb-1">
+          <span id="countCuenta" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
+        </div>
+        <div style="height:520px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+          <table class="w-full text-left border-collapse text-[12px]">
+            <thead id="theadCuenta"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
+            <tbody id="tbodyCuenta"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
+          </table>
+        </div>
       </div>
-    </div>
-    <div class="flex items-center mb-1">
-      <span id="countCuenta" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20">0 REGISTROS</span>
-    </div>
-    <div style="height:460px;overflow:auto;" class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
-      <table class="w-full text-left border-collapse text-[12px]">
-        <thead id="theadCuenta"><tr><td class="px-4 py-3 text-outline italic">Cargando...</td></tr></thead>
-        <tbody id="tbodyCuenta"><tr><td class="px-4 py-6 text-center text-outline italic">—</td></tr></tbody>
-      </table>
+      <!-- Panel lateral derecho: formulario Agregar Cuenta -->
+      <div id="panelCuenta" class="hidden w-72 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-md overflow-hidden">
+        <div class="bg-primary text-on-primary px-5 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+            <div>
+              <p class="font-bold text-[14px]">Agregar Cuenta</p>
+              <p class="text-[11px] text-white/70">Define cuenta y código XIVEN2</p>
+            </div>
+          </div>
+          <button onclick="togglePanelCuenta()" class="hover:bg-white/20 rounded-lg p-1 transition-all">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+        <div class="p-5 space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Nombre de Cuenta *</label>
+            <input id="cuentaModalNombre" type="text" placeholder="Ej: DERMODIS"
+              class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Código XIVEN2 *</label>
+            <input id="cuentaModalXiven2" type="number" placeholder="Ej: 23"
+              class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Descripción (opcional)</label>
+            <input id="cuentaModalDesc" type="text" placeholder="Descripción de la cuenta"
+              class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+          </div>
+          <div id="cuentaModalStatus" class="hidden text-xs font-bold text-center py-2 rounded-lg"></div>
+          <div class="flex gap-3 pt-1">
+            <button onclick="togglePanelCuenta()" class="flex-1 px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all text-sm">Cancelar</button>
+            <button onclick="guardarCuenta()" class="flex-1 px-4 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 text-sm">
+              <span class="material-symbols-outlined text-[15px]">save</span>Guardar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div><!-- /seccion-cuenta -->
 
@@ -1854,17 +1938,17 @@ function exportarXLS() {
           const val = xi[c] ?? '';
           if (COLS_TEXTO.has(c)) return { v: String(val), t: 's', z: '@' };
           if (COLS_NUM_3D.has(c)) {
-            const n = parseFloat(val);
+            const n = parseFloat(String(val).replace(',','.'));
             if (isNaN(n)) return { v: '', t: 's' };
             return { v: parseFloat(n.toFixed(3)), t: 'n', z: '0.000' };
           }
           if (COLS_NUM_2D.has(c)) {
-            const n = parseFloat(val);
+            const n = parseFloat(String(val).replace(',','.'));
             if (isNaN(n)) return { v: '', t: 's' };
             return { v: parseFloat(n.toFixed(2)), t: 'n', z: '0.00' };
           }
           if (COLS_NUM_INT.has(c)) {
-            const n = parseFloat(val);
+            const n = parseFloat(String(val).replace(',','.'));
             return isNaN(n) ? { v: '', t: 's' } : { v: Math.round(n), t: 'n', z: '0' };
           }
           return { v: String(val), t: 's' };
@@ -2784,14 +2868,58 @@ function exportarCuenta() {
 // ══════════════════════════════════════════════════
 //  MODAL AGREGAR MARCA
 // ══════════════════════════════════════════════════
-function abrirModalAgregarMarca() {
-  document.getElementById('marcaModalNombre').value='';
-  document.getElementById('marcaModalCuenta').value='';
-  document.getElementById('marcaModalStatus').classList.add('hidden');
-  sincronizarSelectsCuenta();
-  document.getElementById('modalAgregarMarca').style.display='flex';
+function abrirModalAgregarMarca() { togglePanelMarca(); }
+function cerrarModalAgregarMarca() { togglePanelMarca(false); }
+function abrirModalAgregarCuenta() { togglePanelCuenta(); }
+function cerrarModalAgregarCuenta() { togglePanelCuenta(false); }
+
+function togglePanelMarca(forceState) {
+  const panel = document.getElementById('panelMarca');
+  if (!panel) return;
+  const show = forceState !== undefined ? forceState : panel.classList.contains('hidden');
+  if (show) {
+    document.getElementById('marcaModalNombre').value = '';
+    document.getElementById('marcaModalStatus').classList.add('hidden');
+    sincronizarSelectsCuenta();
+    panel.classList.remove('hidden');
+  } else {
+    panel.classList.add('hidden');
+  }
 }
-function cerrarModalAgregarMarca(){document.getElementById('modalAgregarMarca').style.display='none';}
+
+function togglePanelCuenta(forceState) {
+  const panel = document.getElementById('panelCuenta');
+  if (!panel) return;
+  const show = forceState !== undefined ? forceState : panel.classList.contains('hidden');
+  if (show) {
+    document.getElementById('cuentaModalNombre').value = '';
+    document.getElementById('cuentaModalXiven2').value = '';
+    document.getElementById('cuentaModalDesc').value = '';
+    document.getElementById('cuentaModalStatus').classList.add('hidden');
+    panel.classList.remove('hidden');
+  } else {
+    panel.classList.add('hidden');
+  }
+}
+
+function abrirModalPlantilla() {
+  document.getElementById('modalPlantilla').style.display = 'flex';
+}
+function cerrarModalPlantilla() {
+  document.getElementById('modalPlantilla').style.display = 'none';
+}
+function descargarPlantilla() {
+  const headers = ['REFERENCIA','FECHA','CUENTA','CÓDIGO DE PRODUCTO','DESCRIPCION','EAN 13'];
+  const ejemplo = [['OC-EJEMPLO','2026-06-14','DERMODIS','8056101','Descripción del producto','8056101']];
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...ejemplo]);
+  ws['!cols'] = headers.map(() => ({ wch: 24 }));
+  // Estilo visual de cabecera (solo compatible con xlsx pro, pero el ancho aplica)
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Plantilla');
+  XLSX.writeFile(wb, 'Plantilla_Productos.xls', { bookType: 'xls' });
+  toast('Plantilla descargada', 'success');
+  cerrarModalPlantilla();
+}
 
 async function guardarMarca() {
   const cuenta = document.getElementById('marcaModalCuenta').value.trim();
@@ -2811,7 +2939,7 @@ async function guardarMarca() {
       status.textContent='Marca guardada correctamente';
       toast('Marca guardada','success');
       setTimeout(async ()=>{
-        cerrarModalAgregarMarca();
+        togglePanelMarca(false);
         await cargarMarca();
         if(!document.getElementById('seccion-marca').classList.contains('hidden')) renderTablaMarca(datosMarca);
       },1200);
@@ -2838,11 +2966,11 @@ function abrirModalAgregarCuenta() {
 function cerrarModalAgregarCuenta(){document.getElementById('modalAgregarCuenta').style.display='none';}
 
 async function guardarCuenta() {
-  const nombre = document.getElementById('cuentaModalNombre').value.trim().toUpperCase();
-  const xiven2 = document.getElementById('cuentaModalXiven2').value.trim();
-  const desc   = document.getElementById('cuentaModalDesc').value.trim();
+  const nombre = (document.getElementById('cuentaModalNombre').value || '').trim().toUpperCase();
+  const xiven2 = String(document.getElementById('cuentaModalXiven2').value || '').trim();
+  const desc   = (document.getElementById('cuentaModalDesc').value || '').trim();
   const status = document.getElementById('cuentaModalStatus');
-  if (!nombre||!xiven2) {
+  if (!nombre || !xiven2) {
     status.className='text-xs font-bold text-center py-2 rounded-lg bg-red-50 text-red-700';
     status.textContent='Nombre y XIVEN2 son requeridos.'; status.classList.remove('hidden'); return;
   }
@@ -2856,7 +2984,7 @@ async function guardarCuenta() {
       status.textContent='Cuenta guardada correctamente';
       toast('Cuenta guardada','success');
       setTimeout(async ()=>{
-        cerrarModalAgregarCuenta();
+        togglePanelCuenta(false);
         await cargarCuenta();
         if(!document.getElementById('seccion-cuenta').classList.contains('hidden')) renderTablaCuenta(datosCuenta);
       },1200);
