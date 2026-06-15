@@ -196,67 +196,22 @@
   <div id="seccion-tablero">
 
     <!-- ── FILTROS SUPERIORES ── -->
-    <section class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant relative z-30">
-      <div class="flex flex-wrap gap-5 items-end">
-
-        <!-- REFERENCIA FILTRO (imagen 3: radio + buscar) -->
-        <div class="flex-1 min-w-[240px]">
-          <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wider">Referencia</label>
-          <div class="cdrop-wrap" id="wrapFiltroRef">
-            <button class="cdrop-btn" onclick="toggleDrop('wrapFiltroRef')">
-              <span class="cdrop-label" id="labelFiltroRef">Seleccionar Referencia...</span>
-              <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
-            </button>
-            <div class="cdrop-panel">
-              <div class="cdrop-search-box">
-                  <span class="material-symbols-outlined cdrop-search-icon">search</span>
-                <input class="cdrop-search" placeholder="Buscar" type="text"
-                  oninput="buscarEnDrop('wrapFiltroRef',this.value)"/>
-                </div>
-              <div class="cdrop-list" id="listFiltroRef"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CÓDIGO FILTRO (imagen 4: radio + buscar, filtrado por referencia) -->
-        <div class="flex-1 min-w-[240px]">
-          <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wider">Código de Producto (XIMPKD1)</label>
-          <div class="cdrop-wrap" id="wrapFiltroCod">
-            <button class="cdrop-btn" onclick="toggleDrop('wrapFiltroCod')">
-              <span class="cdrop-label" id="labelFiltroCod">Seleccionar Código...</span>
-              <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
-            </button>
-            <div class="cdrop-panel">
-              <div class="cdrop-search-box">
-                <span class="material-symbols-outlined cdrop-search-icon">search</span>
-                <input class="cdrop-search" placeholder="Buscar" type="text"
-                  oninput="buscarEnDrop('wrapFiltroCod',this.value)"/>
-              </div>
-              <div class="cdrop-list" id="listFiltroCod"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- FECHAS -->
-        <div class="w-40">
-          <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wider">Fecha Inicio</label>
-          <input id="filtroFechaIni" type="date" class="w-full px-3 py-2.5 rounded-lg border border-outline-variant focus:border-primary text-body-md transition-all" oninput="filtrarTablaLineas()"/>
-        </div>
-        <div class="w-40">
-          <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wider">Fecha Fin</label>
-          <input id="filtroFechaFin" type="date" class="w-full px-3 py-2.5 rounded-lg border border-outline-variant focus:border-primary text-body-md transition-all" oninput="filtrarTablaLineas()"/>
-        </div>
-
-        <div class="flex gap-3">
-          <button onclick="limpiarFormulario()" class="bg-surface-container-high text-on-surface-variant px-5 py-2.5 rounded-lg font-bold hover:bg-surface-container-highest transition-all">
-            Limpiar
-          </button>
-          <button onclick="guardarRegistro()" class="bg-primary hover:bg-primary/90 text-on-primary px-5 py-2.5 rounded-lg font-bold transition-all flex items-center gap-2 shadow-md">
-            <span class="material-symbols-outlined text-[18px]">save</span>Guardar y Alimentar
-          </button>
-        </div>
+    <!-- Barra de acciones (Limpiar + Guardar) -->
+    <div class="flex justify-end gap-3 mb-1">
+      <!-- Dropdowns ocultos para compatibilidad con JS (no visibles) -->
+      <div class="hidden">
+        <div id="wrapFiltroRef"><div id="listFiltroRef"></div><span id="labelFiltroRef"></span></div>
+        <div id="wrapFiltroCod"><div id="listFiltroCod"></div><span id="labelFiltroCod"></span></div>
+        <input id="filtroFechaIni" type="date"/>
+        <input id="filtroFechaFin" type="date"/>
       </div>
-    </section>
+      <button onclick="limpiarFormulario()" class="bg-surface-container-high text-on-surface-variant px-5 py-2.5 rounded-lg font-bold hover:bg-surface-container-highest transition-all border border-outline-variant flex items-center gap-2">
+        <span class="material-symbols-outlined text-[16px]">restart_alt</span>Limpiar
+      </button>
+      <button onclick="guardarRegistro()" class="bg-primary hover:bg-primary/90 text-on-primary px-5 py-2.5 rounded-lg font-bold transition-all flex items-center gap-2 shadow-md">
+        <span class="material-symbols-outlined text-[18px]">save</span>Guardar y Alimentar
+      </button>
+    </div>
 
     <!-- ── PANELES DE DATOS ── -->
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-40">
@@ -415,39 +370,11 @@
       </div>
     </section>
 
-    <!-- ── DETALLE DE LÍNEAS ── -->
-    <section class="relative z-10">
-      <!-- Header con filtros al lado del título -->
-      <div class="flex flex-wrap items-center gap-3 mb-3">
-        <h3 class="text-headline-md font-bold text-primary flex items-center gap-2 shrink-0">
-          <span class="material-symbols-outlined">list_alt</span>Detalle de Líneas
-        </h3>
-        <div class="flex flex-wrap gap-2 flex-1">
-          <input oninput="filtrarTablaLineas()" data-col="0" class="col-filter text-[11px] px-2 py-1.5 border border-outline-variant rounded-lg bg-white w-40 focus:border-primary focus:ring-1 focus:ring-primary/20" placeholder="Referencia..." type="text"/>
-          <input oninput="filtrarTablaLineas()" data-col="1" class="col-filter text-[11px] px-2 py-1.5 border border-outline-variant rounded-lg bg-white w-28 focus:border-primary focus:ring-1 focus:ring-primary/20" placeholder="Código..." type="text"/>
-          <input oninput="filtrarTablaLineas()" data-col="2" class="col-filter text-[11px] px-2 py-1.5 border border-outline-variant rounded-lg bg-white w-44 focus:border-primary focus:ring-1 focus:ring-primary/20" placeholder="Descripción..." type="text"/>
-          <input oninput="filtrarTablaLineas()" data-col="3" class="col-filter text-[11px] px-2 py-1.5 border border-outline-variant rounded-lg bg-white w-32 focus:border-primary focus:ring-1 focus:ring-primary/20" placeholder="EAN 13..." type="text"/>
-        </div>
-        <span id="countLineas" class="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20 shrink-0">0 REGISTROS</span>
-      </div>
-      <div id="wrapLineas" class="tabla-scroll-wrap bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
-        <table class="w-full text-left border-collapse min-w-[700px]">
-          <thead>
-            <tr class="bg-surface-container-high text-on-surface-variant text-[12px] font-bold uppercase tracking-wider sticky top-0 z-10">
-              <th class="px-5 py-2.5 border-r border-outline-variant/30">REFERENCIA</th>
-              <th class="px-5 py-2.5 border-r border-outline-variant/30">CÓDIGO</th>
-              <th class="px-5 py-2.5 border-r border-outline-variant/30">DESCRIPCIÓN</th>
-              <th class="px-5 py-2.5 border-r border-outline-variant/30">EAN 13</th>
-              <th class="px-5 py-2.5 border-r border-outline-variant/30">FECHA</th>
-              <th class="px-5 py-2.5 text-center">ACCIONES</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyLineas" class="text-body-sm divide-y divide-outline-variant">
-            <tr><td colspan="6" class="px-6 py-6 text-center text-outline text-sm italic">Cargando datos...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <!-- tbodyLineas oculto — necesario para compatibilidad JS -->
+    <div class="hidden">
+      <span id="countLineas"></span>
+      <table><tbody id="tbodyLineas"></tbody></table>
+    </div>
 
     <!-- ── RESULTADOS LOGÍSTICOS ── -->
     <section>
@@ -1912,7 +1839,10 @@ function exportarXLS() {
                        'XIREF03','XIREF04','XIREF05','XIMPKD1','XIMPKD2','XIGTEC','XIMNOT1','XIMNOT2'];
       const headers = [...XI_COLS];
       const COLS_TEXTO = new Set(['XIITYP','XIGLNO','XIMPKD1']);
-      const COLS_NUM   = new Set(['XIWGHT','XIVULI','XIVEN2','XSAFLG']);
+      // XIWGHT: hasta 3 decimales | XIVULI: hasta 2 decimales | XIVEN2 y XSAFLG: enteros
+      const COLS_NUM_3D  = new Set(['XIWGHT']);           // formato 0.000
+      const COLS_NUM_2D  = new Set(['XIVULI']);           // formato 0.00
+      const COLS_NUM_INT = new Set(['XIVEN2','XSAFLG']);  // formato 0
 
       const filas = datosExportar.map(d => {
         const xiCalc = calcXI(d);
@@ -1923,32 +1853,46 @@ function exportarXLS() {
         return XI_COLS.map(c => {
           const val = xi[c] ?? '';
           if (COLS_TEXTO.has(c)) return { v: String(val), t: 's', z: '@' };
-          if (COLS_NUM.has(c)) {
+          if (COLS_NUM_3D.has(c)) {
             const n = parseFloat(val);
-            return isNaN(n) ? { v: '', t: 's' } : { v: n, t: 'n' };
+            if (isNaN(n)) return { v: '', t: 's' };
+            return { v: parseFloat(n.toFixed(3)), t: 'n', z: '0.000' };
+          }
+          if (COLS_NUM_2D.has(c)) {
+            const n = parseFloat(val);
+            if (isNaN(n)) return { v: '', t: 's' };
+            return { v: parseFloat(n.toFixed(2)), t: 'n', z: '0.00' };
+          }
+          if (COLS_NUM_INT.has(c)) {
+            const n = parseFloat(val);
+            return isNaN(n) ? { v: '', t: 's' } : { v: Math.round(n), t: 'n', z: '0' };
           }
           return { v: String(val), t: 's' };
         });
       });
 
-      const ws = XLSX.utils.aoa_to_sheet([
-        headers,
-        ...filas.map(row => row.map(c => c.v))
-      ]);
+      // Construir hoja directamente con objetos celda (preserva tipos y formatos)
+      const wsData = [
+        headers.map(h => ({ v: h, t: 's' })),
+        ...filas
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(wsData.map(row => row.map(c => c.v)));
 
+      // Aplicar tipos y formatos numéricos celda a celda
       const nRows = filas.length;
       XI_COLS.forEach((col, ci) => {
-        if (COLS_TEXTO.has(col)) {
-          for (let ri = 0; ri <= nRows; ri++) {
-            const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
-            if (ws[addr]) { ws[addr].t = 's'; ws[addr].z = '@'; }
-          }
-        }
-        if (COLS_NUM.has(col)) {
-          for (let ri = 1; ri <= nRows; ri++) {
-            const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
-            if (ws[addr] && filas[ri-1][ci].t === 'n') ws[addr].t = 'n';
-          }
+        // Cabecera: siempre texto
+        const hAddr = XLSX.utils.encode_cell({ r: 0, c: ci });
+        if (ws[hAddr]) { ws[hAddr].t = 's'; }
+
+        for (let ri = 1; ri <= nRows; ri++) {
+          const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
+          if (!ws[addr]) continue;
+          const cell = filas[ri-1][ci];
+          ws[addr].t = cell.t;
+          if (cell.z) ws[addr].z = cell.z;   // formato numérico con decimales
+          if (cell.t === 'n') ws[addr].v = cell.v;
+          if (cell.t === 's') { ws[addr].v = cell.v; if (cell.z) ws[addr].z = cell.z; }
         }
       });
 
