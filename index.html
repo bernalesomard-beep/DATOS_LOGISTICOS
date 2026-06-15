@@ -1029,6 +1029,38 @@ const CONFIG = {
 };
 
 // ══════════════════════════════════════════════════
+//  UTILIDADES DE RENDIMIENTO
+// ══════════════════════════════════════════════════
+
+// Debounce: evita ejecuciones repetidas en cada tecla
+function debounce(fn, ms) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+// Cache de elementos DOM: evita getElementById repetidos
+const DOM = {};
+function getEl(id) {
+  if (!DOM[id]) DOM[id] = document.getElementById(id);
+  return DOM[id];
+}
+
+// Cache de fetch por URL con TTL de 5 minutos
+const _fetchCache = {};
+async function fetchCSVCached(url) {
+  const now = Date.now();
+  if (_fetchCache[url] && (now - _fetchCache[url].ts) < 300000) {
+    return _fetchCache[url].data;
+  }
+  const data = await fetchCSV(url);
+  _fetchCache[url] = { data, ts: now };
+  return data;
+}
+
+// ══════════════════════════════════════════════════
 //  ESTADO
 // ══════════════════════════════════════════════════
 let datosSheet1 = [];
@@ -1044,6 +1076,9 @@ let modoEdicion = false;
 
 // Almacena ítems actuales de cada dropdown para búsqueda interna
 const dropState = {};
+
+// Cache de secciones ya cargadas (lazy load)
+const _seccionCargada = {};
 
 // ══════════════════════════════════════════════════
 //  INIT
@@ -1075,7 +1110,7 @@ async function cargarDatos() {
 //  SHEET 1
 // ══════════════════════════════════════════════════
 async function cargarSheet1() {
-  const csv  = await fetchCSV(CONFIG.URL_SHEET1);
+  const csv  = await fetchCSVCached(CONFIG.URL_SHEET1);
   const rows = parseCSV(csv);
   if (rows.length < 2) return;
 
@@ -1133,6 +1168,7 @@ async function cargarSheet1() {
   });
 
   renderTablaLineas(datosSheet1);
+  _buildIndexSheet1(); // construir índice de búsqueda optimizado
 }
 
 // ══════════════════════════════════════════════════
@@ -1140,7 +1176,7 @@ async function cargarSheet1() {
 // ══════════════════════════════════════════════════
 async function cargarSheet2() {
   try {
-    const csv  = await fetchCSV(CONFIG.URL_SHEET2);
+    const csv  = await fetchCSVCached(CONFIG.URL_SHEET2);
     const rows = parseCSV(csv);
     if (rows.length < 2) { datosSheet2=[]; renderTablaResultados([]); return; }
 
@@ -1315,7 +1351,7 @@ function cerrarTodosDrops(e) {
   document.querySelectorAll('.cdrop-wrap.open').forEach(w=>w.classList.remove('open'));
 }
 
-function buscarEnDrop(wrapId, q) {
+function _buscarEnDrop(wrapId, q) {
   const s = dropState[wrapId];
   if (!s) return;
   const filtrados = s.items.filter(i => i.toUpperCase().includes(q.toUpperCase()));
@@ -1326,6 +1362,7 @@ function buscarEnDrop(wrapId, q) {
     renderListCheckbox(listId, filtrados, s.selected, s.onSelect, wrapId);
   }
 }
+const buscarEnDrop = debounce(_buscarEnDrop, 200);
 
 // ══════════════════════════════════════════════════
 //  SELECCIÓN REFERENCIA FORMULARIO
@@ -1456,39 +1493,68 @@ function actualizarMarcasPorCuenta(cuenta) {
 //  TABLAS
 // ══════════════════════════════════════════════════
 function renderTablaLineas(datos) {
-  const tbody = document.getElementById('tbodyLineas');
-  document.getElementById('countLineas').textContent = datos.length + ' REGISTROS';
+  const tbody = getEl('tbodyLineas');
+  getEl('countLineas').textContent = datos.length + ' REGISTROS';
   if (!datos.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-6 text-center text-outline text-sm italic">Sin registros</td></tr>'; return;
+    tbody.replaceChildren();
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="6" class="px-6 py-6 text-center text-outline text-sm italic">Sin registros</td>';
+    tbody.appendChild(tr);
+    return;
   }
-  tbody.innerHTML = datos.map((d,i) => `
+  // Usar DocumentFragment para minimizar reflows
+  const frag = document.createDocumentFragment();
+  const tpl = document.createElement('template');
+  tpl.innerHTML = datos.map((d,i) => `
     <tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors"
-      onclick="cargarEnFormulario('${escHtml(d.referencia)}','${escHtml(d.codigo)}')">
+      data-ref="${escHtml(d.referencia)}" data-cod="${escHtml(d.codigo)}">
       <td class="px-5 py-2 border-r border-outline-variant/30 text-xs">${escHtml(d.referencia)}</td>
       <td class="px-5 py-2 border-r border-outline-variant/30 font-mono font-bold text-primary text-xs">${escHtml(d.codigo)}</td>
       <td class="px-5 py-2 border-r border-outline-variant/30 text-xs">${escHtml(d.descripcion)}</td>
       <td class="px-5 py-2 border-r border-outline-variant/30 font-mono text-xs">${escHtml(d.ean13)}</td>
       <td class="px-5 py-2 border-r border-outline-variant/30 text-xs text-outline">${escHtml(d.fecha)}</td>
       <td class="px-5 py-2 text-center">
-        <button onclick="event.stopPropagation();cargarEnFormulario('${escHtml(d.referencia)}','${escHtml(d.codigo)}')"
-          class="material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform">edit</button>
+        <button data-ref="${escHtml(d.referencia)}" data-cod="${escHtml(d.codigo)}"
+          class="btn-edit-linea material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform">edit</button>
       </td>
     </tr>`).join('');
+  frag.appendChild(tpl.content);
+  tbody.replaceChildren(frag);
+  // Delegación de eventos en lugar de onclick inline
+  tbody.onclick = function(e) {
+    const btn = e.target.closest('.btn-edit-linea');
+    const tr  = e.target.closest('tr[data-ref]');
+    if (btn) { e.stopPropagation(); cargarEnFormulario(btn.dataset.ref, btn.dataset.cod); return; }
+    if (tr)  { cargarEnFormulario(tr.dataset.ref, tr.dataset.cod); }
+  };
 }
 
-function filtrarTablaLineas() {
-  const global = (document.getElementById('globalSearch').value||'').toUpperCase();
+// Cache de índice de búsqueda para Sheet1
+let _indexSheet1 = [];
+function _buildIndexSheet1() {
+  _indexSheet1 = datosSheet1.map(d => ({
+    d,
+    ref:  (d.referencia||'').toUpperCase(),
+    cod:  (d.codigo||'').toUpperCase(),
+    desc: (d.descripcion||'').toUpperCase(),
+    ean:  (d.ean13||'').toUpperCase(),
+  }));
+}
+
+function _filtrarTablaLineas() {
+  const global = (getEl('globalSearch').value||'').toUpperCase();
   const cols   = [...document.querySelectorAll('.col-filter')].map(i=>i.value.toUpperCase());
-  const filtrado = datosSheet1.filter(d => {
-    const vals = [d.referencia, d.codigo, d.descripcion, d.ean13];
-    const passCol    = cols.every((f,ci) => !f||(vals[ci]||'').toUpperCase().includes(f));
-    const passGlobal = !global||vals.some(v=>(v||'').toUpperCase().includes(global));
-    const passRef    = !filtroRefSeleccionada || d.referencia===filtroRefSeleccionada;
-    const passCod    = !filtroCodSeleccionado || d.codigo===filtroCodSeleccionado;
+  const filtrado = _indexSheet1.filter(({d, ref, cod, desc, ean}) => {
+    const vals = [ref, cod, desc, ean];
+    const passCol    = cols.every((f,ci) => !f || vals[ci].includes(f));
+    const passGlobal = !global || vals.some(v => v.includes(global));
+    const passRef    = !filtroRefSeleccionada || d.referencia === filtroRefSeleccionada;
+    const passCod    = !filtroCodSeleccionado || d.codigo === filtroCodSeleccionado;
     return passCol && passGlobal && passRef && passCod;
-  });
+  }).map(x => x.d);
   renderTablaLineas(filtrado);
 }
+const filtrarTablaLineas = debounce(_filtrarTablaLineas, 200);
 
 // Calcula las columnas XI a partir de los datos del formulario guardado
 function calcXI(d) {
@@ -1587,12 +1653,11 @@ function renderTablaResultados(datos) {
   actualizarConteoSeleccionados();
 }
 
-function filtrarTablaResultados() {
-  const q      = (document.getElementById('filtroResultados').value||'').toUpperCase();
-  const ini    = document.getElementById('filtroResIni').value || '';
-  const fin    = document.getElementById('filtroResFin').value || '';
-  const cuenta = (document.getElementById('filtroResCuenta').value||'').toUpperCase();
-  // Códigos seleccionados en el dropdown multi-select
+function _filtrarTablaResultados() {
+  const q      = (getEl('filtroResultados').value||'').toUpperCase();
+  const ini    = getEl('filtroResIni').value || '';
+  const fin    = getEl('filtroResFin').value || '';
+  const cuenta = (getEl('filtroResCuenta').value||'').toUpperCase();
   const codsSeleccionados = dropState['wrapFiltroXimpkd1']?.selected || new Set();
 
   const filtrado = datosSheet2.filter(d => {
@@ -1600,7 +1665,6 @@ function filtrarTablaResultados() {
     const passFechaIni = !ini || fecha >= ini;
     const passFechaFin = !fin || fecha <= fin;
     const passCuenta   = !cuenta || (d['CUENTA']||'').toUpperCase().includes(cuenta);
-    // XIMPKD1 contiene el código de producto en la hoja de datos
     const codVal = (d['XIMPKD1'] || d['CODIGO'] || '').trim();
     const passXimpkd1  = codsSeleccionados.size === 0 || codsSeleccionados.has(codVal);
     const passQ        = !q || Object.values(d).some(v=>String(v).toUpperCase().includes(q));
@@ -1609,6 +1673,7 @@ function filtrarTablaResultados() {
   filasFiltradas = filtrado;
   renderTablaResultados(filtrado);
 }
+const filtrarTablaResultados = debounce(_filtrarTablaResultados, 200);
 
 // Al cambiar cuenta en Resultados → filtrar códigos XIMPKD1 disponibles para esa cuenta
 function onCambiarCuentaResultados() {
@@ -1705,30 +1770,32 @@ function cargarParaEditar(idx) {
 async function guardarRegistro() {
   if (!referenciaSeleccionada) { toast('Selecciona una Referencia','error'); return; }
   if (!codigoSeleccionado)     { toast('Selecciona un Código de Artículo','error'); return; }
-  if (!document.getElementById('campoFecha').value) { toast('Ingresa la Fecha','error'); return; }
+  // Usar getEl() cacheado en lugar de getElementById repetido
+  const campoFecha = getEl('campoFecha');
+  if (!campoFecha.value) { toast('Ingresa la Fecha','error'); return; }
   const payload = {
     action: modoEdicion?'update':'save',
     referencia:   referenciaSeleccionada,
     codigo:       codigoSeleccionado,
-    fecha:        document.getElementById('campoFecha').value,
-    cuenta:       document.getElementById('campoCuenta').value,
-    ingresadoPor: document.getElementById('campoIngresadoPor').value,
-    descripcion:  document.getElementById('campoDescripcion').value,
-    ean13:        document.getElementById('campoEan').value,
-    marca:        document.getElementById('campoMarca').value,
-    fe:           document.getElementById('campoFe').value,
-    larUni:       document.getElementById('larUni').value,
-    ancUni:       document.getElementById('ancUni').value,
-    altUni:       document.getElementById('altUni').value,
-    pesUni:       document.getElementById('pesUni').value,
-    larCaja:      document.getElementById('larCaja').value,
-    ancCaja:      document.getElementById('ancCaja').value,
-    altCaja:      document.getElementById('altCaja').value,
-    pesCaja:      document.getElementById('pesCaja').value,
-    cama:         document.getElementById('campoCama').value,
-    nivel:        document.getElementById('campoNivel').value,
-    cajaP:        document.getElementById('campoCajaP').value,
-    unidP:        document.getElementById('campoUnidP').value,
+    fecha:        campoFecha.value,
+    cuenta:       getEl('campoCuenta').value,
+    ingresadoPor: getEl('campoIngresadoPor').value,
+    descripcion:  getEl('campoDescripcion').value,
+    ean13:        getEl('campoEan').value,
+    marca:        getEl('campoMarca').value,
+    fe:           getEl('campoFe').value,
+    larUni:       getEl('larUni').value,
+    ancUni:       getEl('ancUni').value,
+    altUni:       getEl('altUni').value,
+    pesUni:       getEl('pesUni').value,
+    larCaja:      getEl('larCaja').value,
+    ancCaja:      getEl('ancCaja').value,
+    altCaja:      getEl('altCaja').value,
+    pesCaja:      getEl('pesCaja').value,
+    cama:         getEl('campoCama').value,
+    nivel:        getEl('campoNivel').value,
+    cajaP:        getEl('campoCajaP').value,
+    unidP:        getEl('campoUnidP').value,
   };
 
   mostrarOverlay(true);
@@ -1739,6 +1806,8 @@ async function guardarRegistro() {
       toast(json.msg||'Guardado correctamente','success');
       modoEdicion = false;
       limpiarFormulario();
+      // Invalidar cache de Sheet2 para forzar recarga
+      delete _fetchCache[CONFIG.URL_SHEET2];
       setTimeout(()=>cargarSheet2(), 2500);
     } else toast('Error: '+json.msg,'error');
   } catch(e) { toast('Error de conexión con Apps Script','error'); }
@@ -1781,7 +1850,7 @@ async function confirmarEliminar() {
     const res  = await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'delete',referencia:ref,codigo:cod})});
     const json = await res.json();
     toast(json.ok?'Registro eliminado':'Error: '+json.msg, json.ok?'success':'error');
-    if(json.ok) setTimeout(()=>cargarSheet2(),2500);
+    if(json.ok) { delete _fetchCache[CONFIG.URL_SHEET2]; setTimeout(()=>cargarSheet2(),2500); }
   } catch(e){ toast('Error de conexión','error'); }
   finally { mostrarOverlay(false); }
 }
@@ -1823,7 +1892,6 @@ function escHtml(s){
 //  EXPORTAR XLS (columnas W→AS = FECHA, CUENTA + 23 cols XI)
 // ══════════════════════════════════════════════════
 function exportarXLS() {
-  // Si hay filas seleccionadas, exportar solo esas; si no, exportar todo lo filtrado
   const chksSeleccionados = [...document.querySelectorAll('.chk-fila:checked')];
   let datosExportar;
   if (chksSeleccionados.length > 0) {
@@ -1835,79 +1903,67 @@ function exportarXLS() {
   }
   if (!datosExportar.length) { toast('No hay datos para exportar','error'); return; }
 
-  const XI_COLS = ['XIID','XIPROD','XIDESC','XICLAS','XIUMS','XIITYP','XIVEN2','XIDSCE',
-                   'XIWGHT','XSAFLG','XIVULI','XIWHS','XIGLNO','XIREF01','XIREF02',
-                   'XIREF03','XIREF04','XIREF05','XIMPKD1','XIMPKD2','XIGTEC','XIMNOT1','XIMNOT2'];
+  // Mostrar spinner antes del procesamiento pesado
+  mostrarOverlay(true);
+  setTimeout(() => {
+    try {
+      const XI_COLS = ['XIID','XIPROD','XIDESC','XICLAS','XIUMS','XIITYP','XIVEN2','XIDSCE',
+                       'XIWGHT','XSAFLG','XIVULI','XIWHS','XIGLNO','XIREF01','XIREF02',
+                       'XIREF03','XIREF04','XIREF05','XIMPKD1','XIMPKD2','XIGTEC','XIMNOT1','XIMNOT2'];
+      const headers = [...XI_COLS];
+      const COLS_TEXTO = new Set(['XIITYP','XIGLNO','XIMPKD1']);
+      const COLS_NUM   = new Set(['XIWGHT','XIVULI','XIVEN2','XSAFLG']);
 
-  // Cabecera (fila 1 del XLS = col W a AS)
-  const headers = [...XI_COLS];
+      const filas = datosExportar.map(d => {
+        const xiCalc = calcXI(d);
+        const xi = {};
+        XI_COLS.forEach(col => {
+          xi[col] = (d[col] !== undefined && d[col] !== '') ? d[col] : xiCalc[col];
+        });
+        return XI_COLS.map(c => {
+          const val = xi[c] ?? '';
+          if (COLS_TEXTO.has(c)) return { v: String(val), t: 's', z: '@' };
+          if (COLS_NUM.has(c)) {
+            const n = parseFloat(val);
+            return isNaN(n) ? { v: '', t: 's' } : { v: n, t: 'n' };
+          }
+          return { v: String(val), t: 's' };
+        });
+      });
 
-  // Columnas que deben ser TEXTO con apóstrofe (forzar tipo string en XLS)
-  const COLS_TEXTO = new Set(['XIITYP','XIGLNO','XIMPKD1']);
-  // Columnas numéricas
-  const COLS_NUM   = new Set(['XIWGHT','XIVULI','XIVEN2','XSAFLG']);
+      const ws = XLSX.utils.aoa_to_sheet([
+        headers,
+        ...filas.map(row => row.map(c => c.v))
+      ]);
 
-  // Filas de datos
-  const filas = datosExportar.map(d => {
-    // Leer XI de la hoja primero; calcular lo que falte
-    const xiCalc = calcXI(d);
-    const xi = {};
-    XI_COLS.forEach(col => {
-      xi[col] = (d[col] !== undefined && d[col] !== '') ? d[col] : xiCalc[col];
-    });
-    return XI_COLS.map(c => {
-      const val = xi[c] ?? '';
-      if (COLS_TEXTO.has(c)) {
-        // Forzar texto — agregar apóstrofe si el valor es numérico puro
-        const s = String(val);
-        return { v: s, t: 's', z: '@' };
-      }
-      if (COLS_NUM.has(c)) {
-        const n = parseFloat(val);
-        return isNaN(n) ? { v: '', t: 's' } : { v: n, t: 'n' };
-      }
-      return { v: String(val), t: 's' };
-    });
-  });
-
-  // Construir hoja forzando todas las celdas con sus tipos
-  const ws = XLSX.utils.aoa_to_sheet([
-    headers,
-    ...filas.map(row => row.map(c => c.v))
-  ]);
-
-  // Aplicar formato texto (@) a columnas que lo requieren
-  const nRows = filas.length;
-  XI_COLS.forEach((col, ci) => {
-    if (COLS_TEXTO.has(col)) {
-      // Aplicar a toda la columna incluida cabecera
-      for (let ri = 0; ri <= nRows; ri++) {
-        const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
-        if (ws[addr]) {
-          ws[addr].t = 's';
-          ws[addr].z = '@';
+      const nRows = filas.length;
+      XI_COLS.forEach((col, ci) => {
+        if (COLS_TEXTO.has(col)) {
+          for (let ri = 0; ri <= nRows; ri++) {
+            const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
+            if (ws[addr]) { ws[addr].t = 's'; ws[addr].z = '@'; }
+          }
         }
-      }
-    }
-    if (COLS_NUM.has(col)) {
-      for (let ri = 1; ri <= nRows; ri++) {
-        const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
-        if (ws[addr] && filas[ri-1][ci].t === 'n') {
-          ws[addr].t = 'n';
+        if (COLS_NUM.has(col)) {
+          for (let ri = 1; ri <= nRows; ri++) {
+            const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
+            if (ws[addr] && filas[ri-1][ci].t === 'n') ws[addr].t = 'n';
+          }
         }
-      }
+      });
+
+      ws['!cols'] = headers.map(() => ({ wch: 18 }));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'IIMXLS');
+      const fecha = new Date().toISOString().slice(0,10).replace(/-/g,'');
+      XLSX.writeFile(wb, `IIMXLS_${fecha}.xls`, { bookType: 'xls' });
+      toast('Archivo XLS descargado', 'success');
+    } catch(e) {
+      toast('Error al exportar: ' + e.message, 'error');
+    } finally {
+      mostrarOverlay(false);
     }
-  });
-
-  // Ancho de columnas
-  ws['!cols'] = headers.map(() => ({ wch: 18 }));
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'IIMXLS');
-
-  const fecha = new Date().toISOString().slice(0,10).replace(/-/g,'');
-  XLSX.writeFile(wb, `IIMXLS_${fecha}.xls`, { bookType: 'xls' });
-  toast('Archivo XLS descargado', 'success');
+  }, 50); // ceder el hilo al navegador antes del procesamiento
 }
 
 // ══════════════════════════════════════════════════
@@ -1973,8 +2029,9 @@ function calcularPendientes() {
 let _notifData = {}; // cache para búsqueda
 
 function abrirNotificaciones() {
-  document.getElementById('modalNotif').style.display = 'flex';
-  document.getElementById('notifBuscar').value = '';
+  getEl('modalNotif').style.display = 'flex';
+  getEl('notifBuscar').value = '';
+  // _notifData ya fue calculado en actualizarBadgeNotif; no recalcular
   renderNotif('');
 }
 
@@ -2176,11 +2233,11 @@ function ximpkd1ToggleAll(e) {
 }
 
 // Búsqueda interna: filtra visualmente sin destruir selección
-function buscarMultiDrop(q) {
+const buscarMultiDrop = debounce(function(q) {
   const st = dropState['wrapFiltroXimpkd1']; if (!st) return;
   const filtrados = q ? st.items.filter(i => i.toUpperCase().includes(q.toUpperCase())) : st.items;
   renderListMulti('listFiltroXimpkd1', filtrados, st.selected);
-}
+}, 200);
 
 function actualizarBadgeNotif() {
   const data = calcularPendientes();
@@ -2205,11 +2262,12 @@ let seccionActual = 'tablero';
 const SECCIONES = ['tablero','productos','dimensiones','historial','marca','cuenta'];
 
 function cambiarSeccion(sec) {
+  if (seccionActual === sec) return; // no re-renderizar si ya está activa
   seccionActual = sec;
   SECCIONES.forEach(s => {
-    const div = document.getElementById('seccion-'+s);
+    const div = getEl('seccion-'+s);
     if (div) div.classList.toggle('hidden', s !== sec);
-    const nav = document.getElementById('nav-'+s);
+    const nav = getEl('nav-'+s);
     if (!nav) return;
     if (s === sec) {
       nav.classList.add('bg-primary','text-on-primary','shadow-sm');
@@ -2219,12 +2277,13 @@ function cambiarSeccion(sec) {
       nav.classList.add('text-on-surface-variant','hover:bg-surface-container-high');
     }
   });
-  const cp = document.getElementById('contenido-principal');
+  const cp = getEl('contenido-principal');
   if (cp) cp.className = sec==='tablero' ? 'flex-1 overflow-y-auto p-8 space-y-6' : 'flex-1 overflow-y-auto p-8';
-  if (sec==='productos'   && !datosInfo.length)     cargarInfo();
-  if (sec==='dimensiones' && !datosDatos.length)    cargarDatos_dim();
-  if (sec==='historial'   && !datosRegistro.length) cargarRegistro();
-  if (sec==='marca') { if(!datosMarca.length) cargarMarca(); else renderTablaMarca(marcaFiltradas.length?marcaFiltradas:datosMarca); }
+  // Lazy load: solo cargar si la sección no fue cargada aún
+  if (sec==='productos'   && !_seccionCargada.productos)   { cargarInfo();       _seccionCargada.productos = true; }
+  if (sec==='dimensiones' && !_seccionCargada.dimensiones) { cargarDatos_dim();  _seccionCargada.dimensiones = true; }
+  if (sec==='historial'   && !_seccionCargada.historial)   { cargarRegistro();   _seccionCargada.historial = true; }
+  if (sec==='marca')  { if(!datosMarca.length)  cargarMarca();  else renderTablaMarca(marcaFiltradas.length?marcaFiltradas:datosMarca); }
   if (sec==='cuenta') { if(!datosCuenta.length) cargarCuenta(); else renderTablaCuenta(cuentaFiltradas.length?cuentaFiltradas:datosCuenta); }
 }
 
@@ -2300,12 +2359,12 @@ function multiGenToggleAll(e, wrapId) {
   if (st.onFilterChange) st.onFilterChange();
 }
 
-function buscarMultiDropGen(wrapId, q) {
+const buscarMultiDropGen = debounce(function(wrapId, q) {
   const st = dropState[wrapId]; if (!st) return;
   const filtrados = q ? st.items.filter(i => i.toUpperCase().includes(q.toUpperCase())) : st.items;
   const listId = 'list' + wrapId.replace('wrap','');
   renderListMultiGen(listId, filtrados, st.selected, wrapId);
-}
+}, 200);
 
 function getMultiSel(wrapId) { return dropState[wrapId]?.selected || new Set(); }
 
@@ -2315,7 +2374,7 @@ function getMultiSel(wrapId) { return dropState[wrapId]?.selected || new Set(); 
 async function cargarInfo() {
   mostrarOverlay(true);
   try {
-    const csv = await fetchCSV(CONFIG.URL_INFO);
+    const csv = await fetchCSVCached(CONFIG.URL_INFO);
     const rows = parseCSV(csv);
     if (rows.length < 2) { datosInfo=[]; renderTablaProductos([]); return; }
     infoHeaders = rows[0].map(h=>(h||'').trim());
@@ -2405,7 +2464,7 @@ function exportarProductos() {
 async function cargarDatos_dim() {
   mostrarOverlay(true);
   try {
-    const csv=await fetchCSV(CONFIG.URL_DATOS);
+    const csv=await fetchCSVCached(CONFIG.URL_DATOS);
     const rows=parseCSV(csv);
     if(rows.length<2){datosDatos=[];renderTablaDimensiones([]);return;}
     datosHeaders=rows[0].slice(0,20).map(h=>(h||'').trim());
@@ -2493,7 +2552,7 @@ function exportarDimensiones() {
 async function cargarRegistro() {
   mostrarOverlay(true);
   try {
-    const csv=await fetchCSV(CONFIG.URL_REGISTRO);
+    const csv=await fetchCSVCached(CONFIG.URL_REGISTRO);
     const rows=parseCSV(csv);
     if(rows.length<2){datosRegistro=[];renderTablaHistorial([]);return;}
     const rawH=rows[0].map(h=>(h||'').trim());
@@ -2647,7 +2706,7 @@ async function confirmarSubir(){
 // ══════════════════════════════════════════════════
 async function cargarMarca() {
   try {
-    const csv = await fetchCSV(CONFIG.URL_MARCA);
+    const csv = await fetchCSVCached(CONFIG.URL_MARCA);
     const rows = parseCSV(csv);
     if (rows.length < 2) { datosMarca=[]; return; }
     marcaHeaders = rows[0].map(h=>(h||'').trim());
@@ -2707,7 +2766,7 @@ function exportarMarca() {
 // ══════════════════════════════════════════════════
 async function cargarCuenta() {
   try {
-    const csv = await fetchCSV(CONFIG.URL_CUENTA);
+    const csv = await fetchCSVCached(CONFIG.URL_CUENTA);
     const rows = parseCSV(csv);
     if (rows.length < 2) { datosCuenta=[]; return; }
     cuentaHeaders = rows[0].map(h=>(h||'').trim());
