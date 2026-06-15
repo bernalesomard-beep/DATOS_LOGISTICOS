@@ -676,9 +676,6 @@
         <span class="material-symbols-outlined">label</span>Marca
       </h2>
       <div class="flex gap-2">
-        <button onclick="togglePanelMarca()" class="flex items-center gap-2 px-4 py-2 bg-secondary text-on-secondary rounded-lg text-xs font-bold hover:bg-secondary/90 transition-all">
-          <span class="material-symbols-outlined text-[16px]">add</span>Agregar Marca
-        </button>
         <button onclick="exportarMarca()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
           <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
         </button>
@@ -708,18 +705,13 @@
         </div>
       </div>
       <!-- Panel lateral derecho: formulario Agregar Marca -->
-      <div id="panelMarca" class="hidden w-72 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-md overflow-hidden">
-        <div class="bg-primary text-on-primary px-5 py-3 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px]">label</span>
-            <div>
-              <p class="font-bold text-[14px]">Agregar Marca</p>
-              <p class="text-[11px] text-white/70">Asocia una marca a una cuenta</p>
-            </div>
+      <div id="panelMarca" class="w-72 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-md overflow-hidden">
+        <div class="bg-primary text-on-primary px-5 py-3 flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">label</span>
+          <div>
+            <p class="font-bold text-[14px]">Agregar Marca</p>
+            <p class="text-[11px] text-white/70">Asocia una marca a una cuenta</p>
           </div>
-          <button onclick="togglePanelMarca()" class="hover:bg-white/20 rounded-lg p-1 transition-all">
-            <span class="material-symbols-outlined text-[18px]">close</span>
-          </button>
         </div>
         <div class="p-5 space-y-4">
           <div>
@@ -735,7 +727,7 @@
           </div>
           <div id="marcaModalStatus" class="hidden text-xs font-bold text-center py-2 rounded-lg"></div>
           <div class="flex gap-3 pt-1">
-            <button onclick="togglePanelMarca()" class="flex-1 px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all text-sm">Cancelar</button>
+            <button onclick="limpiarPanelMarca()" class="flex-1 px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all text-sm">Limpiar</button>
             <button onclick="guardarMarca()" class="flex-1 px-4 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 text-sm">
               <span class="material-symbols-outlined text-[15px]">save</span>Guardar
             </button>
@@ -752,9 +744,6 @@
         <span class="material-symbols-outlined">account_balance_wallet</span>Cuenta
       </h2>
       <div class="flex gap-2">
-        <button onclick="togglePanelCuenta()" class="flex items-center gap-2 px-4 py-2 bg-secondary text-on-secondary rounded-lg text-xs font-bold hover:bg-secondary/90 transition-all">
-          <span class="material-symbols-outlined text-[16px]">add</span>Agregar Cuenta
-        </button>
         <button onclick="exportarCuenta()" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
           <span class="material-symbols-outlined text-[16px]">download</span>Exportar XLS
         </button>
@@ -784,18 +773,13 @@
         </div>
       </div>
       <!-- Panel lateral derecho: formulario Agregar Cuenta -->
-      <div id="panelCuenta" class="hidden w-72 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-md overflow-hidden">
-        <div class="bg-primary text-on-primary px-5 py-3 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
-            <div>
-              <p class="font-bold text-[14px]">Agregar Cuenta</p>
-              <p class="text-[11px] text-white/70">Define cuenta y código XIVEN2</p>
-            </div>
+      <div id="panelCuenta" class="w-72 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-md overflow-hidden">
+        <div class="bg-primary text-on-primary px-5 py-3 flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+          <div>
+            <p class="font-bold text-[14px]">Agregar Cuenta</p>
+            <p class="text-[11px] text-white/70">Define cuenta y código XIVEN2</p>
           </div>
-          <button onclick="togglePanelCuenta()" class="hover:bg-white/20 rounded-lg p-1 transition-all">
-            <span class="material-symbols-outlined text-[18px]">close</span>
-          </button>
         </div>
         <div class="p-5 space-y-4">
           <div>
@@ -815,7 +799,7 @@
           </div>
           <div id="cuentaModalStatus" class="hidden text-xs font-bold text-center py-2 rounded-lg"></div>
           <div class="flex gap-3 pt-1">
-            <button onclick="togglePanelCuenta()" class="flex-1 px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all text-sm">Cancelar</button>
+            <button onclick="limpiarPanelCuenta()" class="flex-1 px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all text-sm">Limpiar</button>
             <button onclick="guardarCuenta()" class="flex-1 px-4 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 text-sm">
               <span class="material-symbols-outlined text-[15px]">save</span>Guardar
             </button>
@@ -2868,38 +2852,33 @@ function exportarCuenta() {
 // ══════════════════════════════════════════════════
 //  MODAL AGREGAR MARCA
 // ══════════════════════════════════════════════════
-function abrirModalAgregarMarca() { togglePanelMarca(); }
-function cerrarModalAgregarMarca() { togglePanelMarca(false); }
-function abrirModalAgregarCuenta() { togglePanelCuenta(); }
-function cerrarModalAgregarCuenta() { togglePanelCuenta(false); }
+function abrirModalAgregarMarca() { limpiarPanelMarca(); }
+function cerrarModalAgregarMarca() { limpiarPanelMarca(); }
+function abrirModalAgregarCuenta() { limpiarPanelCuenta(); }
+function cerrarModalAgregarCuenta() { limpiarPanelCuenta(); }
 
-function togglePanelMarca(forceState) {
-  const panel = document.getElementById('panelMarca');
-  if (!panel) return;
-  const show = forceState !== undefined ? forceState : panel.classList.contains('hidden');
-  if (show) {
-    document.getElementById('marcaModalNombre').value = '';
-    document.getElementById('marcaModalStatus').classList.add('hidden');
-    sincronizarSelectsCuenta();
-    panel.classList.remove('hidden');
-  } else {
-    panel.classList.add('hidden');
-  }
+function togglePanelMarca(forceState) { limpiarPanelMarca(); }
+function togglePanelCuenta(forceState) { limpiarPanelCuenta(); }
+
+function limpiarPanelMarca() {
+  const n = document.getElementById('marcaModalNombre');
+  const c = document.getElementById('marcaModalCuenta');
+  const s = document.getElementById('marcaModalStatus');
+  if (n) n.value = '';
+  if (c) c.value = '';
+  if (s) s.classList.add('hidden');
+  sincronizarSelectsCuenta();
 }
 
-function togglePanelCuenta(forceState) {
-  const panel = document.getElementById('panelCuenta');
-  if (!panel) return;
-  const show = forceState !== undefined ? forceState : panel.classList.contains('hidden');
-  if (show) {
-    document.getElementById('cuentaModalNombre').value = '';
-    document.getElementById('cuentaModalXiven2').value = '';
-    document.getElementById('cuentaModalDesc').value = '';
-    document.getElementById('cuentaModalStatus').classList.add('hidden');
-    panel.classList.remove('hidden');
-  } else {
-    panel.classList.add('hidden');
-  }
+function limpiarPanelCuenta() {
+  const n = document.getElementById('cuentaModalNombre');
+  const x = document.getElementById('cuentaModalXiven2');
+  const d = document.getElementById('cuentaModalDesc');
+  const s = document.getElementById('cuentaModalStatus');
+  if (n) n.value = '';
+  if (x) x.value = '';
+  if (d) d.value = '';
+  if (s) s.classList.add('hidden');
 }
 
 function abrirModalPlantilla() {
@@ -2909,11 +2888,11 @@ function cerrarModalPlantilla() {
   document.getElementById('modalPlantilla').style.display = 'none';
 }
 function descargarPlantilla() {
-  const headers = ['REFERENCIA','FECHA','CUENTA','CÓDIGO DE PRODUCTO','DESCRIPCION','EAN 13'];
-  const ejemplo = [['OC-EJEMPLO','2026-06-14','DERMODIS','8056101','Descripción del producto','8056101']];
+  // Cabeceras exactas como aparecen en la hoja INFO del Sheet
+  const headers = ['REFERENCIA','FECHA','CUENTA','Código de producto','Descripcion','EAN 13'];
+  const ejemplo = [['OC-EJEMPLO','2026-06-14','DERMODIS','80750078','Descripción del producto','80750078']];
   const ws = XLSX.utils.aoa_to_sheet([headers, ...ejemplo]);
   ws['!cols'] = headers.map(() => ({ wch: 24 }));
-  // Estilo visual de cabecera (solo compatible con xlsx pro, pero el ancho aplica)
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Plantilla');
   XLSX.writeFile(wb, 'Plantilla_Productos.xls', { bookType: 'xls' });
@@ -2939,7 +2918,7 @@ async function guardarMarca() {
       status.textContent='Marca guardada correctamente';
       toast('Marca guardada','success');
       setTimeout(async ()=>{
-        togglePanelMarca(false);
+        limpiarPanelMarca();
         await cargarMarca();
         if(!document.getElementById('seccion-marca').classList.contains('hidden')) renderTablaMarca(datosMarca);
       },1200);
@@ -2977,14 +2956,14 @@ async function guardarCuenta() {
   status.className='text-xs font-bold text-center py-2 rounded-lg bg-primary/10 text-primary';
   status.textContent='Guardando...'; status.classList.remove('hidden');
   try {
-    const res = await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'saveCuenta',nombre,xiven2,descripcion:desc})});
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'saveCuenta',cuenta:nombre,xiven2,descripcion:desc})});
     const json = await res.json();
     if(json.ok){
       status.className='text-xs font-bold text-center py-2 rounded-lg bg-green-50 text-green-700';
       status.textContent='Cuenta guardada correctamente';
       toast('Cuenta guardada','success');
       setTimeout(async ()=>{
-        togglePanelCuenta(false);
+        limpiarPanelCuenta();
         await cargarCuenta();
         if(!document.getElementById('seccion-cuenta').classList.contains('hidden')) renderTablaCuenta(datosCuenta);
       },1200);
