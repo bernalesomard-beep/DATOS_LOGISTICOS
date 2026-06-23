@@ -274,8 +274,8 @@
           <div>
             <label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Código de Artículo</label>
             <div class="cdrop-wrap" id="wrapFormCod">
-              <button class="cdrop-btn" onclick="toggleDrop('wrapFormCod')" id="btnFormCod" disabled>
-                <span class="cdrop-label" id="labelFormCod">Seleccione referencia primero...</span>
+              <button class="cdrop-btn" onclick="toggleDrop('wrapFormCod')" id="btnFormCod">
+                <span class="cdrop-label" id="labelFormCod">Buscar código de artículo...</span>
                 <span class="material-symbols-outlined cdrop-arrow">expand_more</span>
               </button>
               <div class="cdrop-panel" style="z-index:400;">
@@ -1190,6 +1190,9 @@ async function cargarSheet1() {
 
   renderTablaLineas(datosSheet1);
   _buildIndexSheet1(); // construir índice de búsqueda optimizado
+
+  // Poblar dropdown de código del formulario con TODOS los códigos (sin necesidad de elegir referencia antes)
+  _poblarDropCodTodos();
 }
 
 // ══════════════════════════════════════════════════
@@ -1386,6 +1389,16 @@ function _buscarEnDrop(wrapId, q) {
 const buscarEnDrop = debounce(_buscarEnDrop, 200);
 
 // ══════════════════════════════════════════════════
+//  HELPERS DROPDOWN CÓDIGO (sin bloqueo por referencia)
+// ══════════════════════════════════════════════════
+function _poblarDropCodTodos() {
+  const cods = [...new Set(datosSheet1.map(d=>d.codigo).filter(Boolean))].sort();
+  poblarDropRadio('wrapFormCod','listFormCod', cods, (cod) => {
+    seleccionarCodigoFormulario(cod);
+  });
+}
+
+// ══════════════════════════════════════════════════
 //  SELECCIÓN REFERENCIA FORMULARIO
 // ══════════════════════════════════════════════════
 function seleccionarReferenciaFormulario(ref) {
@@ -1406,8 +1419,7 @@ function seleccionarReferenciaFormulario(ref) {
 
   // Poblar dropdown de código filtrado por esta referencia
   const cods = [...new Set(datosSheet1.filter(d=>d.referencia===ref).map(d=>d.codigo))];
-  const btnCod = document.getElementById('btnFormCod');
-  btnCod.disabled = false;
+  document.getElementById('btnFormCod').disabled = false;
   document.getElementById('labelFormCod').textContent = 'Seleccione código...';
   codigoSeleccionado = null;
   document.getElementById('campoDescripcion').value = '';
@@ -1422,22 +1434,53 @@ function seleccionarReferenciaFormulario(ref) {
 
 function seleccionarCodigoFormulario(cod) {
   codigoSeleccionado = cod;
-  document.getElementById('labelFormCod').textContent = cod || 'Seleccione código...';
+  document.getElementById('labelFormCod').textContent = cod || 'Buscar código de artículo...';
   if (!cod) { document.getElementById('campoDescripcion').value=''; document.getElementById('campoEan').value=''; return; }
-  const match = datosSheet1.find(d=>d.referencia===referenciaSeleccionada && d.codigo===cod);
+
+  // Buscar primero respetando la referencia ya seleccionada; si no hay, buscar en todos
+  let match = referenciaSeleccionada
+    ? datosSheet1.find(d=>d.referencia===referenciaSeleccionada && d.codigo===cod)
+    : null;
+  if (!match) match = datosSheet1.find(d=>d.codigo===cod);
+
   if (match) {
     document.getElementById('campoDescripcion').value = match.descripcion;
     document.getElementById('campoEan').value         = match.ean13;
+
+    // Autocompletar Referencia si no estaba seleccionada
+    if (!referenciaSeleccionada && match.referencia) {
+      referenciaSeleccionada = match.referencia;
+      document.getElementById('labelFormRef').textContent = match.referencia;
+      if (dropState['wrapFormRef']) dropState['wrapFormRef'].current = match.referencia;
+      // Actualizar el drop de referencia para reflejar la selección
+      renderListRadio('listFormRef', dropState['wrapFormRef']?.items||[], match.referencia, dropState['wrapFormRef']?.onSelect, 'wrapFormRef');
+    }
+
+    // Autocompletar Cuenta si no estaba seleccionada
+    if (match.cuenta) {
+      const selCuenta = document.getElementById('campoCuenta');
+      if (!selCuenta.value) {
+        selCuenta.value = match.cuenta;
+      }
+    }
+
+    // Autocompletar fecha si no está puesta
+    if (match.fecha) {
+      const campoFecha = document.getElementById('campoFecha');
+      if (!campoFecha.value) campoFecha.value = match.fecha;
+    }
   }
 }
 
 function resetCamposCodigo() {
   codigoSeleccionado = null;
   const btn = document.getElementById('btnFormCod');
-  if(btn) btn.disabled = true;
-  document.getElementById('labelFormCod').textContent = 'Seleccione referencia primero...';
+  if(btn) btn.disabled = false;
+  document.getElementById('labelFormCod').textContent = 'Buscar código de artículo...';
   document.getElementById('campoDescripcion').value = '';
   document.getElementById('campoEan').value = '';
+  // Repoblar con todos los códigos disponibles
+  _poblarDropCodTodos();
 }
 
 // ══════════════════════════════════════════════════
