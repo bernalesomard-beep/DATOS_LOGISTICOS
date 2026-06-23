@@ -404,6 +404,19 @@
               <option value="">— Todas —</option>
             </select>
           </div>
+          <div class="flex flex-col gap-1 min-w-[200px]" style="position:relative;z-index:61;">
+            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Referencia</label>
+            <div class="cdrop-wrap" id="wrapFiltroResRef">
+              <button class="cdrop-btn !py-2 !text-[12px]" onclick="toggleDrop('wrapFiltroResRef')">
+                <span class="cdrop-label" id="labelFiltroResRef">Todas...</span>
+                <span class="material-symbols-outlined cdrop-arrow !text-[16px]">expand_more</span>
+              </button>
+              <div class="cdrop-panel" style="z-index:700;">
+                <div class="cdrop-search-box"><input class="cdrop-search" placeholder="Buscar referencia..." type="text" oninput="buscarEnDrop('wrapFiltroResRef',this.value)"/></div>
+                <div class="cdrop-list" id="listFiltroResRef" style="max-height:200px;overflow-y:auto;"></div>
+              </div>
+            </div>
+          </div>
           <div class="flex flex-col gap-1 min-w-[200px]">
             <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">XIMPKD1 (Códigos)</label>
             <div class="cdrop-wrap" id="wrapFiltroXimpkd1">
@@ -1210,9 +1223,8 @@ async function cargarSheet2() {
     const rawHeaders = rows[0].map(h => (h||'').trim().toUpperCase());
     const seenCount  = {};
     // Mapa de nombre canónico según cabecera real + orden de aparición
-    const DUPLICADAS = {'LAR':['LAR_UNI','LAR_CAJA'], 'ANC':['ANC_UNI','ANC_CAJA'],
-                        'ALT':['ALT_UNI','ALT_CAJA'], 'PESO':['PES_UNI','PES_CAJA']};
-    // Alias para cabeceras que pueden venir con nombres distintos
+    const DUPLICADAS = {}; // Ya no se usan duplicadas genéricas; se mapea por alias exacto
+    // Alias para cabeceras — incluye nombres exactos del Sheet (col H a O)
     const ALIAS = {
       // Código
       'CÓDIGO DE PRODUCTO':'CODIGO','CODIGO DE PRODUCTO':'CODIGO',
@@ -1223,13 +1235,26 @@ async function cargarSheet2() {
       'DESCRIPCION':'DESCRIPCION','DESCRIPCIÓN':'DESCRIPCION',
       // Ingresado por
       'INGRESADO_POR':'INGRESADO_POR','INGRESADO POR':'INGRESADO_POR',
-      // Paletización — nombres exactos de la hoja
+      // ── Dimensiones Unidad (col H-K) — nombres exactos del Sheet ──
+      'LAR (CM) UN':'LAR_UNI','LAR (CM)UN':'LAR_UNI','LAR(CM) UN':'LAR_UNI','LAR(CM)UN':'LAR_UNI',
+      'ANC (CM) UN':'ANC_UNI','ANC (CM)UN':'ANC_UNI','ANC(CM) UN':'ANC_UNI','ANC(CM)UN':'ANC_UNI',
+      'ALT (CM) UN':'ALT_UNI','ALT (CM)UN':'ALT_UNI','ALT(CM) UN':'ALT_UNI','ALT(CM)UN':'ALT_UNI',
+      'PESO (KG) UN':'PES_UNI','PESO (KG)UN':'PES_UNI','PESO(KG) UN':'PES_UNI','PESO(KG)UN':'PES_UNI',
+      // ── Dimensiones Caja (col L-O) — nombres exactos del Sheet ──
+      'LAR (CM) CJ':'LAR_CAJA','LAR (CM)CJ':'LAR_CAJA','LAR(CM) CJ':'LAR_CAJA','LAR(CM)CJ':'LAR_CAJA',
+      'ANC (CM) CJ':'ANC_CAJA','ANC (CM)CJ':'ANC_CAJA','ANC(CM) CJ':'ANC_CAJA','ANC(CM)CJ':'ANC_CAJA',
+      'ALT (CM) CJ':'ALT_CAJA','ALT (CM)CJ':'ALT_CAJA','ALT(CM) CJ':'ALT_CAJA','ALT(CM)CJ':'ALT_CAJA',
+      'PESO (KG) CJ':'PES_CAJA','PESO (KG)CJ':'PES_CAJA','PESO(KG) CJ':'PES_CAJA','PESO(KG)CJ':'PES_CAJA',
+      // ── Fallback legacy (nombres cortos por si acaso) ──
+      'LAR_UNI':'LAR_UNI','ANC_UNI':'ANC_UNI','ALT_UNI':'ALT_UNI','PES_UNI':'PES_UNI',
+      'LAR_CAJA':'LAR_CAJA','ANC_CAJA':'ANC_CAJA','ALT_CAJA':'ALT_CAJA','PES_CAJA':'PES_CAJA',
+      // Paletización
       'CAJA X PALETA':'CAJA_P','CAJA_P':'CAJA_P','CAJA/P':'CAJA_P','CAJA P':'CAJA_P',
       'UNID X PALETA':'UNID_P','UNID_P':'UNID_P','UNID/P':'UNID_P','UNID P':'UNID_P',
       // Campos simples
       'FECHA':'FECHA','CUENTA':'CUENTA','REFERENCIA':'REFERENCIA',
       'MARCA':'MARCA','FE':'FE','CAMA':'CAMA','NIVEL':'NIVEL','TIMESTAMP':'TIMESTAMP',
-      // Columnas XI — mapear por nombre exacto de cabecera
+      // Columnas XI
       'XIID':'XIID','XIPROD':'XIPROD','XIDESC':'XIDESC','XICLAS':'XICLAS',
       'XIUMS':'XIUMS','XIITYP':'XIITYP','XIVEN2':'XIVEN2','XIDSCE':'XIDSCE',
       'XIWGHT':'XIWGHT','XSAFLG':'XSAFLG','XIVULI':'XIVULI','XIWHS':'XIWHS',
@@ -1239,16 +1264,9 @@ async function cargarSheet2() {
     };
 
     const colMap = rawHeaders.map(h => {
-      // Cabeceras duplicadas
-      const base = h.replace(/\s*\(.*?\)/g,'').replace(/(?<![_A-Z])UNI$|(?<![_A-Z])CAJA$/,'').trim(); // quitar "(cm)", "(kg)", sufijos "uni"/"caja" pegados
-      if (DUPLICADAS[base]) {
-        seenCount[base] = (seenCount[base]||0);
-        const canon = DUPLICADAS[base][seenCount[base]] || (base + '_' + seenCount[base]);
-        seenCount[base]++;
-        return canon;
-      }
-      // Alias directo
-      return ALIAS[h] || ALIAS[base] || h;
+      // Normalizar: quitar espacios extra, paréntesis internos no son removidos
+      const hNorm = h.trim().toUpperCase();
+      return ALIAS[hNorm] || hNorm;
     });
 
     datosSheet2 = rows.slice(1)
@@ -1268,6 +1286,7 @@ async function cargarSheet2() {
     renderTablaResultados(datosSheet2);
     actualizarBadgeNotif();
     inicializarFiltroXimpkd1();
+    inicializarFiltroResRef();
   } catch(e) {
     console.warn('Sheet2:', e.message);
     datosSheet2=[]; renderTablaResultados([]);
@@ -1461,6 +1480,8 @@ function seleccionarCodigoFormulario(cod) {
       const selCuenta = document.getElementById('campoCuenta');
       if (!selCuenta.value) {
         selCuenta.value = match.cuenta;
+        // Disparar actualización de marcas igual que si el usuario eligiera la cuenta manualmente
+        actualizarMarcasPorCuenta(match.cuenta);
       }
     }
 
@@ -1638,11 +1659,12 @@ function calcXI(d) {
   // XIWGHT — peso unidad, máx 3 decimales
   const xiwght = pesUni > 0 ? parseFloat(pesUni.toFixed(3)) : '';
 
-  // XIVULI — LAR*ANC*ALT unidad, mín 0.01, máx 2 decimales
+  // XIVULI — LAR*ANC*ALT unidad en cm³ ÷ 1,000,000 → m³, 6 decimales
   let xivuli = '';
   if (larUni > 0 && ancUni > 0 && altUni > 0) {
-    const vol = larUni * ancUni * altUni;
-    xivuli = parseFloat(Math.max(vol, 0.01).toFixed(2));
+    const volCm3 = larUni * ancUni * altUni;
+    const volM3  = volCm3 / 1000000;
+    xivuli = parseFloat(Math.max(volM3, 0.000001).toFixed(6));
   }
 
   return {
@@ -1717,12 +1739,22 @@ function renderTablaResultados(datos) {
   actualizarConteoSeleccionados();
 }
 
+function inicializarFiltroResRef() {
+  const refs = [...new Set(datosSheet2.map(d=>(d['REFERENCIA']||'').trim()).filter(Boolean))].sort();
+  poblarDropRadio('wrapFiltroResRef','listFiltroResRef', refs, (v) => {
+    if (dropState['wrapFiltroResRef']) dropState['wrapFiltroResRef'].current = v || null;
+    document.getElementById('labelFiltroResRef').textContent = v || 'Todas...';
+    filtrarTablaResultados();
+  });
+}
+
 function _filtrarTablaResultados() {
   const q      = (getEl('filtroResultados').value||'').toUpperCase();
   const ini    = getEl('filtroResIni').value || '';
   const fin    = getEl('filtroResFin').value || '';
   const cuenta = (getEl('filtroResCuenta').value||'').toUpperCase();
   const codsSeleccionados = dropState['wrapFiltroXimpkd1']?.selected || new Set();
+  const refSel = dropState['wrapFiltroResRef']?.current || null;
 
   const filtrado = datosSheet2.filter(d => {
     const fecha = d['FECHA'] || '';
@@ -1731,34 +1763,43 @@ function _filtrarTablaResultados() {
     const passCuenta   = !cuenta || (d['CUENTA']||'').toUpperCase().includes(cuenta);
     const codVal = (d['XIMPKD1'] || d['CODIGO'] || '').trim();
     const passXimpkd1  = codsSeleccionados.size === 0 || codsSeleccionados.has(codVal);
+    const passRef      = !refSel || (d['REFERENCIA']||'').trim() === refSel;
     const passQ        = !q || Object.values(d).some(v=>String(v).toUpperCase().includes(q));
-    return passFechaIni && passFechaFin && passCuenta && passXimpkd1 && passQ;
+    return passFechaIni && passFechaFin && passCuenta && passXimpkd1 && passRef && passQ;
   });
   filasFiltradas = filtrado;
   renderTablaResultados(filtrado);
 }
 const filtrarTablaResultados = debounce(_filtrarTablaResultados, 200);
 
-// Al cambiar cuenta en Resultados → filtrar códigos XIMPKD1 disponibles para esa cuenta
+// Al cambiar cuenta en Resultados → filtrar refs y códigos disponibles para esa cuenta
 function onCambiarCuentaResultados() {
   const cuenta = (document.getElementById('filtroResCuenta').value||'').toUpperCase();
   // Filtrar códigos que pertenecen a esa cuenta
-  let codigosDisp;
+  let codigosDisp, refsDisp;
   if (!cuenta) {
     codigosDisp = [...new Set(datosSheet2.map(d=>(d['XIMPKD1']||d['CODIGO']||'').trim()).filter(Boolean))].sort();
+    refsDisp    = [...new Set(datosSheet2.map(d=>(d['REFERENCIA']||'').trim()).filter(Boolean))].sort();
   } else {
-    codigosDisp = [...new Set(
-      datosSheet2.filter(d=>(d['CUENTA']||'').toUpperCase().includes(cuenta))
-                 .map(d=>(d['XIMPKD1']||d['CODIGO']||'').trim()).filter(Boolean)
-    )].sort();
+    const filtradas = datosSheet2.filter(d=>(d['CUENTA']||'').toUpperCase().includes(cuenta));
+    codigosDisp = [...new Set(filtradas.map(d=>(d['XIMPKD1']||d['CODIGO']||'').trim()).filter(Boolean))].sort();
+    refsDisp    = [...new Set(filtradas.map(d=>(d['REFERENCIA']||'').trim()).filter(Boolean))].sort();
   }
-  // Repoblar el dropdown de XIMPKD1 con solo los códigos de esa cuenta
+  // Repoblar XIMPKD1
   const st = dropState['wrapFiltroXimpkd1'];
   if (st) {
     st.items = codigosDisp;
     st.selected = new Set();
     renderListMulti('listFiltroXimpkd1', codigosDisp, st.selected);
     document.getElementById('labelFiltroXimpkd1').textContent = 'Todos los códigos...';
+  }
+  // Repoblar Referencia
+  const stRef = dropState['wrapFiltroResRef'];
+  if (stRef) {
+    stRef.items   = refsDisp;
+    stRef.current = null;
+    renderListRadio('listFiltroResRef', refsDisp, null, stRef.onSelect, 'wrapFiltroResRef');
+    document.getElementById('labelFiltroResRef').textContent = 'Todas...';
   }
   filtrarTablaResultados();
 }
@@ -1770,6 +1811,13 @@ function limpiarFiltrosResultados() {
   document.getElementById('filtroResultados').value = '';
   // Limpiar dropdown XIMPKD1
   ximpkd1ToggleAll();
+  // Limpiar dropdown Referencia
+  const stRef = dropState['wrapFiltroResRef'];
+  if (stRef) {
+    stRef.current = null;
+    renderListRadio('listFiltroResRef', stRef.items||[], null, stRef.onSelect, 'wrapFiltroResRef');
+    document.getElementById('labelFiltroResRef').textContent = 'Todas...';
+  }
   filasFiltradas = datosSheet2;
   renderTablaResultados(datosSheet2);
 }
