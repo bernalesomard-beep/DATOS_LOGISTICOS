@@ -2683,17 +2683,29 @@ function renderTablaProductos(datos) {
   document.getElementById('theadProd').innerHTML = `<tr class="bg-primary/95 text-on-primary text-[11px] font-bold uppercase tracking-widest sticky top-0">
     <th class="px-3 py-3 border-r border-white/10"><input type="checkbox" id="chkTodosProd" onchange="toggleTodosChk('chk-prod',this)" class="w-4 h-4 rounded accent-white cursor-pointer"/></th>
     ${infoHeaders.map(h=>`<th class="px-4 py-3 border-r border-white/10 whitespace-nowrap">${escHtml(h)}</th>`).join('')}
+    <th class="px-4 py-3 text-center whitespace-nowrap">ACCIÓN</th>
   </tr>`;
   if (!datos.length) {
-    document.getElementById('tbodyProd').innerHTML=`<tr><td colspan="${infoHeaders.length+1}" class="px-6 py-6 text-center text-outline italic">Sin registros</td></tr>`; return;
+    document.getElementById('tbodyProd').innerHTML=`<tr><td colspan="${infoHeaders.length+2}" class="px-6 py-6 text-center text-outline italic">Sin registros</td></tr>`; return;
   }
+  // Detectar columnas clave dinámicamente
+  const hCod  = infoHeaders.find(h=>h.toUpperCase().includes('CÓDIGO')||h.toUpperCase().includes('CODIGO')||h.toUpperCase().includes('PRODUCT'))||infoHeaders[3];
+  const hRef  = infoHeaders.find(h=>h.toUpperCase().includes('REFERENCIA'))||infoHeaders[0];
+  const hDesc = infoHeaders.find(h=>h.toUpperCase().includes('DESC'))||infoHeaders[4]||'';
   document.getElementById('tbodyProd').innerHTML = datos.map((d,i)=>{
-    const idx=datosInfo.indexOf(d);
+    const idx  = datosInfo.indexOf(d);
+    const cod  = escHtml(d[hCod]||'');
+    const ref  = escHtml(d[hRef]||'');
+    const desc = escHtml(d[hDesc]||'');
     return `<tr class="${i%2===0?'bg-white':'bg-surface-container-low/20'} hover:bg-primary/5 transition-colors">
       <td class="px-3 py-2 border-r border-outline-variant/30 text-center">
         <input type="checkbox" class="chk-prod w-4 h-4 rounded accent-primary cursor-pointer" data-idx="${idx}" onchange="actualizarConteoChk('chk-prod','countProdSel')"/>
       </td>
       ${infoHeaders.map(h=>`<td class="px-4 py-2 border-r border-outline-variant/30 whitespace-nowrap">${escHtml(d[h]||'')}</td>`).join('')}
+      <td class="px-4 py-2 text-center">
+        <button onclick="confirmarEliminarProducto('${ref}','${cod}','${desc}')"
+          class="material-symbols-outlined text-error text-[17px] hover:scale-110 transition-transform" title="Eliminar producto">delete</button>
+      </td>
     </tr>`;
   }).join('');
   const chk=document.getElementById('chkTodosProd'); if(chk) chk.checked=false;
