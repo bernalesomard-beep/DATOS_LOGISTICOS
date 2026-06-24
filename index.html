@@ -905,6 +905,36 @@
   </div>
 </div>
 
+<!-- MODAL ELIMINAR PRODUCTO -->
+<div id="modalEliminarProd" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/50" style="display:none">
+  <div class="bg-white rounded-2xl shadow-2xl w-[400px] max-w-[95vw] flex flex-col overflow-hidden">
+    <div class="bg-error text-on-error px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-[22px]">delete_forever</span>
+        <h3 class="font-bold text-[16px]">Eliminar Producto</h3>
+      </div>
+      <button onclick="cerrarModalEliminarProd()" class="hover:bg-white/20 rounded-lg p-1"><span class="material-symbols-outlined text-[20px]">close</span></button>
+    </div>
+    <div class="p-6 space-y-4">
+      <p class="text-sm text-on-surface">¿Eliminar el producto <strong id="modalEliminarProdInfo"></strong>? Esta acción no se puede deshacer.</p>
+      <div>
+        <label class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">PIN de seguridad</label>
+        <input id="inputPinEliminarProd" type="password" maxlength="6"
+          class="mt-1 w-full border border-outline-variant rounded-lg px-3 py-2 text-center tracking-widest text-lg focus:ring-1 focus:ring-error focus:border-error outline-none"
+          placeholder="● ● ● ●" oninput="this.value=this.value.replace(/\D/g,'')"
+          onkeydown="if(event.key==='Enter') validarPinEliminarProd()"/>
+        <p id="pinEliminarProdError" class="hidden text-xs text-error font-bold mt-1.5 text-center">PIN incorrecto. Acceso denegado.</p>
+      </div>
+      <div class="flex justify-end gap-3">
+        <button onclick="cerrarModalEliminarProd()" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container transition-all">Cancelar</button>
+        <button onclick="validarPinEliminarProd()" class="px-5 py-2 rounded-lg bg-error text-on-error font-bold hover:bg-error/90 transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">delete</span>Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL ELIMINAR MARCA -->
 <div id="modalEliminarMarca" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/50" style="display:none">
   <div class="bg-white rounded-2xl shadow-2xl w-[400px] max-w-[95vw] flex flex-col overflow-hidden">
@@ -1120,6 +1150,7 @@ const CONFIG = {
   URL_REGISTRO: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=391348869&single=true&output=csv',
   URL_MARCA:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=738417331&single=true&output=csv',
   URL_CUENTA:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxnze2cxDwDRukVvISmjo2ZkNYAMfsY7d1a3vXrDIvzgLe4e0KKF1OcvT2VzkOvqEddiWwcv7ktOzw/pub?gid=371189916&single=true&output=csv',
+  PIN_ELIMINAR: '2026',
 };
 
 // ══════════════════════════════════════════════════
@@ -1659,18 +1690,24 @@ function renderTablaLineas(datos) {
       <td class="px-5 py-2 border-r border-outline-variant/30 font-mono text-xs">${escHtml(d.ean13)}</td>
       <td class="px-5 py-2 border-r border-outline-variant/30 text-xs text-outline">${escHtml(d.fecha)}</td>
       <td class="px-5 py-2 text-center">
-        <button data-ref="${escHtml(d.referencia)}" data-cod="${escHtml(d.codigo)}"
-          class="btn-edit-linea material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform">edit</button>
+        <div class="flex items-center justify-center gap-2">
+          <button data-ref="${escHtml(d.referencia)}" data-cod="${escHtml(d.codigo)}"
+            class="btn-edit-linea material-symbols-outlined text-primary text-[17px] hover:scale-110 transition-transform" title="Editar">edit</button>
+          <button data-ref="${escHtml(d.referencia)}" data-cod="${escHtml(d.codigo)}" data-desc="${escHtml(d.descripcion)}"
+            class="btn-del-linea material-symbols-outlined text-error text-[17px] hover:scale-110 transition-transform" title="Eliminar">delete</button>
+        </div>
       </td>
     </tr>`).join('');
   frag.appendChild(tpl.content);
   tbody.replaceChildren(frag);
   // Delegación de eventos en lugar de onclick inline
   tbody.onclick = function(e) {
-    const btn = e.target.closest('.btn-edit-linea');
-    const tr  = e.target.closest('tr[data-ref]');
-    if (btn) { e.stopPropagation(); cargarEnFormulario(btn.dataset.ref, btn.dataset.cod); return; }
-    if (tr)  { cargarEnFormulario(tr.dataset.ref, tr.dataset.cod); }
+    const btnEdit = e.target.closest('.btn-edit-linea');
+    const btnDel  = e.target.closest('.btn-del-linea');
+    const tr      = e.target.closest('tr[data-ref]');
+    if (btnEdit) { e.stopPropagation(); cargarEnFormulario(btnEdit.dataset.ref, btnEdit.dataset.cod); return; }
+    if (btnDel)  { e.stopPropagation(); confirmarEliminarProducto(btnDel.dataset.ref, btnDel.dataset.cod, btnDel.dataset.desc); return; }
+    if (tr)      { cargarEnFormulario(tr.dataset.ref, tr.dataset.cod); }
   };
 }
 
@@ -2041,6 +2078,47 @@ async function confirmarEliminar() {
     toast(json.ok?'Registro eliminado':'Error: '+json.msg, json.ok?'success':'error');
     if(json.ok) { delete _fetchCache[CONFIG.URL_SHEET2]; setTimeout(()=>cargarSheet2(),800); }
   } catch(e){ toast('Error de conexión','error'); }
+  finally { mostrarOverlay(false); }
+}
+
+// ══════════════════════════════════════════════════
+//  ELIMINAR PRODUCTO (Sheet1)
+// ══════════════════════════════════════════════════
+let _prodEliminarRef = null, _prodEliminarCod = null;
+function confirmarEliminarProducto(ref, cod, desc) {
+  _prodEliminarRef = ref;
+  _prodEliminarCod = cod;
+  document.getElementById('modalEliminarProdInfo').textContent = `${cod} — ${desc||''}`;
+  document.getElementById('inputPinEliminarProd').value = '';
+  document.getElementById('pinEliminarProdError').classList.add('hidden');
+  document.getElementById('modalEliminarProd').style.display = 'flex';
+}
+function cerrarModalEliminarProd() {
+  document.getElementById('modalEliminarProd').style.display = 'none';
+  _prodEliminarRef = null; _prodEliminarCod = null;
+}
+async function validarPinEliminarProd() {
+  const pin = document.getElementById('inputPinEliminarProd').value;
+  if (pin !== CONFIG.PIN_ELIMINAR) {
+    document.getElementById('pinEliminarProdError').classList.remove('hidden');
+    document.getElementById('inputPinEliminarProd').value = '';
+    document.getElementById('inputPinEliminarProd').focus();
+    return;
+  }
+  const ref = _prodEliminarRef, cod = _prodEliminarCod;
+  cerrarModalEliminarProd();
+  mostrarOverlay(true);
+  try {
+    const res  = await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'deleteProducto', referencia:ref, codigo:cod})});
+    const json = await res.json();
+    toast(json.ok?'Producto eliminado':'Error: '+(json.msg||'No se pudo eliminar'), json.ok?'success':'error');
+    if (json.ok) {
+      delete _fetchCache[CONFIG.URL_SHEET1];
+      await cargarSheet1();
+      filtrarTablaLineas();
+      _poblarDropCodTodos();
+    }
+  } catch(e) { toast('Error de conexión: '+e.message,'error'); }
   finally { mostrarOverlay(false); }
 }
 
